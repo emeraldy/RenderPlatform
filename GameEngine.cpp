@@ -14,7 +14,7 @@
 //-----------------------------------------------------------------
 
 BOOL ISWINDOWED = TRUE;
-BOOL USED3D9 = FALSE;
+BOOL USED3D11 = TRUE;
 int OPENGLMAJORVERSION = 4;
 int OPENGLMINORVERSION = 0;
 GameEngine* GameEngine::m_pGameEngine = NULL;
@@ -104,7 +104,9 @@ GameEngine::GameEngine(HINSTANCE hInstance, LPTSTR szWindowClass,
             m_szTitle = L"default title";
     }
     else
+    {
         m_szTitle = L"default title";
+    }
 
     m_wIcon = wIcon;
     m_wSmallIcon = wSmallIcon;
@@ -114,19 +116,24 @@ GameEngine::GameEngine(HINSTANCE hInstance, LPTSTR szWindowClass,
     m_fSleep = TRUE;
     m_fWindowed = ISWINDOWED;
 
-    m_pD3D11Renderer = NULL;
-    m_pOpenGLRenderer = NULL;
+    m_appPaused = false;
+    m_minimised = false;
+    m_maxmised = false;
+    m_resizing = false;
 
-    m_pResourceManager = NULL;
+    m_pD3D11Renderer = nullptr;
+    m_pOpenGLRenderer = nullptr;
+
+    m_pResourceManager = nullptr;
 }
 
 GameEngine::~GameEngine()
 {
     SAFE_DELETEARRAY(m_szWindowClass);
     SAFE_DELETEARRAY(m_szTitle);
-    SAFE_DELETE(m_pD3D9Renderer);
+    SAFE_DELETE(m_pD3D11Renderer);
 
-    if (!USED3D9 && !ISWINDOWED)//opengl full screen
+    if (!USED3D11 && !ISWINDOWED)//opengl full screen
     {
         ChangeDisplaySettings(NULL, 0);//set back to the desktop
     }
@@ -162,7 +169,7 @@ BOOL GameEngine::Initialise(int iCmdShow)
 
     //opengl full screen
     DWORD dwWindowStyle;
-    if (!USED3D9 && !ISWINDOWED)
+    if (!USED3D11 && !ISWINDOWED)
     {
         DEVMODE dmScreenSettings;                               // Device Mode
         memset(&dmScreenSettings, 0, sizeof(dmScreenSettings)); // Makes Sure Memory's Cleared
@@ -204,7 +211,7 @@ BOOL GameEngine::Initialise(int iCmdShow)
         return FALSE;
 
     //Initiate the renderer
-    if (USED3D9)
+    if (USED3D11)
     {
         m_pD3D11Renderer = new D3D11Renderer;
         if (m_pD3D11Renderer == NULL)
@@ -276,41 +283,41 @@ LRESULT GameEngine::HandleEvent(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lP
 
             if (wParam == SIZE_MINIMIZED)
             {
-                mAppPaused = true;
-                mMinimized = true;
-                mMaximized = false;
+                m_appPaused = true;
+                m_minimised = true;
+                m_maxmised = false;
             }
             else if (wParam == SIZE_MAXIMIZED)
             {
-                mAppPaused = false;
-                mMinimized = false;
-                mMaximized = true;
+                m_appPaused = false;
+                m_minimised = false;
+                m_maxmised = true;
                 m_pD3D11Renderer->OnWindowResize(m_clientWidth, m_clientHeight);
             }
             else if (wParam == SIZE_RESTORED)
             {
-                // Restoring from minimized state?
-                if (mMinimized)
+                if (m_minimised)// Restoring from minimised state?
                 {
-                    mAppPaused = false;
-                    mMinimized = false;
+                    m_appPaused = false;
+                    m_minimised = false;
                     m_pD3D11Renderer->OnWindowResize(m_clientWidth, m_clientHeight);
                 }
-
-                // Restoring from maximized state?
-                else if (mMaximized)
+                else if (m_maxmised)// Restoring from maximised state?
                 {
-                    mAppPaused = false;
-                    mMaximized = false;
+                    m_appPaused = false;
+                    m_maxmised = false;
                     m_pD3D11Renderer->OnWindowResize(m_clientWidth, m_clientHeight);
                 }
-                else if (mResizing)
+                else if (m_resizing)
                 {
                     //wait for user done dragging the resize handler
                 }
                 else // API call such as SetWindowPos or mSwapChain->SetFullscreenState.
                 {
-                    m_pD3D11Renderer->OnWindowResize(m_clientWidth, m_clientHeight);
+                    if (m_pD3D11Renderer != nullptr)
+                    {
+                        m_pD3D11Renderer->OnWindowResize(m_clientWidth, m_clientHeight);
+                    }
                 }
             }
             return 0;

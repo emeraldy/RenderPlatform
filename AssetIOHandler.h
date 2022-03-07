@@ -27,21 +27,21 @@
 
 class AssetIOHandler
 {
-	protected:
-		BYTE*       m_pbBuffer;
-		DWORD       m_dwBufferSize;//in byte, of course
+protected:
+    BYTE* m_pbBuffer;
+    DWORD       m_dwBufferSize;//in byte, of course
 
-	public:
-		//Constructor/Destructor
-		AssetIOHandler();
-		~AssetIOHandler();
+public:
+    //Constructor/Destructor
+    AssetIOHandler();
+    ~AssetIOHandler();
 
-		//General class functions
-		BOOL LoadAsset(LPCWSTR lpcwFileName);
+    //General class functions
+    BOOL LoadAsset(LPCWSTR lpcwFileName);
 
-		//Accessors
-		const BYTE*   GetBuffer() { return m_pbBuffer; }
-		void          SetBuffer(BYTE* pbNewBuffer) { SAFE_DELETEARRAY(m_pbBuffer); m_pbBuffer = pbNewBuffer; }//test this!!!!!!!!!!!!
-		DWORD         GetBufferSize() { return m_dwBufferSize; }
-		void          SetBufferSize(DWORD dwNewSize) { m_dwBufferSize = dwNewSize; }
+    //Accessors
+    const BYTE*   GetBuffer() { return m_pbBuffer; }
+    void          SetBuffer(BYTE* pbNewBuffer) { SAFE_DELETEARRAY(m_pbBuffer); m_pbBuffer = pbNewBuffer; }//test this!!!!!!!!!!!!
+    DWORD         GetBufferSize() { return m_dwBufferSize; }
+    void          SetBufferSize(DWORD dwNewSize) { m_dwBufferSize = dwNewSize; }
 };

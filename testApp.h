@@ -2,7 +2,7 @@
 
 #include "GameEngine.h"
 
-GameEngine *engine_ptr;
+GameEngine* engine_ptr;
 
 //-----------------------------------------------------------------
 //macros and data structure definitions for D3D
@@ -14,8 +14,8 @@ GameEngine *engine_ptr;
 
 struct GameVertexFormat
 {
-	FLOAT x,y,z,rhw;
-	DWORD colour;
+    DirectX::XMFLOAT3 position;
+    DirectX::XMFLOAT3 colour;
 };
 
 //-----------------------------------------------------------------
@@ -34,3 +34,5 @@ float fTriangle[9]; // Data to render triangle (3 vertices, each has 3 floats)
 float fQuad[12]; // Data to render quad using triangle strips (4 vertices, each has 3 floats)
 float fTriangleColour[9];
 float fQuadColour[12];
+
+

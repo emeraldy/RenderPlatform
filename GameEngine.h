@@ -8,6 +8,7 @@
 // Include Files
 //-----------------------------------------------------------------
 #include <windows.h>
+#include <DirectXMath.h>
 #include "D3D11Renderer.h"
 #include "OpenGLRenderer.h"
 #include "ResourceManager.h"
@@ -30,15 +31,10 @@ void GameActivate(HWND hWindow);
 void GameDeactivate(HWND hWindow);
 HRESULT GamePaint();//rendering
 void GameCycle();//game control logic
-BOOL GamePreDeviceReset();//things to do before resetting a lost d3d device
-BOOL GamePostDeviceReset();//things to do after resetting a lost d3d device
 
 //-----------------------------------------------------------------
 // Macros Definition
 //-----------------------------------------------------------------
-#define SAFE_DELETE(p) {if(p) {delete p; p = nullptr;}}
-#define SAFE_DELETEARRAY(p) {if(p) {delete[] p; p = nullptr;}}
-#define RELEASECOM(x) { if(x) { x->Release(); x = nullptr; } }
 
 
 
@@ -48,7 +44,6 @@ BOOL GamePostDeviceReset();//things to do after resetting a lost d3d device
 class GameEngine
 {
     protected:
-        // Member Variables
         static GameEngine*     m_pGameEngine;
         HINSTANCE              m_hInstance;
         HWND                   m_hWindow;
@@ -60,6 +55,13 @@ class GameEngine
         BOOL                   m_fSleep;
         BOOL                   m_fWindowed;
 
+        //window size states
+        bool                   m_appPaused;
+        bool                   m_minimised;
+        bool                   m_maxmised;
+        bool                   m_resizing;
+
+        //subsystems
         D3D11Renderer*    m_pD3D11Renderer;
         OpenGLRenderer*   m_pOpenGLRenderer;
 

@@ -21,6 +21,9 @@ D3D11Renderer::D3D11Renderer()
 
 D3D11Renderer::~D3D11Renderer()
 {
+    RELEASECOM(m_pRenderTargetView);
+    RELEASECOM(m_pDepthStencilView);
+    RELEASECOM(m_pSwapChain);
     RELEASECOM(m_pD3D11ImmediateContext);
     RELEASECOM(m_pD3D11Device);
 }
@@ -35,8 +38,6 @@ BOOL D3D11Renderer::Initialise(HWND hWindow, int winWidth, int winHeight)
     #endif
 
     D3D_FEATURE_LEVEL featureLevel;
-    ID3D11Device* pDevice;
-    ID3D11DeviceContext* pContext;
     HRESULT hr = D3D11CreateDevice(
             0,                 // default adapter
             D3D_DRIVER_TYPE_HARDWARE,
@@ -44,9 +45,9 @@ BOOL D3D11Renderer::Initialise(HWND hWindow, int winWidth, int winHeight)
             createDeviceFlags,
             0, 0,              // default feature level array
             D3D11_SDK_VERSION,
-            &pDevice,
+            &m_pD3D11Device,
             &featureLevel,
-            &pContext);
+            &m_pD3D11ImmediateContext);
 
     if (FAILED(hr))
     {
@@ -54,15 +55,11 @@ BOOL D3D11Renderer::Initialise(HWND hWindow, int winWidth, int winHeight)
         return false;
     }
 
-    if (featureLevel != D3D_FEATURE_LEVEL_11_0 || featureLevel != D3D_FEATURE_LEVEL_11_1)
+    if (featureLevel != D3D_FEATURE_LEVEL_11_0 && featureLevel != D3D_FEATURE_LEVEL_11_1)
     {
         MessageBox(0, L"Direct3D Feature Level 11 unsupported.", 0, 0);
         return false;
     }
-
-    //have to convert base pointer to derived (ID3D11Device -> ID3D11Device4, etc.)
-    m_pD3D11Device = dynamic_cast<ID3D11Device4*>(pDevice);
-    m_pD3D11ImmediateContext = dynamic_cast<ID3D11DeviceContext4*>(pContext);
 
     // Check 4X MSAA quality support for our back buffer format.
     UINT msaaQuality;
@@ -70,7 +67,7 @@ BOOL D3D11Renderer::Initialise(HWND hWindow, int winWidth, int winHeight)
     assert(msaaQuality > 0);
 
     // Fill out a DXGI_SWAP_CHAIN_DESC to describe our swap chain.
-    DXGI_SWAP_CHAIN_DESC swapChainDesc = {};
+    DXGI_SWAP_CHAIN_DESC swapChainDesc {};
     swapChainDesc.BufferDesc.Width = winWidth;
     swapChainDesc.BufferDesc.Height = winHeight;
     swapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
@@ -98,62 +95,60 @@ BOOL D3D11Renderer::Initialise(HWND hWindow, int winWidth, int winHeight)
     swapChainDesc.Flags = 0;
 
     // Create the swap chain via COM hierarchy
-    IDXGIDevice4* dxgiDevice = nullptr;
-    hr = m_pD3D11Device->QueryInterface(__uuidof(IDXGIDevice4), (void**)&dxgiDevice);
+    IDXGIDevice* pdxgiDevice = nullptr;
+    hr = m_pD3D11Device->QueryInterface(__uuidof(IDXGIDevice), (void**)&pdxgiDevice);
     if (FAILED(hr))
     {
         MessageBox(0, L"Obtain DXGIDevice Failed.", 0, 0);
         return false;
     }
 
-    IDXGIAdapter3* dxgiAdapter = nullptr;
-    hr = dxgiDevice->GetParent(__uuidof(IDXGIAdapter3), (void**)&dxgiAdapter);
+    IDXGIAdapter* pdxgiAdapter = nullptr;
+    hr = pdxgiDevice->GetParent(__uuidof(IDXGIAdapter), (void**)&pdxgiAdapter);
     if (FAILED(hr))
     {
         MessageBox(0, L"Obtain DXGIAdapter Failed.", 0, 0);
         goto failExit;
     }
 
-    IDXGIFactory5* dxgiFactory = nullptr;
-    hr = dxgiAdapter->GetParent(__uuidof(IDXGIFactory5), (void**)&dxgiFactory);
+    IDXGIFactory* pdxgiFactory = nullptr;
+    hr = pdxgiAdapter->GetParent(__uuidof(IDXGIFactory), (void**)&pdxgiFactory);
     if (FAILED(hr))
     {
         MessageBox(0, L"Obtain DXGIFactory Failed.", 0, 0);
         goto failExit;
     }
 
-    IDXGISwapChain* pSwapChain;
-    hr = dxgiFactory->CreateSwapChain(m_pD3D11Device, &swapChainDesc, &pSwapChain);
+    hr = pdxgiFactory->CreateSwapChain(m_pD3D11Device, &swapChainDesc, &m_pSwapChain);
     if (FAILED(hr))
     {
         MessageBox(0, L"Obtain DXGISwapChain Failed.", 0, 0);
         goto failExit;
     }
-    m_pSwapChain = dynamic_cast<IDXGISwapChain4*>(pSwapChain);
 
-    RELEASECOM(dxgiDevice);
-    RELEASECOM(dxgiAdapter);
-    RELEASECOM(dxgiFactory);
+    RELEASECOM(pdxgiDevice);
+    RELEASECOM(pdxgiAdapter);
+    RELEASECOM(pdxgiFactory);
 
     OnWindowResize(winWidth, winHeight);
 
     return true;
 
 failExit:
-    RELEASECOM(dxgiDevice);
-    RELEASECOM(dxgiAdapter);
-    RELEASECOM(dxgiFactory);
+    RELEASECOM(pdxgiDevice);
+    RELEASECOM(pdxgiAdapter);
+    RELEASECOM(pdxgiFactory);
     return false;
 }
 
 void D3D11Renderer::OnWindowResize(int winWidth, int winHeight)
 {
     // Clear the previous window size specific context.
-    ID3D11RenderTargetView* nullViews[] = { nullptr };
+    ID3D11RenderTargetView* nullViews[] {nullptr};
     m_pD3D11ImmediateContext->OMSetRenderTargets(ARRAYSIZE(nullViews), nullViews, nullptr);
     RELEASECOM(m_pRenderTargetView);
     RELEASECOM(m_pDepthStencilView);
-    m_pD3D11ImmediateContext->Flush1(D3D11_CONTEXT_TYPE_ALL, nullptr);
+    m_pD3D11ImmediateContext->Flush();
 
     // Resize the swap chain and recreate the render target view.
     HRESULT hr = m_pSwapChain->ResizeBuffers(1, winWidth, winHeight, DXGI_FORMAT_R8G8B8A8_UNORM, 0);
@@ -164,23 +159,24 @@ void D3D11Renderer::OnWindowResize(int winWidth, int winHeight)
     }
 
     // Create the render target buffer and view.
-    ID3D11Texture2D1* backBuffer;
-    hr = m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D1), reinterpret_cast<void**>(&backBuffer));
+    ID3D11Texture2D* pBackBuffer = nullptr;
+    hr = m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&pBackBuffer));
     if (FAILED(hr))
     {
         MessageBox(0, L"Obtain Render Target Failed.", 0, 0);
+        goto failExit;
     }
 
-    hr = m_pD3D11Device->CreateRenderTargetView1(backBuffer, 0, &m_pRenderTargetView);
+    hr = m_pD3D11Device->CreateRenderTargetView(pBackBuffer, 0, &m_pRenderTargetView);
     if (FAILED(hr))
     {
         MessageBox(0, L"Obtain Render Target View Failed.", 0, 0);
+        goto failExit;
     }
-    RELEASECOM(backBuffer);
 
     // Create the depth/stencil buffer and view.
-    ID3D11Texture2D1* depthStencilBuffer;
-    D3D11_TEXTURE2D_DESC1 depthStencilDesc = {};
+    ID3D11Texture2D* pDepthStencilBuffer = nullptr;
+    D3D11_TEXTURE2D_DESC depthStencilDesc = {};
     DXGI_SWAP_CHAIN_DESC swapChainDesc;
     
     m_pSwapChain->GetDesc(&swapChainDesc);
@@ -196,21 +192,18 @@ void D3D11Renderer::OnWindowResize(int winWidth, int winHeight)
     depthStencilDesc.CPUAccessFlags = 0;
     depthStencilDesc.MiscFlags = 0;
 
-    hr = m_pD3D11Device->CreateTexture2D1(&depthStencilDesc, 0, &depthStencilBuffer);
+    hr = m_pD3D11Device->CreateTexture2D(&depthStencilDesc, 0, &pDepthStencilBuffer);
     if (FAILED(hr))
     {
         MessageBox(0, L"Create Depth Stencil Failed.", 0, 0);
+        goto failExit;
     }
-    hr = m_pD3D11Device->CreateDepthStencilView(depthStencilBuffer, 0, &m_pDepthStencilView);
+    hr = m_pD3D11Device->CreateDepthStencilView(pDepthStencilBuffer, 0, &m_pDepthStencilView);
     if (FAILED(hr))
     {
         MessageBox(0, L"Create Depth Stencil View Failed.", 0, 0);
+        goto failExit;
     }
-    RELEASECOM(depthStencilBuffer);
-
-    // Bind the render target view and depth/stencil view to the pipeline.
-    m_pD3D11ImmediateContext->OMSetRenderTargets(1, &m_pRenderTargetView, m_pDepthStencilView);
-
 
     // Set the viewport transform.
     m_screenViewport.TopLeftX = 0;
@@ -221,4 +214,8 @@ void D3D11Renderer::OnWindowResize(int winWidth, int winHeight)
     m_screenViewport.MaxDepth = 1.0f;
 
     m_pD3D11ImmediateContext->RSSetViewports(1, &m_screenViewport);
+
+failExit:
+    RELEASECOM(pBackBuffer);
+    RELEASECOM(pDepthStencilBuffer);
 }

@@ -36,6 +36,10 @@ ResourceManager::ResourceManager()
     }
     m_iCurrentGLSLEffectResourceIndex = 0;
 
+    //HLSL shader pool initialisation
+    m_HLSLShaderCodes.insert(std::pair<std::string, ID3D10Blob*>("SampleVertexShader", nullptr));
+    m_HLSLShaderCodes.insert(std::pair<std::string, ID3D10Blob*>("SamplePixelShader", nullptr));
+
     //mesh pool initialisation
     m_iMeshResourceCount = 2;
     m_pMeshResources = new Mesh[m_iMeshResourceCount];
@@ -67,6 +71,9 @@ ResourceManager::~ResourceManager()
 
     //release GLSL effect pool
     DestroyGLSLEffectPool();
+
+    //release HLSL shader pool
+    DestroyHLSLShaderPool();
 
     //relese mesh pool
     for (int i = 0; i < m_iMeshResourceCount; i++)
@@ -127,17 +134,6 @@ int ResourceManager::GenerateTextResource(LPCWSTR lpcwFileName, LPCWSTR lpcwType
     m_iCurrentTextResourceIndex++;
     return m_iCurrentTextResourceIndex - 1;//return the index for this text in the pool
 }
-
-void ResourceManager::DestroyGLSLEffectPool()
-{
-    for (int i = 0; i < m_iGLSLEffectResourceCount; i++)
-    {
-        SAFE_DELETEARRAY(m_pGLSLEffectResources[i].pGLSLShaders);
-        SAFE_DELETEARRAY(m_pGLSLEffectResources[i].lppwAttribNames);
-    }
-    SAFE_DELETEARRAY(m_pGLSLEffectResources);
-}
-
 int ResourceManager::GenerateGLSLEffectResource(GLSLShader* pglsRequiredShaders, int iRequiredShaderCount, LPWSTR lpwToName, LPWSTR* lppwAttribs, int iAttribNum)
 {
     if (m_iCurrentGLSLEffectResourceIndex > m_iGLSLEffectResourceCount - 1)
@@ -170,7 +166,48 @@ int ResourceManager::GenerateGLSLEffectResource(GLSLShader* pglsRequiredShaders,
     m_iCurrentGLSLEffectResourceIndex++;
     return m_iCurrentGLSLEffectResourceIndex - 1;//return the inexe for this GLSL effect in the pool
 }
+HRESULT ResourceManager::GenerateHLSLShaderResource()
+{
+    ID3D10Blob* pShaderBlob = nullptr;
+    ID3D10Blob* pErrorBlob = nullptr;
 
+    HRESULT hr = D3DCompileFromFile(L"SampleVertexShader.hlsl", NULL, NULL, "main", "vs_5_0",
+        0, 0, &pShaderBlob, &pErrorBlob);
+    if (FAILED(hr))
+    {
+        if (pErrorBlob)
+        {
+            MessageBoxA(0, (const char*)pErrorBlob->GetBufferPointer(), "VertexShaderError", 0);
+        }
+        RELEASECOM(pShaderBlob);
+        RELEASECOM(pErrorBlob);
+
+        return hr;
+    }
+    RELEASECOM(m_HLSLShaderCodes["SampleVertexShader"]);
+    m_HLSLShaderCodes["SampleVertexShader"] = pShaderBlob;
+    RELEASECOM(pErrorBlob);
+
+    hr = D3DCompileFromFile(L"SamplePixelShader.hlsl", NULL, NULL, "main", "ps_5_0",
+        0, 0, &pShaderBlob, &pErrorBlob);
+    if (FAILED(hr))
+    {
+        if (pErrorBlob)
+        {
+            MessageBoxA(0, (const char*)pErrorBlob->GetBufferPointer(), "PixelShaderError", 0);
+        }
+        RELEASECOM(pShaderBlob);
+        RELEASECOM(pErrorBlob);
+
+        return hr;
+    }
+
+    RELEASECOM(m_HLSLShaderCodes["SamplePixelShader"]);
+    m_HLSLShaderCodes["SamplePixelShader"] = pShaderBlob;
+    RELEASECOM(pErrorBlob);
+    
+    return hr;
+}
 int ResourceManager::GenerateMeshResource(Mesh* pMeshData)
 {
     if (m_iCurrentMeshResourceIndex > m_iMeshResourceCount - 1)
@@ -355,4 +392,32 @@ int ResourceManager::GenerateTexture2DResource(LPCWSTR lpcwFileName, LPCWSTR lpc
         return -1;
     }
 }
-
+ID3D10Blob* ResourceManager::GetHLSLShader(std::string name)
+{
+    auto targetIterator = m_HLSLShaderCodes.find(name);
+    if (targetIterator != m_HLSLShaderCodes.end())
+    {
+        return targetIterator->second;
+    }
+    else
+    {
+        return nullptr;
+    }
+}
+void ResourceManager::DestroyGLSLEffectPool()
+{
+    for (int i = 0; i < m_iGLSLEffectResourceCount; i++)
+    {
+        SAFE_DELETEARRAY(m_pGLSLEffectResources[i].pGLSLShaders);
+        SAFE_DELETEARRAY(m_pGLSLEffectResources[i].lppwAttribNames);
+    }
+    SAFE_DELETEARRAY(m_pGLSLEffectResources);
+}
+void ResourceManager::DestroyHLSLShaderPool()
+{
+    for (auto it = m_HLSLShaderCodes.begin(); it != m_HLSLShaderCodes.end(); ++it)
+    {
+        RELEASECOM(it->second);
+    }
+    m_HLSLShaderCodes.clear();
+}

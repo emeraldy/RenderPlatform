@@ -1,83 +1,116 @@
 #include"testApp.h"
 
-extern BOOL USED3D9;
-void SetupD3D9Rendering(HWND hWindow)
+using namespace DirectX;
+extern BOOL USED3D11;
+
+BOOL SetupD3D11Rendering(HWND hWindow)
 {
-    if (!(engine_ptr->GetD3D9Renderer()->EnumDisplayModes(D3DFMT_X8R8G8B8, engine_ptr->GetWindowed())))//full screen, X8=8 bits unknown
+    ID3D11Device* pDevice = engine_ptr->GetD3D11Renderer()->GetDevice();
+    if (pDevice == nullptr)
     {
-        MessageBox(hWindow, TEXT("display modes not found for the given D3DFORMAT"), TEXT("ERROR"), MB_OK | MB_ICONEXCLAMATION);
-        exit(0);
+        MessageBox(0, L"D3D11 Device Does Not Exist", 0, 0);
+        return FALSE;
     }
 
-    //set resolution, the highest one supported
-    D3DDISPLAYMODE* pDisplayModes = engine_ptr->GetD3D9Renderer()->GetDisplayModes();
-    engine_ptr->SetHeight(pDisplayModes[engine_ptr->GetD3D9Renderer()->GetDisplayModeCount() - 1].Height);
-    engine_ptr->SetWidth(pDisplayModes[engine_ptr->GetD3D9Renderer()->GetDisplayModeCount() - 1].Width);
-
-    //fill in present parameters
-    ZeroMemory(engine_ptr->GetD3D9Renderer()->GetPresentParam(), sizeof(D3DPRESENT_PARAMETERS));
-    engine_ptr->GetD3D9Renderer()->GetPresentParam()->BackBufferFormat = pDisplayModes[engine_ptr->GetD3D9Renderer()->GetDisplayModeCount() - 1].Format;
-    engine_ptr->GetD3D9Renderer()->GetPresentParam()->BackBufferHeight = engine_ptr->GetHeight();
-    engine_ptr->GetD3D9Renderer()->GetPresentParam()->BackBufferWidth = engine_ptr->GetWidth();
-    engine_ptr->GetD3D9Renderer()->GetPresentParam()->BackBufferCount = 1;
-    engine_ptr->GetD3D9Renderer()->GetPresentParam()->SwapEffect = D3DSWAPEFFECT_DISCARD;
-    engine_ptr->GetD3D9Renderer()->GetPresentParam()->hDeviceWindow = hWindow;
-    engine_ptr->GetD3D9Renderer()->GetPresentParam()->Windowed = engine_ptr->GetWindowed();
-    engine_ptr->GetD3D9Renderer()->GetPresentParam()->EnableAutoDepthStencil = TRUE;
-    engine_ptr->GetD3D9Renderer()->GetPresentParam()->AutoDepthStencilFormat = D3DFMT_D16;
-
-    //create the d3d device
-    if (!(engine_ptr->GetD3D9Renderer()->CreateD3DDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWindow, D3DCREATE_HARDWARE_VERTEXPROCESSING)))
+    //vertex data
+    GameVertexFormat triangleMesh[] =
     {
-        MessageBox(hWindow, TEXT("error in creating D3D device"), TEXT("ERROR"), MB_OK | MB_ICONEXCLAMATION);
-        exit(0);
+        {XMFLOAT3(-0.5f, -0.5f, 0.5f), XMFLOAT3(0.0f, 0.0f, 0.0f)},
+        {XMFLOAT3( 0.0f,  0.5f, 0.5f), XMFLOAT3(0.0f, 0.0f, 1.0f)},
+        {XMFLOAT3( 0.5f, -0.5f, 0.5f), XMFLOAT3(0.0f, 1.0f, 0.0f)}
+    };
+    D3D11_SUBRESOURCE_DATA vertexData{};
+    vertexData.pSysMem = triangleMesh;
+    vertexData.SysMemPitch = 0;
+    vertexData.SysMemSlicePitch = 0;
+
+    //vertex buffer
+    D3D11_BUFFER_DESC vertexBufferDesc{};
+    vertexBufferDesc.ByteWidth = sizeof(triangleMesh);
+    vertexBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
+    vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+    vertexBufferDesc.CPUAccessFlags = 0;
+    
+    Microsoft::WRL::ComPtr<ID3D11Buffer> pVertexBuffer;
+    pDevice->CreateBuffer(&vertexBufferDesc, &vertexData, pVertexBuffer.GetAddressOf());
+
+    //load shaders and compile them
+    HRESULT hr = engine_ptr->GetResourceManager()->GenerateHLSLShaderResource();
+    if (FAILED(hr))
+    {
+        MessageBox(0, L"Load HLSL Shaders Failed", 0, 0);
+        return FALSE;
     }
 
-    //create a vertex buffer
-    if (!(engine_ptr->GetD3D9Renderer()->CreateVertexBuffer(VERTEXNUMBER * sizeof(GameVertexFormat), D3DUSAGE_WRITEONLY | D3DUSAGE_DYNAMIC,
-        GAMEVERTEXFORMAT, D3DPOOL_DEFAULT)))
+    //vertex buffer layout description
+    D3D11_INPUT_ELEMENT_DESC vbElementDesc[] =
     {
-        MessageBox(hWindow, TEXT("error in creating vertex buffer"), TEXT("ERROR"), MB_OK | MB_ICONEXCLAMATION);
-        exit(0);
+        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,
+          0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+
+        { "COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT,
+          0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+    };
+    Microsoft::WRL::ComPtr<ID3D11InputLayout> pInputLayout;
+    ID3D10Blob* pShaderCode = engine_ptr->GetResourceManager()->GetHLSLShader("SampleVertexShader");
+    if (pShaderCode == nullptr)
+    {
+        MessageBox(0, L"Sample Vertex Shader Does Not Exist", 0, 0);
+        return FALSE;
+    }
+    hr = pDevice->CreateInputLayout(
+        vbElementDesc,
+        2,
+        pShaderCode->GetBufferPointer(),
+        pShaderCode->GetBufferSize(),
+        pInputLayout.GetAddressOf());
+    if (FAILED(hr))
+    {
+        MessageBox(0, L"Create Input Layout Failed.", 0, 0);
+        return FALSE;
     }
 
-    //fill the vertex buffer,since now it is just a demo,a static quad,the filling code only needs to type once here.
-    GameVertexFormat* buffer;
-    if (FAILED(engine_ptr->GetD3D9Renderer()->GetD3DVertexBuffer()->Lock(0, 0, (VOID**)&buffer, D3DLOCK_DISCARD)))
+    //create vertex shader object
+    Microsoft::WRL::ComPtr<ID3D11VertexShader> pVertexShader;
+    pDevice->CreateVertexShader(pShaderCode->GetBufferPointer(),
+        pShaderCode->GetBufferSize(), NULL, pVertexShader.GetAddressOf());
+
+    //create pixel shader object
+    pShaderCode = engine_ptr->GetResourceManager()->GetHLSLShader("SamplePixelShader");
+    if (pShaderCode == nullptr)
     {
-        MessageBox(hWindow, TEXT("error in filling vertex buffer"), TEXT("ERROR"), MB_OK | MB_ICONEXCLAMATION);
-        exit(0);
+        MessageBox(0, L"Sample Pixel Shader Does Not Exist", 0, 0);
+        return FALSE;
     }
+    Microsoft::WRL::ComPtr<ID3D11PixelShader> pPixelShader;
+    pDevice->CreatePixelShader(pShaderCode->GetBufferPointer(),
+        pShaderCode->GetBufferSize(), NULL, pPixelShader.GetAddressOf());
 
-    for (long Index = 0; Index < VERTEXNUMBER; Index++)
-    {
-        float Angle = 2.0f * D3DX_PI * (float)Index / VERTEXNUMBER;
+    //prep IA
+    ID3D11DeviceContext* pContext = engine_ptr->GetD3D11Renderer()->GetDeviceContext();
 
-        //mind that d3d uses left hand system so clockwise is front face (back face by default gets culled)
-        buffer[0].x = engine_ptr->GetWidth() / 2;
-        buffer[0].y = engine_ptr->GetHeight() / 2;
-        buffer[0].z = 1;
-        buffer[0].colour = 0xffffffff;
+    ID3D11Buffer* pVertexBuffers[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT]{};
+    UINT strides[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT]{};
+    UINT offsets[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT]{};
 
-        buffer[1].x = 50 + engine_ptr->GetWidth() / 2;
-        buffer[1].y = engine_ptr->GetHeight() / 2;
-        buffer[1].z = 1;
-        buffer[1].colour = 0xffffffff;
+    pVertexBuffers[0] = pVertexBuffer.Get();
+    strides[0] = sizeof(GameVertexFormat);
+    pContext->IASetVertexBuffers(0, 1, pVertexBuffers, strides, offsets);
 
-        buffer[2].x = engine_ptr->GetWidth() / 2;
-        buffer[2].y = engine_ptr->GetHeight() / 2 + 100;
-        buffer[2].z = 1;
-        buffer[2].colour = 0xffffffff;
-    }
+    pContext->IASetInputLayout(pInputLayout.Get());
 
-    engine_ptr->GetD3D9Renderer()->GetD3DVertexBuffer()->Unlock();
+    pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    //set the FVF for the device
-    engine_ptr->GetD3D9Renderer()->GetD3DDevice()->SetFVF(GAMEVERTEXFORMAT);
-    //set the stream source for the device
-    engine_ptr->GetD3D9Renderer()->GetD3DDevice()->SetStreamSource(0, engine_ptr->GetD3D9Renderer()->GetD3DVertexBuffer(), 0, sizeof(GameVertexFormat));
+    pContext->VSSetShader(pVertexShader.Get(), nullptr, 0);
+
+    pContext->PSSetShader(pPixelShader.Get(), nullptr, 0);
+
+    // Bind the render target view and depth/stencil view to the pipeline.
+    ID3D11RenderTargetView* pRenderTargetViews[]{ engine_ptr->GetD3D11Renderer()->GetRenderTargetView() };
+    pContext->OMSetRenderTargets(ARRAYSIZE(pRenderTargetViews), pRenderTargetViews, engine_ptr->GetD3D11Renderer()->GetDepthStencilView());
+
+    return TRUE;
 }
-
 int CreateGLSLEffectResource_PassThru()
 {
     //instruct resource manager to create glsl effect resource needed for the game
@@ -230,8 +263,6 @@ int LoadMesh()
     engine_ptr->GetOpenGLRenderer()->CreateVAO(iOR_VAOQuad);
 
     return 1;//temporary return value for success
-
-
 }
 BOOL GameInitialise(HINSTANCE hInstance) {
     engine_ptr = new GameEngine(hInstance, TEXT("Game Skeleton"), TEXT("Game Skeleton"), NULL, NULL);
@@ -242,9 +273,9 @@ BOOL GameInitialise(HINSTANCE hInstance) {
 }
 void GameStart(HWND hWindow)
 {
-    if (USED3D9)
+    if (USED3D11)
     {
-        SetupD3D9Rendering(hWindow);
+        SetupD3D11Rendering(hWindow);
     }
     else//use opengl
     {
@@ -281,19 +312,31 @@ void GameStart(HWND hWindow)
         }
     }
 }
-void GameEnd() { SAFE_DELETE(engine_ptr); }
+void GameEnd() 
+{ 
+    SAFE_DELETE(engine_ptr); 
+}
 void GameActivate(HWND hWindow) {}
 void GameDeactivate(HWND hWindow) {}
 HRESULT GamePaint()
 {
-    if (USED3D9)
+    if (USED3D11)
     {
-        engine_ptr->GetD3D9Renderer()->GetD3DDevice()->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0, 1, 0);
-        engine_ptr->GetD3D9Renderer()->GetD3DDevice()->BeginScene();
-        engine_ptr->GetD3D9Renderer()->GetD3DDevice()->DrawPrimitive(D3DPT_TRIANGLELIST, 0, VERTEXNUMBER / 3);
-        engine_ptr->GetD3D9Renderer()->GetD3DDevice()->EndScene();
+        ID3D11DeviceContext* pDeviceContext = engine_ptr->GetD3D11Renderer()->GetDeviceContext();
+        const float teal[] = { 0.098f, 0.439f, 0.439f, 1.000f };
+        pDeviceContext->ClearRenderTargetView(
+            engine_ptr->GetD3D11Renderer()->GetRenderTargetView(),
+            teal
+        );
+        pDeviceContext->ClearDepthStencilView(
+            engine_ptr->GetD3D11Renderer()->GetDepthStencilView(),
+            D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
+            1.0f,
+            0);
+        pDeviceContext->Draw(3, 0);
+        engine_ptr->GetD3D11Renderer()->GetSwapChain()->Present(0, 0);
 
-        return engine_ptr->GetD3D9Renderer()->GetD3DDevice()->Present(NULL, NULL, NULL, NULL);
+        return S_OK;
     }
     else//use opengl
     {
@@ -303,67 +346,5 @@ HRESULT GamePaint()
 }
 void GameCycle()
 {
-    if (USED3D9)
-    {
-        if (D3DERR_DEVICELOST == GamePaint())//device lost detected after rendering
-        {
-            GamePreDeviceReset();
-            engine_ptr->GetD3D9Renderer()->RestoreDevice();
-            GamePostDeviceReset();
-        }
-    }
-    else//use opengl
-    {
-        GamePaint();
-    }
-}
-BOOL GamePreDeviceReset()
-{
-    if ((engine_ptr->GetD3D9Renderer()->GetD3DVertexBuffer()) != NULL)
-    {
-        engine_ptr->GetD3D9Renderer()->GetD3DVertexBuffer()->Release();
-        engine_ptr->GetD3D9Renderer()->SetD3DVertexBuffer(NULL);
-    }
-
-    return TRUE;
-}
-BOOL GamePostDeviceReset()
-{
-    //create a vertex buffer
-    if (!(engine_ptr->GetD3D9Renderer()->CreateVertexBuffer(VERTEXNUMBER * sizeof(GameVertexFormat), D3DUSAGE_WRITEONLY | D3DUSAGE_DYNAMIC,
-        GAMEVERTEXFORMAT, D3DPOOL_DEFAULT)))
-    {
-        MessageBox(engine_ptr->GetWindow(), TEXT("error in creating vertex buffer"), TEXT("ERROR"), MB_OK | MB_ICONEXCLAMATION);
-        exit(0);
-    }
-    //fill the vertex buffer,since now it is just a demo,a static quad,the filling code only needs to type once here.
-    GameVertexFormat* buffer;
-    if (FAILED(engine_ptr->GetD3D9Renderer()->GetD3DVertexBuffer()->Lock(0, 0, (VOID**)&buffer, D3DLOCK_DISCARD)))
-    {
-        MessageBox(engine_ptr->GetWindow(), TEXT("error in filling vertex buffer"), TEXT("ERROR"), MB_OK | MB_ICONEXCLAMATION);
-        exit(0);
-    }
-
-    buffer[0].x = 100; buffer[0].y = 200;
-    buffer[0].z = 1; buffer[0].rhw = 1;
-
-    buffer[0].colour = 0xffffff00;//32 bits all 1's,white!D3DCOLOR_ARGB(0,255,0,0)
-
-    buffer[1].x = 150; buffer[1].y = 100;
-    buffer[1].z = 1; buffer[1].rhw = 1;
-
-    buffer[1].colour = 0xffffff00;//32 bits all 1's,white!
-
-    buffer[2].x = 100; buffer[2].y = 100;
-    buffer[2].z = 1; buffer[2].rhw = 1;
-
-    buffer[2].colour = 0xffffff00;//32 bits all 1's,white!
-
-    engine_ptr->GetD3D9Renderer()->GetD3DVertexBuffer()->Unlock();
-    //set the FVF for the device
-    engine_ptr->GetD3D9Renderer()->GetD3DDevice()->SetFVF(GAMEVERTEXFORMAT);
-    //set the stream source for the device
-    engine_ptr->GetD3D9Renderer()->GetD3DDevice()->SetStreamSource(0, engine_ptr->GetD3D9Renderer()->GetD3DVertexBuffer(), 0, sizeof(GameVertexFormat));
-
-    return TRUE;
+    GamePaint();
 }
