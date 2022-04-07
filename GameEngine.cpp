@@ -14,7 +14,7 @@
 //-----------------------------------------------------------------
 
 BOOL ISWINDOWED = TRUE;
-BOOL USED3D11 = TRUE;
+BOOL USED3D11 = FALSE;
 int OPENGLMAJORVERSION = 4;
 int OPENGLMINORVERSION = 0;
 GameEngine* GameEngine::m_pGameEngine = NULL;
@@ -27,8 +27,8 @@ int WINAPI  WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     PSTR szCmdLine, int iCmdShow)
 {
     MSG         msg;
-    static int  iTickTrigger = 0;
-    int         iTickCount;
+    static int  tickTrigger = 0;
+    int         tickCount;
 
     if (GameInitialise(hInstance))//Instantiate an engine
     {
@@ -53,10 +53,10 @@ int WINAPI  WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                 if (!GameEngine::GetEngine()->GetSleep())
                 {
                     // Check the tick count to see if a game cycle has elapsed
-                    iTickCount = GetTickCount();
-                    if (iTickCount > iTickTrigger)
+                    tickCount = GetTickCount();
+                    if (tickCount > tickTrigger)
                     {
-                        iTickTrigger = iTickCount +
+                        tickTrigger = tickCount +
                             GameEngine::GetEngine()->GetFrameDelay();
                         GameCycle();
                     }
@@ -81,40 +81,46 @@ LRESULT CALLBACK WndProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam)
 // GameEngine Constructor(s)/Destructor
 //-----------------------------------------------------------------
 GameEngine::GameEngine(HINSTANCE hInstance, LPTSTR szWindowClass,
-    LPTSTR szTitle, WORD wIcon, WORD wSmallIcon, int iWidth, int iHeight)
+    LPTSTR szTitle, WORD icon, WORD smallIcon, int width, int height)
 {
     // Set the member variables for the game engine
     m_pGameEngine = this;
     m_hInstance = hInstance;
     m_hWindow = NULL;
-    m_szWindowClass = new WCHAR[32];
-    m_szTitle = new WCHAR[32];
-    unsigned int uiStringSize;
-    if (StringCbLength(szWindowClass, 32 * sizeof(WCHAR), &uiStringSize) == S_OK)//test incoming string length
+    m_pWindowClass = new WCHAR[32];
+    m_pTitle = new WCHAR[32];
+    unsigned int stringSize;
+    if (StringCbLength(szWindowClass, 32 * sizeof(WCHAR), &stringSize) == S_OK)//test incoming string length
     {
-        if (StringCbCopy(m_szWindowClass, 32 * sizeof(WCHAR), szWindowClass) != S_OK)
-            m_szWindowClass = L"default class name";
-    }
-    else
-        m_szWindowClass = L"default class name";
-
-    if (StringCbLength(szTitle, 32 * sizeof(WCHAR), &uiStringSize) == S_OK)
-    {
-        if (StringCbCopy(m_szTitle, 32 * sizeof(WCHAR), szTitle) != S_OK)
-            m_szTitle = L"default title";
+        if (StringCbCopy(m_pWindowClass, 32 * sizeof(WCHAR), szWindowClass) != S_OK)
+        {
+            m_pWindowClass = L"default class name";
+        }
     }
     else
     {
-        m_szTitle = L"default title";
+        m_pWindowClass = L"default class name";
     }
 
-    m_wIcon = wIcon;
-    m_wSmallIcon = wSmallIcon;
-    m_clientWidth = iWidth;
-    m_clientHeight = iHeight;
-    m_iFrameDelay = 50;   // 20 FPS default
-    m_fSleep = TRUE;
-    m_fWindowed = ISWINDOWED;
+    if (StringCbLength(szTitle, 32 * sizeof(WCHAR), &stringSize) == S_OK)
+    {
+        if (StringCbCopy(m_pTitle, 32 * sizeof(WCHAR), szTitle) != S_OK)
+        {
+            m_pTitle = L"default title";
+        }
+    }
+    else
+    {
+        m_pTitle = L"default title";
+    }
+
+    m_icon = icon;
+    m_smallIcon = smallIcon;
+    m_clientWidth = width;
+    m_clientHeight = height;
+    m_frameDelay = 50;   // 20 FPS default
+    m_sleep = TRUE;
+    m_windowed = ISWINDOWED;
 
     m_appPaused = false;
     m_minimised = false;
@@ -129,8 +135,8 @@ GameEngine::GameEngine(HINSTANCE hInstance, LPTSTR szWindowClass,
 
 GameEngine::~GameEngine()
 {
-    SAFE_DELETEARRAY(m_szWindowClass);
-    SAFE_DELETEARRAY(m_szTitle);
+    SAFE_DELETEARRAY(m_pWindowClass);
+    SAFE_DELETEARRAY(m_pTitle);
     SAFE_DELETE(m_pD3D11Renderer);
 
     if (!USED3D11 && !ISWINDOWED)//opengl full screen
@@ -161,14 +167,16 @@ BOOL GameEngine::Initialise(int iCmdShow)
     wndclass.hCursor = LoadCursor(NULL, IDC_ARROW);
     wndclass.hbrBackground = NULL;//(HBRUSH)(COLOR_WINDOW + 1);
     wndclass.lpszMenuName = NULL;
-    wndclass.lpszClassName = m_szWindowClass;
+    wndclass.lpszClassName = m_pWindowClass;
 
     // Register the window class
     if (!RegisterClassEx(&wndclass))
+    {
         return FALSE;
+    }
 
     //opengl full screen
-    DWORD dwWindowStyle;
+    DWORD windowStyle;
     if (!USED3D11 && !ISWINDOWED)
     {
         DEVMODE dmScreenSettings;                               // Device Mode
@@ -183,32 +191,36 @@ BOOL GameEngine::Initialise(int iCmdShow)
         if (ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL)
         {
             MessageBox(NULL, TEXT("Sorry, can\'t play in full screen. Continue with window mode."), TEXT("ERROR"), MB_OK | MB_ICONSTOP);
-            dwWindowStyle = WS_POPUPWINDOW | WS_CAPTION | WS_MINIMIZEBOX;
+            windowStyle = WS_POPUPWINDOW | WS_CAPTION | WS_MINIMIZEBOX;
         }
         else
         {
-            dwWindowStyle = WS_POPUP;
+            windowStyle = WS_POPUP;
         }
     }
     else//D3D9 fullscreen also comes here but these styles take no effects
     {
-        dwWindowStyle = WS_POPUPWINDOW | WS_CAPTION | WS_MINIMIZEBOX;
+        windowStyle = WS_POPUPWINDOW | WS_CAPTION | WS_MINIMIZEBOX;
     }
 
     // Calculate the window size and position based upon the game size
-    int iWindowWidth = m_clientWidth + GetSystemMetrics(SM_CXFIXEDFRAME) * 2,
-        iWindowHeight = m_clientHeight + GetSystemMetrics(SM_CYFIXEDFRAME) * 2 +
+    int windowWidth = m_clientWidth + GetSystemMetrics(SM_CXFIXEDFRAME) * 2,
+        windowHeight = m_clientHeight + GetSystemMetrics(SM_CYFIXEDFRAME) * 2 +
         GetSystemMetrics(SM_CYCAPTION);
     if (wndclass.lpszMenuName != NULL)
-        iWindowHeight += GetSystemMetrics(SM_CYMENU);
-    int iXWindowPos = (GetSystemMetrics(SM_CXSCREEN) - iWindowWidth) / 2,
-        iYWindowPos = (GetSystemMetrics(SM_CYSCREEN) - iWindowHeight) / 2;
+    {
+        windowHeight += GetSystemMetrics(SM_CYMENU);
+    }
+    int windowPosX = (GetSystemMetrics(SM_CXSCREEN) - windowWidth) / 2;
+    int windowPosY = (GetSystemMetrics(SM_CYSCREEN) - windowHeight) / 2;
 
     // Create the window
-    m_hWindow = CreateWindow(m_szWindowClass, m_szTitle, dwWindowStyle, iXWindowPos, iYWindowPos,
-        iWindowWidth, iWindowHeight, NULL, NULL, m_hInstance, NULL);
+    m_hWindow = CreateWindow(m_pWindowClass, m_pTitle, windowStyle, windowPosX, windowPosY,
+        windowWidth, windowHeight, NULL, NULL, m_hInstance, NULL);
     if (!m_hWindow)
+    {
         return FALSE;
+    }
 
     //Initiate the renderer
     if (USED3D11)
@@ -228,7 +240,9 @@ BOOL GameEngine::Initialise(int iCmdShow)
         m_pOpenGLRenderer->SetHDC(GetDC(m_hWindow));
         if (!(m_pOpenGLRenderer->Initialise(m_hWindow, m_pOpenGLRenderer->GetHDC(),
             m_hInstance, OPENGLMAJORVERSION, OPENGLMINORVERSION, WGL_CONTEXT_CORE_PROFILE_BIT_ARB)))
+        {
             return FALSE;
+        }
     }
 
     //Initialise the resource manager

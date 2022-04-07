@@ -21,18 +21,18 @@ struct GameVertexFormat
 //-----------------------------------------------------------------
 //Indices generated from various engine components for the game
 //-----------------------------------------------------------------
-int iRM_GLSLEffectPassThru;
-int iRM_MeshTriangle;
-int iRM_MeshQuad;
-int iOR_GLSLEffectPassThru;
-int iOR_VAOTriangle;
-int iOR_VAOQuad;
+int RM_GLSLEffectPassThru;
+int RM_MeshTriangle;
+int RM_MeshQuad;
+int OR_GLSLEffectPassThru;
+int OR_VAOTriangle;
+int OR_VAOQuad;
 //-----------------------------------------------------------------
 //mesh data storage for the game
 //-----------------------------------------------------------------
-float fTriangle[9]; // Data to render triangle (3 vertices, each has 3 floats)
-float fQuad[12]; // Data to render quad using triangle strips (4 vertices, each has 3 floats)
-float fTriangleColour[9];
-float fQuadColour[12];
+float triangle[9]; // Data to render triangle (3 vertices, each has 3 floats)
+float quad[12]; // Data to render quad using triangle strips (4 vertices, each has 3 floats)
+float triangleColour[9];
+float quadColour[12];
 
 

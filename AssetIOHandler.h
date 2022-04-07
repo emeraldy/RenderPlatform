@@ -10,12 +10,11 @@
 //-----------------------------------------------------------------
 #include <windows.h>
 #include <Strsafe.h>
+#include "pch.h"
 
 //-----------------------------------------------------------------
 // Macros Definition
 //-----------------------------------------------------------------
-#define SAFE_DELETE(p) {if(p) {delete p; p = NULL;}}
-#define SAFE_DELETEARRAY(p) {if(p) {delete[] p; p = NULL;}}
 
 
 //-----------------------------------------------------------------
@@ -28,8 +27,8 @@
 class AssetIOHandler
 {
 protected:
-    BYTE* m_pbBuffer;
-    DWORD       m_dwBufferSize;//in byte, of course
+    BYTE* m_pBuffer;
+    DWORD m_bufferSize;//in byte, of course
 
 public:
     //Constructor/Destructor
@@ -40,8 +39,8 @@ public:
     BOOL LoadAsset(LPCWSTR lpcwFileName);
 
     //Accessors
-    const BYTE*   GetBuffer() { return m_pbBuffer; }
-    void          SetBuffer(BYTE* pbNewBuffer) { SAFE_DELETEARRAY(m_pbBuffer); m_pbBuffer = pbNewBuffer; }//test this!!!!!!!!!!!!
-    DWORD         GetBufferSize() { return m_dwBufferSize; }
-    void          SetBufferSize(DWORD dwNewSize) { m_dwBufferSize = dwNewSize; }
+    const BYTE*   GetBuffer() { return m_pBuffer; }
+    void          SetBuffer(BYTE* pNewBuffer) { SAFE_DELETEARRAY(m_pBuffer); m_pBuffer = pNewBuffer; }//test this!!!!!!!!!!!!
+    DWORD         GetBufferSize() { return m_bufferSize; }
+    void          SetBufferSize(DWORD newSize) { m_bufferSize = newSize; }
 };

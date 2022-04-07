@@ -20,44 +20,46 @@ void LoadPNGFromMemory(png_structp png_ptr, png_bytep data, png_size_t length);
 ResourceManager::ResourceManager()
 {
     //text resource pool initialisation
-    m_iTextResourceCount = 2;
-    m_lppwTextResources = new WCHAR * [m_iTextResourceCount];
-    for (int i = 0; i < m_iTextResourceCount; i++)
-        m_lppwTextResources[i] = NULL;
-    m_iCurrentTextResourceIndex = 0;
+    m_textResourceCount = 2;
+    m_ppTextResources = new WCHAR * [m_textResourceCount];
+    for (int i = 0; i < m_textResourceCount; i++)
+    {
+        m_ppTextResources[i] = NULL;
+    }
+    m_currentTextResourceIndex = 0;
 
     //GLSL effect pool initialisation
-    m_iGLSLEffectResourceCount = 1;
-    m_pGLSLEffectResources = new GLSLEffect[m_iGLSLEffectResourceCount];
-    for (int i = 0; i < m_iGLSLEffectResourceCount; i++)
+    m_GLSLEffectResourceCount = 1;
+    m_pGLSLEffectResources = new GLSLEffect[m_GLSLEffectResourceCount];
+    for (int i = 0; i < m_GLSLEffectResourceCount; i++)
     {
         m_pGLSLEffectResources[i].pGLSLShaders = NULL;//always initialise a pointer to null if you are going to new it later!!
-        m_pGLSLEffectResources[i].lppwAttribNames = NULL;
+        m_pGLSLEffectResources[i].ppAttribNames = NULL;
     }
-    m_iCurrentGLSLEffectResourceIndex = 0;
+    m_currentGLSLEffectResourceIndex = 0;
 
     //HLSL shader pool initialisation
     m_HLSLShaderCodes.insert(std::pair<std::string, ID3D10Blob*>("SampleVertexShader", nullptr));
     m_HLSLShaderCodes.insert(std::pair<std::string, ID3D10Blob*>("SamplePixelShader", nullptr));
 
     //mesh pool initialisation
-    m_iMeshResourceCount = 2;
-    m_pMeshResources = new Mesh[m_iMeshResourceCount];
-    for (int i = 0; i < m_iMeshResourceCount; i++)
+    m_meshResourceCount = 2;
+    m_pMeshResources = new Mesh[m_meshResourceCount];
+    for (int i = 0; i < m_meshResourceCount; i++)
     {
-        m_pMeshResources[i].pfPositions = NULL;
-        m_pMeshResources[i].pfColours = NULL;
+        m_pMeshResources[i].pPositions = NULL;
+        m_pMeshResources[i].pColours = NULL;
     }
-    m_iCurrentMeshResourceIndex = 0;
+    m_currentMeshResourceIndex = 0;
 
     //texture2D pool initialisation
-    m_iTexture2DResourceCount = 1;
-    m_pTexture2DResources = new Texture2D[m_iTexture2DResourceCount];
-    for (int i = 0; i < m_iTexture2DResourceCount; i++)
+    m_texture2DResourceCount = 1;
+    m_pTexture2DResources = new Texture2D[m_texture2DResourceCount];
+    for (int i = 0; i < m_texture2DResourceCount; i++)
     {
-        m_pTexture2DResources[i].data = NULL;
+        m_pTexture2DResources[i].pData = NULL;
     }
-    m_iCurrentTexture2DResourceIndex = 0;
+    m_currentTexture2DResourceIndex = 0;
 
     m_pAssetIOHandler = new AssetIOHandler;
 }
@@ -65,9 +67,11 @@ ResourceManager::ResourceManager()
 ResourceManager::~ResourceManager()
 {
     //release text pool
-    for (int i = 0; i < m_iTextResourceCount; i++)
-        SAFE_DELETEARRAY(m_lppwTextResources[i]);
-    SAFE_DELETEARRAY(m_lppwTextResources);
+    for (int i = 0; i < m_textResourceCount; i++)
+    {
+        SAFE_DELETEARRAY(m_ppTextResources[i]);
+    }
+    SAFE_DELETEARRAY(m_ppTextResources);
 
     //release GLSL effect pool
     DestroyGLSLEffectPool();
@@ -76,95 +80,97 @@ ResourceManager::~ResourceManager()
     DestroyHLSLShaderPool();
 
     //relese mesh pool
-    for (int i = 0; i < m_iMeshResourceCount; i++)
+    for (int i = 0; i < m_meshResourceCount; i++)
     {
-        SAFE_DELETEARRAY(m_pMeshResources[i].pfPositions);
-        SAFE_DELETEARRAY(m_pMeshResources[i].pfColours);
+        SAFE_DELETEARRAY(m_pMeshResources[i].pPositions);
+        SAFE_DELETEARRAY(m_pMeshResources[i].pColours);
     }
     SAFE_DELETEARRAY(m_pMeshResources);
 
     //release texture2D pool
-    for (int i = 0; i < m_iTexture2DResourceCount; i++)
+    for (int i = 0; i < m_texture2DResourceCount; i++)
     {
-        SAFE_DELETEARRAY(m_pTexture2DResources[i].data);
+        SAFE_DELETEARRAY(m_pTexture2DResources[i].pData);
     }
     SAFE_DELETEARRAY(m_pTexture2DResources);
 
     SAFE_DELETE(m_pAssetIOHandler);
 }
 
-int ResourceManager::GenerateTextResource(LPCWSTR lpcwFileName, LPCWSTR lpcwType)
+int ResourceManager::GenerateTextResource(LPCWSTR pFileName, LPCWSTR pType)
 {
-    if (m_iCurrentTextResourceIndex > m_iTextResourceCount - 1)
+    if (m_currentTextResourceIndex > m_textResourceCount - 1)
     {
         MessageBox(NULL, TEXT("Cannot generate new text. Resource pool limit reached!"), TEXT("ERROR"), MB_OK | MB_ICONEXCLAMATION);
         return -1;
     }
 
-    if (m_pAssetIOHandler->LoadAsset(lpcwFileName) == FALSE)
+    if (m_pAssetIOHandler->LoadAsset(pFileName) == FALSE)
         return -1;
     //copy text to resource pool from asset io handler's local buffer
-    if (lstrcmpi(lpcwType, L"ascii") == 0)//in ANSI ASCII, convert to WCHAR
+    if (lstrcmpi(pType, L"ascii") == 0)//in ANSI ASCII, convert to WCHAR
     {
-        m_lppwTextResources[m_iCurrentTextResourceIndex] = new WCHAR[m_pAssetIOHandler->GetBufferSize() + 1];//one byte is one character
+        m_ppTextResources[m_currentTextResourceIndex] = new WCHAR[m_pAssetIOHandler->GetBufferSize() + 1];//one byte is one character
         MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED,
             (LPCSTR)m_pAssetIOHandler->GetBuffer(), -1,
-            m_lppwTextResources[m_iCurrentTextResourceIndex], m_pAssetIOHandler->GetBufferSize());
+            m_ppTextResources[m_currentTextResourceIndex], m_pAssetIOHandler->GetBufferSize());
 
         //add null terminator for the text string
-        m_lppwTextResources[m_iCurrentTextResourceIndex][m_pAssetIOHandler->GetBufferSize()] = L'\0';
+        m_ppTextResources[m_currentTextResourceIndex][m_pAssetIOHandler->GetBufferSize()] = L'\0';
     }
     else
     {
         //now assume else case is only that the file is encoded in UTF-16 already (need to test this branch in the future)
-        m_lppwTextResources[m_iCurrentTextResourceIndex] = new WCHAR[m_pAssetIOHandler->GetBufferSize() / sizeof(WCHAR) + 1];//every two bytes are one character
-        const BYTE* pbRawData = m_pAssetIOHandler->GetBuffer();
+        m_ppTextResources[m_currentTextResourceIndex] = new WCHAR[m_pAssetIOHandler->GetBufferSize() / sizeof(WCHAR) + 1];//every two bytes are one character
+        const BYTE* pRawData = m_pAssetIOHandler->GetBuffer();
         int i, j;
         for (i = 0, j = 0; i < int(m_pAssetIOHandler->GetBufferSize() / sizeof(WCHAR)); i++, j += 2)
-            m_lppwTextResources[m_iCurrentTextResourceIndex][i] = pbRawData[j];
+        {
+            m_ppTextResources[m_currentTextResourceIndex][i] = pRawData[j];
+        }
 
         //add null terminator for the text string
-        m_lppwTextResources[m_iCurrentTextResourceIndex][m_pAssetIOHandler->GetBufferSize() / sizeof(WCHAR)] = L'\0';
+        m_ppTextResources[m_currentTextResourceIndex][m_pAssetIOHandler->GetBufferSize() / sizeof(WCHAR)] = L'\0';
     }
     //clear asset io handler's local buffer
     m_pAssetIOHandler->SetBuffer(NULL);
     m_pAssetIOHandler->SetBufferSize(0);
 
 
-    m_iCurrentTextResourceIndex++;
-    return m_iCurrentTextResourceIndex - 1;//return the index for this text in the pool
+    m_currentTextResourceIndex++;
+    return m_currentTextResourceIndex - 1;//return the index for this text in the pool
 }
-int ResourceManager::GenerateGLSLEffectResource(GLSLShader* pglsRequiredShaders, int iRequiredShaderCount, LPWSTR lpwToName, LPWSTR* lppwAttribs, int iAttribNum)
+int ResourceManager::GenerateGLSLEffectResource(GLSLShader* pRequiredShaders, int requiredShaderCount, LPWSTR pName, LPWSTR* ppAttribs, int attribNum)
 {
-    if (m_iCurrentGLSLEffectResourceIndex > m_iGLSLEffectResourceCount - 1)
+    if (m_currentGLSLEffectResourceIndex > m_GLSLEffectResourceCount - 1)
     {
         MessageBox(NULL, TEXT("Cannot generate new GLSL effect. Resource pool limit reached!"), TEXT("ERROR"), MB_OK | MB_ICONEXCLAMATION);
         return -1;
     }
 
-    m_pGLSLEffectResources[m_iCurrentGLSLEffectResourceIndex].iGLShaderCount = iRequiredShaderCount;
-    m_pGLSLEffectResources[m_iCurrentGLSLEffectResourceIndex].lpwEffectName = lpwToName;
-    m_pGLSLEffectResources[m_iCurrentGLSLEffectResourceIndex].pGLSLShaders = new GLSLShader[iRequiredShaderCount];
+    m_pGLSLEffectResources[m_currentGLSLEffectResourceIndex].glShaderCount = requiredShaderCount;
+    m_pGLSLEffectResources[m_currentGLSLEffectResourceIndex].pEffectName = pName;
+    m_pGLSLEffectResources[m_currentGLSLEffectResourceIndex].pGLSLShaders = new GLSLShader[requiredShaderCount];
     //copy each required shader
-    for (int i = 0; i < iRequiredShaderCount; i++)
+    for (int i = 0; i < requiredShaderCount; i++)
     {
-        m_pGLSLEffectResources[m_iCurrentGLSLEffectResourceIndex].pGLSLShaders[i].gluiType = pglsRequiredShaders[i].gluiType;
-        m_pGLSLEffectResources[m_iCurrentGLSLEffectResourceIndex].pGLSLShaders[i].lpwFileName = pglsRequiredShaders[i].lpwFileName;
-        m_pGLSLEffectResources[m_iCurrentGLSLEffectResourceIndex].pGLSLShaders[i].iIndex = GenerateTextResource(pglsRequiredShaders[i].lpwFileName, L"ascii");
-        if (m_pGLSLEffectResources[m_iCurrentGLSLEffectResourceIndex].pGLSLShaders[i].iIndex == -1)
+        m_pGLSLEffectResources[m_currentGLSLEffectResourceIndex].pGLSLShaders[i].type = pRequiredShaders[i].type;
+        m_pGLSLEffectResources[m_currentGLSLEffectResourceIndex].pGLSLShaders[i].pFileName = pRequiredShaders[i].pFileName;
+        m_pGLSLEffectResources[m_currentGLSLEffectResourceIndex].pGLSLShaders[i].index = GenerateTextResource(pRequiredShaders[i].pFileName, L"ascii");
+        if (m_pGLSLEffectResources[m_currentGLSLEffectResourceIndex].pGLSLShaders[i].index == -1)
             return -1;
     }
 
     //copy attribute names
-    m_pGLSLEffectResources[m_iCurrentGLSLEffectResourceIndex].lppwAttribNames = new LPWSTR[iAttribNum];
-    for (int i = 0; i < iAttribNum; i++)
+    m_pGLSLEffectResources[m_currentGLSLEffectResourceIndex].ppAttribNames = new LPWSTR[attribNum];
+    for (int i = 0; i < attribNum; i++)
     {
-        m_pGLSLEffectResources[m_iCurrentGLSLEffectResourceIndex].lppwAttribNames[i] = lppwAttribs[i];//string literals are stored statically so can just copy pointers
+        m_pGLSLEffectResources[m_currentGLSLEffectResourceIndex].ppAttribNames[i] = ppAttribs[i];//string literals are stored statically so can just copy pointers
     }
-    m_pGLSLEffectResources[m_iCurrentGLSLEffectResourceIndex].iAttribCount = iAttribNum;
+    m_pGLSLEffectResources[m_currentGLSLEffectResourceIndex].attribCount = attribNum;
 
-    m_iCurrentGLSLEffectResourceIndex++;
-    return m_iCurrentGLSLEffectResourceIndex - 1;//return the inexe for this GLSL effect in the pool
+    m_currentGLSLEffectResourceIndex++;
+    return m_currentGLSLEffectResourceIndex - 1;//return the inexe for this GLSL effect in the pool
 }
 HRESULT ResourceManager::GenerateHLSLShaderResource()
 {
@@ -210,25 +216,25 @@ HRESULT ResourceManager::GenerateHLSLShaderResource()
 }
 int ResourceManager::GenerateMeshResource(Mesh* pMeshData)
 {
-    if (m_iCurrentMeshResourceIndex > m_iMeshResourceCount - 1)
+    if (m_currentMeshResourceIndex > m_meshResourceCount - 1)
     {
         MessageBox(NULL, TEXT("Cannot generate new Mesh. Resource pool limit reached!"), TEXT("ERROR"), MB_OK | MB_ICONEXCLAMATION);
         return -1;
     }
 
     //copy the mesh data into the resource pool
-    m_pMeshResources[m_iCurrentMeshResourceIndex].iVertexCount = pMeshData->iVertexCount;
-    m_pMeshResources[m_iCurrentMeshResourceIndex].iVertexSize = pMeshData->iVertexSize;
-    m_pMeshResources[m_iCurrentMeshResourceIndex].pfPositions = new float[pMeshData->iVertexCount * pMeshData->iVertexSize];
-    for (int i = 0; i < pMeshData->iVertexCount * pMeshData->iVertexSize; i++)
-        m_pMeshResources[m_iCurrentMeshResourceIndex].pfPositions[i] = pMeshData->pfPositions[i];
+    m_pMeshResources[m_currentMeshResourceIndex].vertexCount = pMeshData->vertexCount;
+    m_pMeshResources[m_currentMeshResourceIndex].vertexSize = pMeshData->vertexSize;
+    m_pMeshResources[m_currentMeshResourceIndex].pPositions = new float[pMeshData->vertexCount * pMeshData->vertexSize];
+    for (int i = 0; i < pMeshData->vertexCount * pMeshData->vertexSize; i++)
+        m_pMeshResources[m_currentMeshResourceIndex].pPositions[i] = pMeshData->pPositions[i];
 
-    m_pMeshResources[m_iCurrentMeshResourceIndex].pfColours = new float[pMeshData->iVertexCount * pMeshData->iVertexSize];
-    for (int i = 0; i < pMeshData->iVertexCount * pMeshData->iVertexSize; i++)
-        m_pMeshResources[m_iCurrentMeshResourceIndex].pfColours[i] = pMeshData->pfColours[i];
+    m_pMeshResources[m_currentMeshResourceIndex].pColours = new float[pMeshData->vertexCount * pMeshData->vertexSize];
+    for (int i = 0; i < pMeshData->vertexCount * pMeshData->vertexSize; i++)
+        m_pMeshResources[m_currentMeshResourceIndex].pColours[i] = pMeshData->pColours[i];
 
-    m_iCurrentMeshResourceIndex++;
-    return m_iCurrentMeshResourceIndex - 1;
+    m_currentMeshResourceIndex++;
+    return m_currentMeshResourceIndex - 1;
 }
 void LoadPNGFromMemory(png_structp png_ptr, png_bytep data, png_size_t length)
 {
@@ -242,19 +248,19 @@ void LoadPNGFromMemory(png_structp png_ptr, png_bytep data, png_size_t length)
     png_bytep pNextStart = (png_bytep)pSourceBuffer + length;
     png_set_read_fn(png_ptr, (png_voidp)pNextStart, LoadPNGFromMemory);
 }
-int ResourceManager::GenerateTexture2DResource(LPCWSTR lpcwFileName, LPCWSTR lpcwType)
+int ResourceManager::GenerateTexture2DResource(LPCWSTR pFileName, LPCWSTR pType)
 {
-    if (m_iCurrentTexture2DResourceIndex > m_iTexture2DResourceCount - 1)
+    if (m_currentTexture2DResourceIndex > m_texture2DResourceCount - 1)
     {
         MessageBox(NULL, TEXT("Cannot generate new Texture. Resource pool limit reached!"), TEXT("ERROR"), MB_OK | MB_ICONEXCLAMATION);
         return -1;
     }
 
-    if (m_pAssetIOHandler->LoadAsset(lpcwFileName) == FALSE)
+    if (m_pAssetIOHandler->LoadAsset(pFileName) == FALSE)
         return -1;
 
     //process image data stream based on image type
-    if (lstrcmpi(lpcwType, L"jpeg") == 0)
+    if (lstrcmpi(pType, L"jpeg") == 0)
     {
         jpeg_decompress_struct jpegObject;
         jpeg_error_mgr jpegErrorManager;
@@ -277,15 +283,15 @@ int ResourceManager::GenerateTexture2DResource(LPCWSTR lpcwFileName, LPCWSTR lpc
         jpeg_start_decompress(&jpegObject);
 
         //image size info
-        int iImageWidth = jpegObject.output_width;
-        int iImageHeight = jpegObject.output_height;
-        int iChannelNum = jpegObject.output_components;
-        int iRow_stride = iImageWidth * iChannelNum;//row width in output buffer in byte (jpeg assumes one channel one byte)
+        int imageWidth = jpegObject.output_width;
+        int imageHeight = jpegObject.output_height;
+        int channelNum = jpegObject.output_components;
+        int row_stride = imageWidth * channelNum;//row width in output buffer in byte (jpeg assumes one channel one byte)
 
         //allocate temporary space for texture data
-        BYTE** rows = new BYTE * [iImageHeight];
-        for (int i = 0; i < iImageHeight; i++)
-            rows[i] = new BYTE[iRow_stride];
+        BYTE** rows = new BYTE * [imageHeight];
+        for (int i = 0; i < imageHeight; i++)
+            rows[i] = new BYTE[row_stride];
 
         //read rows
         while (jpegObject.output_scanline < jpegObject.output_height) {
@@ -304,15 +310,15 @@ int ResourceManager::GenerateTexture2DResource(LPCWSTR lpcwFileName, LPCWSTR lpc
         jpeg_destroy_decompress(&jpegObject);
 
         //transfer image data from temporary storage to texture2d resource pool
-        m_pTexture2DResources[m_iCurrentTexture2DResourceIndex].data = new BYTE[iImageWidth * iImageHeight * iChannelNum];
-        for (int i = 0; i < iImageHeight; i++)
+        m_pTexture2DResources[m_currentTexture2DResourceIndex].pData = new BYTE[imageWidth * imageHeight * channelNum];
+        for (int i = 0; i < imageHeight; i++)
         {
-            memcpy(m_pTexture2DResources[m_iCurrentTexture2DResourceIndex].data + i * iRow_stride, rows[i], iRow_stride);
+            memcpy(m_pTexture2DResources[m_currentTexture2DResourceIndex].pData + i * row_stride, rows[i], row_stride);
         }
 
         /* And we're done! */
         //clear temporary row buffer
-        for (int i = 0; i < iImageHeight; i++)
+        for (int i = 0; i < imageHeight; i++)
         {
             SAFE_DELETEARRAY(rows[i]);
         }
@@ -322,10 +328,10 @@ int ResourceManager::GenerateTexture2DResource(LPCWSTR lpcwFileName, LPCWSTR lpc
         m_pAssetIOHandler->SetBuffer(NULL);
         m_pAssetIOHandler->SetBufferSize(0);
 
-        m_iCurrentTexture2DResourceIndex++;
-        return m_iCurrentTexture2DResourceIndex - 1;
+        m_currentTexture2DResourceIndex++;
+        return m_currentTexture2DResourceIndex - 1;
     }
-    else if (lstrcmpi(lpcwType, L"png") == 0)
+    else if (lstrcmpi(pType, L"png") == 0)
     {
         //create png_struct
         png_structp pPngstruct = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
@@ -345,17 +351,17 @@ int ResourceManager::GenerateTexture2DResource(LPCWSTR lpcwFileName, LPCWSTR lpc
 
         //read png info
         png_read_info(pPngstruct, pPnginfo);
-        int iImageWidth = png_get_image_width(pPngstruct, pPnginfo);
-        int iImageHeight = png_get_image_height(pPngstruct, pPnginfo);
-        int iColourType = png_get_color_type(pPngstruct, pPnginfo);
-        int iBitDepth = png_get_bit_depth(pPngstruct, pPnginfo);
-        int iRow_stride = png_get_rowbytes(pPngstruct, pPnginfo);//row width in output buffer in byte
+        int imageWidth = png_get_image_width(pPngstruct, pPnginfo);
+        int imageHeight = png_get_image_height(pPngstruct, pPnginfo);
+        int colourType = png_get_color_type(pPngstruct, pPnginfo);
+        int bitDepth = png_get_bit_depth(pPngstruct, pPnginfo);
+        int row_stride = png_get_rowbytes(pPngstruct, pPnginfo);//row width in output buffer in byte
         int interlace_type = png_get_interlace_type(pPngstruct, pPnginfo);
 
         //allocate temporary space for texture data
-        png_bytep* rows = new png_bytep[iImageHeight];
-        for (int i = 0; i < iImageHeight; i++)
-            rows[i] = new png_byte[iRow_stride];
+        png_bytep* rows = new png_bytep[imageHeight];
+        for (int i = 0; i < imageHeight; i++)
+            rows[i] = new png_byte[row_stride];
 
         //read actual image data
         png_read_image(pPngstruct, rows);
@@ -365,15 +371,15 @@ int ResourceManager::GenerateTexture2DResource(LPCWSTR lpcwFileName, LPCWSTR lpc
         png_destroy_read_struct(&pPngstruct, &pPnginfo, NULL);
 
         //transfer image data from temporary storage to texture2d resource pool
-        m_pTexture2DResources[m_iCurrentTexture2DResourceIndex].data = new BYTE[iImageHeight * iRow_stride];
-        for (int i = 0; i < iImageHeight; i++)
+        m_pTexture2DResources[m_currentTexture2DResourceIndex].pData = new BYTE[imageHeight * row_stride];
+        for (int i = 0; i < imageHeight; i++)
         {
-            memcpy(m_pTexture2DResources[m_iCurrentTexture2DResourceIndex].data + i * iRow_stride, rows[i], iRow_stride);
+            memcpy(m_pTexture2DResources[m_currentTexture2DResourceIndex].pData + i * row_stride, rows[i], row_stride);
         }
 
         /* And we're done! */
         //clear temporary row buffer
-        for (int i = 0; i < iImageHeight; i++)
+        for (int i = 0; i < imageHeight; i++)
         {
             SAFE_DELETEARRAY(rows[i]);
         }
@@ -383,8 +389,8 @@ int ResourceManager::GenerateTexture2DResource(LPCWSTR lpcwFileName, LPCWSTR lpc
         m_pAssetIOHandler->SetBuffer(NULL);
         m_pAssetIOHandler->SetBufferSize(0);
 
-        m_iCurrentTexture2DResourceIndex++;
-        return m_iCurrentTexture2DResourceIndex - 1;
+        m_currentTexture2DResourceIndex++;
+        return m_currentTexture2DResourceIndex - 1;
     }
     else
     {
@@ -406,10 +412,10 @@ ID3D10Blob* ResourceManager::GetHLSLShader(std::string name)
 }
 void ResourceManager::DestroyGLSLEffectPool()
 {
-    for (int i = 0; i < m_iGLSLEffectResourceCount; i++)
+    for (int i = 0; i < m_GLSLEffectResourceCount; i++)
     {
         SAFE_DELETEARRAY(m_pGLSLEffectResources[i].pGLSLShaders);
-        SAFE_DELETEARRAY(m_pGLSLEffectResources[i].lppwAttribNames);
+        SAFE_DELETEARRAY(m_pGLSLEffectResources[i].ppAttribNames);
     }
     SAFE_DELETEARRAY(m_pGLSLEffectResources);
 }

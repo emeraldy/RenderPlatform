@@ -9,18 +9,18 @@
 
 extern BOOL ISWINDOWED;
 
-LRESULT CALLBACK dummyWndProc(HWND hWnd, UINT uiMsg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK dummyWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     PAINTSTRUCT ps;
-    switch (uiMsg)
+    switch (msg)
     {
-    case WM_PAINT:
-        BeginPaint(hWnd, &ps);
-        EndPaint(hWnd, &ps);
-        break;
+        case WM_PAINT:
+            BeginPaint(hWnd, &ps);
+            EndPaint(hWnd, &ps);
+            break;
 
-    default:
-        return DefWindowProc(hWnd, uiMsg, wParam, lParam); // Default window procedure
+        default:
+            return DefWindowProc(hWnd, msg, wParam, lParam); // Default window procedure
     }
     return 0;
 }
@@ -31,32 +31,34 @@ LRESULT CALLBACK dummyWndProc(HWND hWnd, UINT uiMsg, WPARAM wParam, LPARAM lPara
 OpenGLRenderer::OpenGLRenderer()
 {
     m_hDC = NULL;
-    m_hRenderContext = NULL;
-    m_fIsWindowed = NULL;
+    m_renderContext = NULL;
+    m_isWindowed = NULL;
 
-    m_iEffectProgramCount = 1;
-    m_pEffectPrograms = new GLSLEffectProgram[m_iEffectProgramCount];
-    for (int i = 0; i < m_iEffectProgramCount; i++)
+    m_effectProgramCount = 1;
+    m_pEffectPrograms = new GLSLEffectProgram[m_effectProgramCount];
+    for (int i = 0; i < m_effectProgramCount; i++)
     {
-        m_pEffectPrograms[i].pgluiShaderIDs = NULL;
-        m_pEffectPrograms[i].lppwAttribNames = NULL;
+        m_pEffectPrograms[i].pShaderIDs = NULL;
+        m_pEffectPrograms[i].ppAttribNames = NULL;
     }
-    m_iCurrentEffectProgramIndex = 0;
+    m_currentEffectProgramIndex = 0;
 
-    m_iVertexArrayObjectCount = 2;
-    m_pVertexArrayObjects = new VertexArrayObject[m_iVertexArrayObjectCount];
-    for (int i = 0; i < m_iVertexArrayObjectCount; i++)
+    m_vertexArrayObjectCount = 2;
+    m_pVertexArrayObjects = new VertexArrayObject[m_vertexArrayObjectCount];
+    for (int i = 0; i < m_vertexArrayObjectCount; i++)
     {
-        m_pVertexArrayObjects[i].pgluiVBOs = NULL;
+        m_pVertexArrayObjects[i].pVBOs = NULL;
     }
-    m_iCurrentVertexArrayObjectIndex = 0;
+    m_currentVertexArrayObjectIndex = 0;
 }
 
 OpenGLRenderer::~OpenGLRenderer()
 {
     wglMakeCurrent(NULL, NULL);
-    if (m_hRenderContext != NULL)
-        wglDeleteContext(m_hRenderContext);
+    if (m_renderContext != NULL)
+    {
+        wglDeleteContext(m_renderContext);
+    }
 
     DeleteEffectPrograms();
 
@@ -66,7 +68,7 @@ OpenGLRenderer::~OpenGLRenderer()
 //-----------------------------------------------------------------
 // Class general function definitions
 //-----------------------------------------------------------------
-BOOL OpenGLRenderer::Initialise(HWND hWindow, HDC hdc, HINSTANCE hInstance, int iMajorVersion, int iMinorVersion, int iProfile)
+BOOL OpenGLRenderer::Initialise(HWND hWindow, HDC hdc, HINSTANCE hInstance, int majorVersion, int minorVersion, int profile)
 {
     //create a dummy window to get two opengl extension function addresses
     //1. registrate dummy class
@@ -115,14 +117,14 @@ BOOL OpenGLRenderer::Initialise(HWND hWindow, HDC hdc, HINSTANCE hInstance, int 
     HDC dummyDC;
 
     dummyDC = GetDC(dummyWindow);
-    int iPixelFormat = ChoosePixelFormat(dummyDC, &pfd);
-    if (iPixelFormat == 0)
+    int pixelFormat = ChoosePixelFormat(dummyDC, &pfd);
+    if (pixelFormat == 0)
     {
         MessageBox(hWindow, TEXT("dummy pixel format choosing failed"), TEXT("ERROR"), MB_OK | MB_ICONEXCLAMATION);
         return FALSE;
     }
 
-    if (!SetPixelFormat(dummyDC, iPixelFormat, &pfd))
+    if (!SetPixelFormat(dummyDC, pixelFormat, &pfd))
     {
         MessageBox(hWindow, TEXT("dummy pixel format setting failed"), TEXT("ERROR"), MB_OK | MB_ICONEXCLAMATION);
         return FALSE;
@@ -149,7 +151,7 @@ BOOL OpenGLRenderer::Initialise(HWND hWindow, HDC hdc, HINSTANCE hInstance, int 
         wglGetProcAddress("wglCreateContextAttribsARB");
 
     //now create the actual rendering context
-    const int iPixelFormatAttribList[] =
+    const int pixelFormatAttribList[] =
     {
         WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
         WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
@@ -160,25 +162,25 @@ BOOL OpenGLRenderer::Initialise(HWND hWindow, HDC hdc, HINSTANCE hInstance, int 
         WGL_STENCIL_BITS_ARB, 8,
         0 // End of attributes list
     };
-    int iContextAttribs[] =
+    int contextAttribs[] =
     {
-        WGL_CONTEXT_MAJOR_VERSION_ARB, iMajorVersion,
-        WGL_CONTEXT_MINOR_VERSION_ARB, iMinorVersion,
-        WGL_CONTEXT_PROFILE_MASK_ARB, iProfile,
+        WGL_CONTEXT_MAJOR_VERSION_ARB, majorVersion,
+        WGL_CONTEXT_MINOR_VERSION_ARB, minorVersion,
+        WGL_CONTEXT_PROFILE_MASK_ARB, profile,
         0 // End of attributes list
     };
 
-    int iNumFormats;
-    my_wglChoosePixelFormatARB(hdc, iPixelFormatAttribList, NULL, 1, &iPixelFormat, (UINT*)&iNumFormats);
+    int numFormats;
+    my_wglChoosePixelFormatARB(hdc, pixelFormatAttribList, NULL, 1, &pixelFormat, (UINT*)&numFormats);
 
-    if (!SetPixelFormat(hdc, iPixelFormat, &pfd))
+    if (!SetPixelFormat(hdc, pixelFormat, &pfd))
     {
         MessageBox(hWindow, TEXT("actual dc pixel format setting failed"), TEXT("ERROR"), MB_OK | MB_ICONEXCLAMATION);
         return FALSE;
     }
 
-    m_hRenderContext = my_wglCreateContextAttribsARB(hdc, 0, iContextAttribs);
-    if (m_hRenderContext == NULL)
+    m_renderContext = my_wglCreateContextAttribsARB(hdc, 0, contextAttribs);
+    if (m_renderContext == NULL)
     {
         MessageBox(hWindow, TEXT("actual rendering context creation failed"), TEXT("ERROR"), MB_OK | MB_ICONEXCLAMATION);
         return FALSE;
@@ -191,7 +193,7 @@ BOOL OpenGLRenderer::Initialise(HWND hWindow, HDC hdc, HINSTANCE hInstance, int 
     UnregisterClass(TEXT("DUMMY_CLASS"), hInstance);
 
     //make current the actual rc and initialise glew
-    wglMakeCurrent(hdc, m_hRenderContext);
+    wglMakeCurrent(hdc, m_renderContext);
     glewExperimental = TRUE;//a bug in glew makes later call of glGenVertexArrays spawn assess violation error. this is the workaround
     GLenum err = glewInit();
     glGetError();//glewInit has error (which i can't do anything about it). call glGetError just to reset the error flag in case i need to debug my opengl code
@@ -211,62 +213,64 @@ BOOL OpenGLRenderer::Initialise(HWND hWindow, HDC hdc, HINSTANCE hInstance, int 
 }
 
 //grab a new GLSLEffectProgram object from the renderer's repository
-int OpenGLRenderer::NewEffectProgram(int iToShaderCount, LPWSTR lpwToEffectName, int iToAttribCount, LPWSTR* lppwAttribs)
+int OpenGLRenderer::NewEffectProgram(int shaderCount, LPWSTR pEffectName, int attribCount, LPWSTR* ppAttribs)
 {
-    if (m_iCurrentEffectProgramIndex > m_iEffectProgramCount - 1)
+    if (m_currentEffectProgramIndex > m_effectProgramCount - 1)
     {
         MessageBox(NULL, TEXT("Cannot generate new glsl effect program. Maximum allowed number reached!"), TEXT("ERROR"), MB_OK | MB_ICONEXCLAMATION);
         return -1;
     }
 
-    m_pEffectPrograms[m_iCurrentEffectProgramIndex].iCurrentShaderIndex = 0;
-    m_pEffectPrograms[m_iCurrentEffectProgramIndex].iShaderCount = iToShaderCount;
-    m_pEffectPrograms[m_iCurrentEffectProgramIndex].pgluiShaderIDs = new GLuint[iToShaderCount];
-    m_pEffectPrograms[m_iCurrentEffectProgramIndex].lpwEffectName = lpwToEffectName;
-    m_pEffectPrograms[m_iCurrentEffectProgramIndex].iAttribCount = iToAttribCount;
-    m_pEffectPrograms[m_iCurrentEffectProgramIndex].lppwAttribNames = new LPWSTR[iToAttribCount];
-    for (int i = 0; i < iToAttribCount; i++)
-        m_pEffectPrograms[m_iCurrentEffectProgramIndex].lppwAttribNames[i] = lppwAttribs[i];
+    m_pEffectPrograms[m_currentEffectProgramIndex].currentShaderIndex = 0;
+    m_pEffectPrograms[m_currentEffectProgramIndex].shaderCount = shaderCount;
+    m_pEffectPrograms[m_currentEffectProgramIndex].pShaderIDs = new GLuint[shaderCount];
+    m_pEffectPrograms[m_currentEffectProgramIndex].pEffectName = pEffectName;
+    m_pEffectPrograms[m_currentEffectProgramIndex].attribCount = attribCount;
+    m_pEffectPrograms[m_currentEffectProgramIndex].ppAttribNames = new LPWSTR[attribCount];
+    for (int i = 0; i < attribCount; i++)
+    {
+        m_pEffectPrograms[m_currentEffectProgramIndex].ppAttribNames[i] = ppAttribs[i];
+    }
 
-    m_iCurrentEffectProgramIndex++;
-    return m_iCurrentEffectProgramIndex - 1;
+    m_currentEffectProgramIndex++;
+    return m_currentEffectProgramIndex - 1;
 }
 //grab a new VertexArrayObject from the renderer's repository
-int OpenGLRenderer::NewVertexArrayObject(int iToAttribCount, LPWSTR lpwToModelName)
+int OpenGLRenderer::NewVertexArrayObject(int attribCount, LPWSTR pModelName)
 {
-    if (m_iCurrentVertexArrayObjectIndex > m_iVertexArrayObjectCount - 1)
+    if (m_currentVertexArrayObjectIndex > m_vertexArrayObjectCount - 1)
     {
         MessageBox(NULL, TEXT("Cannot generate new vertex array object. Maximum allowed number reached!"), TEXT("ERROR"), MB_OK | MB_ICONEXCLAMATION);
         return -1;
     }
 
     //request a VAO ID from opengl
-    glGenVertexArrays(1, &(m_pVertexArrayObjects[m_iCurrentVertexArrayObjectIndex].gluiID));
-    m_pVertexArrayObjects[m_iCurrentVertexArrayObjectIndex].iAttribCount = iToAttribCount;
-    m_pVertexArrayObjects[m_iCurrentVertexArrayObjectIndex].lpwModelName = lpwToModelName;
+    glGenVertexArrays(1, &(m_pVertexArrayObjects[m_currentVertexArrayObjectIndex].ID));
+    m_pVertexArrayObjects[m_currentVertexArrayObjectIndex].attribCount = attribCount;
+    m_pVertexArrayObjects[m_currentVertexArrayObjectIndex].pModelName = pModelName;
     //request VBO ID's from opengl
-    m_pVertexArrayObjects[m_iCurrentVertexArrayObjectIndex].pgluiVBOs =
-        new GLuint[m_pVertexArrayObjects[m_iCurrentVertexArrayObjectIndex].iAttribCount];
-    glGenBuffers(m_pVertexArrayObjects[m_iCurrentVertexArrayObjectIndex].iAttribCount,
-        m_pVertexArrayObjects[m_iCurrentVertexArrayObjectIndex].pgluiVBOs);
+    m_pVertexArrayObjects[m_currentVertexArrayObjectIndex].pVBOs =
+        new GLuint[m_pVertexArrayObjects[m_currentVertexArrayObjectIndex].attribCount];
+    glGenBuffers(m_pVertexArrayObjects[m_currentVertexArrayObjectIndex].attribCount,
+        m_pVertexArrayObjects[m_currentVertexArrayObjectIndex].pVBOs);
 
-    m_iCurrentVertexArrayObjectIndex++;
-    return m_iCurrentVertexArrayObjectIndex - 1;
+    m_currentVertexArrayObjectIndex++;
+    return m_currentVertexArrayObjectIndex - 1;
 }
-void OpenGLRenderer::CreateVBO(int iVAOIndex, int iAttribIndex, float* pfData, int iSizeInByte)
+void OpenGLRenderer::CreateVBO(int VAOIndex, int attribIndex, float* pData, int sizeInByte)
 {
-    GLuint gluiVBOID = m_pVertexArrayObjects[iVAOIndex].pgluiVBOs[iAttribIndex];
+    GLuint gluiVBOID = m_pVertexArrayObjects[VAOIndex].pVBOs[attribIndex];
     glBindBuffer(GL_ARRAY_BUFFER, gluiVBOID);
-    glBufferData(GL_ARRAY_BUFFER, iSizeInByte, pfData, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeInByte, pData, GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
-void OpenGLRenderer::CreateVAO(int iVAOIndex)
+void OpenGLRenderer::CreateVAO(int VAOIndex)
 {
-    glBindVertexArray(m_pVertexArrayObjects[iVAOIndex].gluiID);
+    glBindVertexArray(m_pVertexArrayObjects[VAOIndex].ID);
     //connect VBO with vertex attributes in the current shader program
-    for (int i = 0; i < m_pVertexArrayObjects[iVAOIndex].iAttribCount; i++)
+    for (int i = 0; i < m_pVertexArrayObjects[VAOIndex].attribCount; i++)
     {
-        glBindBuffer(GL_ARRAY_BUFFER, m_pVertexArrayObjects[iVAOIndex].pgluiVBOs[i]);
+        glBindBuffer(GL_ARRAY_BUFFER, m_pVertexArrayObjects[VAOIndex].pVBOs[i]);
         glVertexAttribPointer(i, 3, GL_FLOAT, GL_FALSE, 0, 0);
         glEnableVertexAttribArray(i);
     }
@@ -278,75 +282,87 @@ void OpenGLRenderer::RenderScene()
     glClear(GL_COLOR_BUFFER_BIT);
     glClear(GL_DEPTH_BUFFER_BIT);
 
-    glUseProgram(m_pEffectPrograms[0].gluiProgramID);
+    glUseProgram(m_pEffectPrograms[0].programID);
 
-    //glBindVertexArray(m_pVertexArrayObjects[0].gluiID);
-    //glDrawArrays(GL_TRIANGLES, 0, 3);
+    glBindVertexArray(m_pVertexArrayObjects[0].ID);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
 
-    glBindVertexArray(m_pVertexArrayObjects[1].gluiID);
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    //glBindVertexArray(m_pVertexArrayObjects[1].ID);
+    //glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
     SwapBuffers(m_hDC);
 }
 //create glsl shader object
-BOOL OpenGLRenderer::CreateShader(int iEffectProgramIndex, LPCWSTR lpcwShaderSource, GLuint gluiShaderType)
+BOOL OpenGLRenderer::CreateShader(int effectProgramIndex, LPCWSTR pShaderSource, GLuint shaderType)
 {
     //request a shader id from opengl
-    int iCurrentShader = m_pEffectPrograms[iEffectProgramIndex].iCurrentShaderIndex;
-    GLuint gluiShaderID = glCreateShader(gluiShaderType);
-    m_pEffectPrograms[iEffectProgramIndex].pgluiShaderIDs[iCurrentShader] = gluiShaderID;
-    if (gluiShaderID == 0)
+    int currentShader = m_pEffectPrograms[effectProgramIndex].currentShaderIndex;
+    GLuint shaderID = glCreateShader(shaderType);
+    m_pEffectPrograms[effectProgramIndex].pShaderIDs[currentShader] = shaderID;
+    if (shaderID == 0)
     {
         //error message generation
-        unsigned int uiErrorInfoLength = (unsigned int)lstrlen(m_pEffectPrograms[iEffectProgramIndex].lpwEffectName);
-        uiErrorInfoLength = lstrlen(TEXT("GLSL shader effect ")) + uiErrorInfoLength
+        unsigned int errorInfoLength = (unsigned int)lstrlen(m_pEffectPrograms[effectProgramIndex].pEffectName);
+        errorInfoLength = lstrlen(TEXT("GLSL shader effect ")) + errorInfoLength
             + lstrlen(TEXT(" shader id generation failed!!")) + 1;//for the NULL terminator
-        LPWSTR lpwErrorInfo = new WCHAR[uiErrorInfoLength];
+        LPWSTR lpwErrorInfo = new WCHAR[errorInfoLength];
 
-        if (StringCbCopy(lpwErrorInfo, uiErrorInfoLength * sizeof(WCHAR), TEXT("GLSL shader effect ")) != S_OK)//first part of the error text
+        if (StringCbCopy(lpwErrorInfo, errorInfoLength * sizeof(WCHAR), TEXT("GLSL shader effect ")) != S_OK)//first part of the error text
+        {
             MessageBox(NULL, TEXT("OpenGLRenderer::CreateShader String copy failed"), TEXT("ERROR"), MB_OK | MB_ICONEXCLAMATION);
-        else if (StringCbCat(lpwErrorInfo, uiErrorInfoLength * sizeof(WCHAR), m_pEffectPrograms[iEffectProgramIndex].lpwEffectName) != S_OK)//second part
+        }
+        else if (StringCbCat(lpwErrorInfo, errorInfoLength * sizeof(WCHAR), m_pEffectPrograms[effectProgramIndex].pEffectName) != S_OK)//second part
+        {
             MessageBox(NULL, TEXT("OpenGLRenderer::CreateShader String cat failed"), TEXT("ERROR"), MB_OK | MB_ICONEXCLAMATION);
-        else if (StringCbCat(lpwErrorInfo, uiErrorInfoLength * sizeof(WCHAR), TEXT(" shader id generation failed!!")) != S_OK)//third part
+        }
+        else if (StringCbCat(lpwErrorInfo, errorInfoLength * sizeof(WCHAR), TEXT(" shader id generation failed!!")) != S_OK)//third part
+        {
             MessageBox(NULL, TEXT("OpenGLRenderer::CreateShader String cat failed"), TEXT("ERROR"), MB_OK | MB_ICONEXCLAMATION);
+        }
         else
+        {
             //error message display
             MessageBox(NULL, lpwErrorInfo, TEXT("ERROR"), MB_OK | MB_ICONEXCLAMATION);
+        }
 
         SAFE_DELETEARRAY(lpwErrorInfo);
         return FALSE;
     }
     //move to the next available shader slot in this program
-    m_pEffectPrograms[iEffectProgramIndex].iCurrentShaderIndex++;
+    m_pEffectPrograms[effectProgramIndex].currentShaderIndex++;
 
     //load shader source
-    int iShaderCodeCharNum = lstrlen(lpcwShaderSource);
-    GLchar* lpstrShaderCode = new GLchar[iShaderCodeCharNum + 1];//add 1 for '\0'
+    int shaderCodeCharNum = lstrlen(pShaderSource);
+    GLchar* pShaderCode = new GLchar[shaderCodeCharNum + 1];//add 1 for '\0'
     //glsl only uses 8bit char string
-    WideCharToMultiByte(CP_ACP, NULL, lpcwShaderSource, -1, lpstrShaderCode, iShaderCodeCharNum + 1, NULL, NULL);
-    glShaderSource(gluiShaderID, 1, (const GLchar**)&lpstrShaderCode, NULL);
-    SAFE_DELETEARRAY(lpstrShaderCode);
+    WideCharToMultiByte(CP_ACP, NULL, pShaderSource, -1, pShaderCode, shaderCodeCharNum + 1, NULL, NULL);
+    glShaderSource(shaderID, 1, (const GLchar**)&pShaderCode, NULL);
+    SAFE_DELETEARRAY(pShaderCode);
 
     //compile the shader
-    glCompileShader(gluiShaderID);
-    GLint gliCompilingResult;
-    glGetShaderiv(gluiShaderID, GL_COMPILE_STATUS, &gliCompilingResult);
-    if (GL_FALSE == gliCompilingResult)
+    glCompileShader(shaderID);
+    GLint compilingResult;
+    glGetShaderiv(shaderID, GL_COMPILE_STATUS, &compilingResult);
+    if (GL_FALSE == compilingResult)
     {
 #ifdef _DEBUG//print the compiling errors if in debug build
         //output string: "shader effect name vertex shader compilation failed!" 
-        OutputDebugString(m_pEffectPrograms[iEffectProgramIndex].lpwEffectName);
-        if (gluiShaderType == GL_VERTEX_SHADER)
-            OutputDebugString(L" vertex shader compilation failed!\n");
-        else if (gluiShaderType == GL_FRAGMENT_SHADER)
-            OutputDebugString(L" fragment shader compilation failed!\n");
-        GLint gliLogCharNum;
-        glGetShaderiv(gluiShaderID, GL_INFO_LOG_LENGTH, &gliLogCharNum);//'\0' is included
-        if (gliLogCharNum > 0)
+        OutputDebugString(m_pEffectPrograms[effectProgramIndex].pEffectName);
+        if (shaderType == GL_VERTEX_SHADER)
         {
-            char* lpstrLog = new char[gliLogCharNum];
+            OutputDebugString(L" vertex shader compilation failed!\n");
+        }
+        else if (shaderType == GL_FRAGMENT_SHADER)
+        {
+            OutputDebugString(L" fragment shader compilation failed!\n");
+        }
+        GLint logCharNum;
+        glGetShaderiv(shaderID, GL_INFO_LOG_LENGTH, &logCharNum);//'\0' is included
+        if (logCharNum > 0)
+        {
+            char* lpstrLog = new char[logCharNum];
             GLsizei glsizeReturnedCharNum;//'\0' is not included
-            glGetShaderInfoLog(gluiShaderID, gliLogCharNum, &glsizeReturnedCharNum, lpstrLog);
+            glGetShaderInfoLog(shaderID, logCharNum, &glsizeReturnedCharNum, lpstrLog);
             LPWSTR lpwLog = new WCHAR[glsizeReturnedCharNum + 1];//add 1 for '\0'
             MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, lpstrLog, -1, lpwLog, glsizeReturnedCharNum + 1);
             OutputDebugString(L"Shader log: \n");
@@ -366,65 +382,75 @@ BOOL OpenGLRenderer::CreateShader(int iEffectProgramIndex, LPCWSTR lpcwShaderSou
 }
 //create a glsl shader program object using a given GLSLEffect struct
 //once a program is created, its ID will be store in the same struct
-BOOL OpenGLRenderer::CreateShaderProgram(int iEffectProgramIndex)
+BOOL OpenGLRenderer::CreateShaderProgram(int effectProgramIndex)
 {
     //request a program id from opengl
-    GLuint gluiProgramID = glCreateProgram();
-    m_pEffectPrograms[iEffectProgramIndex].gluiProgramID = gluiProgramID;
-    if (gluiProgramID == 0)
+    GLuint programID = glCreateProgram();
+    m_pEffectPrograms[effectProgramIndex].programID = programID;
+    if (programID == 0)
     {
         //error message generation
-        unsigned int uiErrorInfoLength = (unsigned int)lstrlen(m_pEffectPrograms[iEffectProgramIndex].lpwEffectName);
-        uiErrorInfoLength = lstrlen(TEXT("GLSL shader effect ")) + uiErrorInfoLength
+        unsigned int errorInfoLength = (unsigned int)lstrlen(m_pEffectPrograms[effectProgramIndex].pEffectName);
+        errorInfoLength = lstrlen(TEXT("GLSL shader effect ")) + errorInfoLength
             + lstrlen(TEXT(" program id generation failed!!")) + 1;//for the NULL terminator
-        LPWSTR lpwErrorInfo = new WCHAR[uiErrorInfoLength];
+        LPWSTR pErrorInfo = new WCHAR[errorInfoLength];
 
-        if (StringCbCopy(lpwErrorInfo, uiErrorInfoLength * sizeof(WCHAR), TEXT("GLSL shader effect ")) != S_OK)//first part of the error text
+        if (StringCbCopy(pErrorInfo, errorInfoLength * sizeof(WCHAR), TEXT("GLSL shader effect ")) != S_OK)//first part of the error text
+        {
             MessageBox(NULL, TEXT("OpenGLRenderer::CreateShaderProgram String copy failed"), TEXT("ERROR"), MB_OK | MB_ICONEXCLAMATION);
-        else if (StringCbCat(lpwErrorInfo, uiErrorInfoLength * sizeof(WCHAR), m_pEffectPrograms[iEffectProgramIndex].lpwEffectName) != S_OK)//second part
+        }
+        else if (StringCbCat(pErrorInfo, errorInfoLength * sizeof(WCHAR), m_pEffectPrograms[effectProgramIndex].pEffectName) != S_OK)//second part
+        {
             MessageBox(NULL, TEXT("OpenGLRenderer::CreateShaderProgram String cat failed"), TEXT("ERROR"), MB_OK | MB_ICONEXCLAMATION);
-        else if (StringCbCat(lpwErrorInfo, uiErrorInfoLength * sizeof(WCHAR), TEXT(" program id generation failed!!")) != S_OK)//third part
+        }
+        else if (StringCbCat(pErrorInfo, errorInfoLength * sizeof(WCHAR), TEXT(" program id generation failed!!")) != S_OK)//third part
+        {
             MessageBox(NULL, TEXT("OpenGLRenderer::CreateShaderProgram String cat failed"), TEXT("ERROR"), MB_OK | MB_ICONEXCLAMATION);
+        }
         else
+        {   
             //error message display
-            MessageBox(NULL, lpwErrorInfo, TEXT("ERROR"), MB_OK | MB_ICONEXCLAMATION);
+            MessageBox(NULL, pErrorInfo, TEXT("ERROR"), MB_OK | MB_ICONEXCLAMATION);
+        }
 
-        SAFE_DELETEARRAY(lpwErrorInfo);
+        SAFE_DELETEARRAY(pErrorInfo);
         return FALSE;
     }
 
     //attach all shaders
-    for (int i = 0; i < m_pEffectPrograms[iEffectProgramIndex].iShaderCount; i++)
-        glAttachShader(gluiProgramID, m_pEffectPrograms[iEffectProgramIndex].pgluiShaderIDs[i]);
+    for (int i = 0; i < m_pEffectPrograms[effectProgramIndex].shaderCount; i++)
+    {
+        glAttachShader(programID, m_pEffectPrograms[effectProgramIndex].pShaderIDs[i]);
+    }
 
     //bind all the attributes with user-defined indices
-    for (int i = 0; i < m_pEffectPrograms[iEffectProgramIndex].iAttribCount; i++)
+    for (int i = 0; i < m_pEffectPrograms[effectProgramIndex].attribCount; i++)
     {
         //convert attribute names to 8bit char strings
-        int iNameCharNum = lstrlen(m_pEffectPrograms[iEffectProgramIndex].lppwAttribNames[i]);
+        int iNameCharNum = lstrlen(m_pEffectPrograms[effectProgramIndex].ppAttribNames[i]);
         GLchar* lpstrName = new GLchar[iNameCharNum + 1];//add 1 for '\0'
-        WideCharToMultiByte(CP_ACP, NULL, m_pEffectPrograms[iEffectProgramIndex].lppwAttribNames[i],
+        WideCharToMultiByte(CP_ACP, NULL, m_pEffectPrograms[effectProgramIndex].ppAttribNames[i],
             -1, lpstrName, iNameCharNum + 1, NULL, NULL);
-        glBindAttribLocation(gluiProgramID, i, lpstrName);//that's why order in the lppwAttribNames is very important!!!!
+        glBindAttribLocation(programID, i, lpstrName);//that's why order in the lppwAttribNames is very important!!!!
         SAFE_DELETEARRAY(lpstrName);
     }
 
     //link the program
-    glLinkProgram(gluiProgramID);
+    glLinkProgram(programID);
     GLint gliStatus;
-    glGetProgramiv(gluiProgramID, GL_LINK_STATUS, &gliStatus);
+    glGetProgramiv(programID, GL_LINK_STATUS, &gliStatus);
     if (GL_FALSE == gliStatus)
     {
 #ifdef _DEBUG//print the link errors if in debug build
-        OutputDebugString(m_pEffectPrograms[iEffectProgramIndex].lpwEffectName);
+        OutputDebugString(m_pEffectPrograms[effectProgramIndex].pEffectName);
         OutputDebugString(L" program failed to link!\n");
         GLint gliLogCharNum;
-        glGetProgramiv(gluiProgramID, GL_INFO_LOG_LENGTH, &gliLogCharNum);//'\0' is included
+        glGetProgramiv(programID, GL_INFO_LOG_LENGTH, &gliLogCharNum);//'\0' is included
         if (gliLogCharNum > 0)
         {
             char* lpstrLog = new char[gliLogCharNum];
             GLsizei glsizeReturnedCharNum;//'\0' is not included
-            glGetProgramInfoLog(gluiProgramID, gliLogCharNum, &glsizeReturnedCharNum, lpstrLog);
+            glGetProgramInfoLog(programID, gliLogCharNum, &glsizeReturnedCharNum, lpstrLog);
             LPWSTR lpwLog = new WCHAR[glsizeReturnedCharNum + 1];//add 1 for '\0'
             MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, lpstrLog, -1, lpwLog, glsizeReturnedCharNum + 1);
             OutputDebugString(L"Program log: \n");
@@ -446,23 +472,23 @@ BOOL OpenGLRenderer::CreateShaderProgram(int iEffectProgramIndex)
 //due to the limitation of the current data structure used, this is only a helper function called by destructor
 void OpenGLRenderer::DeleteEffectPrograms()
 {
-    for (int i = 0; i < m_iEffectProgramCount; i++)
+    for (int i = 0; i < m_effectProgramCount; i++)
     {
-        if (m_pEffectPrograms[i].pgluiShaderIDs != NULL)//only if this GLSLEffectProgram array element is used
+        if (m_pEffectPrograms[i].pShaderIDs != NULL)//only if this GLSLEffectProgram array element is used
         {
             //delete shaders
-            for (int j = 0; j < m_pEffectPrograms[i].iShaderCount; j++)
+            for (int j = 0; j < m_pEffectPrograms[i].shaderCount; j++)
             {
-                glDetachShader(m_pEffectPrograms[i].gluiProgramID,
-                    m_pEffectPrograms[i].pgluiShaderIDs[j]);
-                glDeleteShader(m_pEffectPrograms[i].pgluiShaderIDs[j]);
+                glDetachShader(m_pEffectPrograms[i].programID,
+                    m_pEffectPrograms[i].pShaderIDs[j]);
+                glDeleteShader(m_pEffectPrograms[i].pShaderIDs[j]);
             }
-            SAFE_DELETEARRAY(m_pEffectPrograms[i].pgluiShaderIDs);
+            SAFE_DELETEARRAY(m_pEffectPrograms[i].pShaderIDs);
 
             //delete program
-            glDeleteProgram(m_pEffectPrograms[i].gluiProgramID);
+            glDeleteProgram(m_pEffectPrograms[i].programID);
 
-            SAFE_DELETEARRAY(m_pEffectPrograms[i].lppwAttribNames);
+            SAFE_DELETEARRAY(m_pEffectPrograms[i].ppAttribNames);
         }
     }
 
@@ -472,13 +498,13 @@ void OpenGLRenderer::DeleteEffectPrograms()
 //due to the limitation of the current data structure used, this is only a helper function called by destructor
 void OpenGLRenderer::DeleteVertexArrayObjects()
 {
-    for (int i = 0; i < m_iVertexArrayObjectCount; i++)
+    for (int i = 0; i < m_vertexArrayObjectCount; i++)
     {
-        if (m_pVertexArrayObjects[i].pgluiVBOs != NULL)
+        if (m_pVertexArrayObjects[i].pVBOs != NULL)
         {
-            glDeleteBuffers(m_pVertexArrayObjects[i].iAttribCount, m_pVertexArrayObjects[i].pgluiVBOs);
-            SAFE_DELETEARRAY(m_pVertexArrayObjects[i].pgluiVBOs);
-            glDeleteVertexArrays(1, &(m_pVertexArrayObjects[i].gluiID));
+            glDeleteBuffers(m_pVertexArrayObjects[i].attribCount, m_pVertexArrayObjects[i].pVBOs);
+            SAFE_DELETEARRAY(m_pVertexArrayObjects[i].pVBOs);
+            glDeleteVertexArrays(1, &(m_pVertexArrayObjects[i].ID));
         }
     }
 

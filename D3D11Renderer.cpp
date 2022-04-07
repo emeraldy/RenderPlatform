@@ -104,6 +104,7 @@ BOOL D3D11Renderer::Initialise(HWND hWindow, int winWidth, int winHeight)
     }
 
     IDXGIAdapter* pdxgiAdapter = nullptr;
+    IDXGIFactory* pdxgiFactory = nullptr;
     hr = pdxgiDevice->GetParent(__uuidof(IDXGIAdapter), (void**)&pdxgiAdapter);
     if (FAILED(hr))
     {
@@ -111,7 +112,6 @@ BOOL D3D11Renderer::Initialise(HWND hWindow, int winWidth, int winHeight)
         goto failExit;
     }
 
-    IDXGIFactory* pdxgiFactory = nullptr;
     hr = pdxgiAdapter->GetParent(__uuidof(IDXGIFactory), (void**)&pdxgiFactory);
     if (FAILED(hr))
     {
@@ -160,6 +160,9 @@ void D3D11Renderer::OnWindowResize(int winWidth, int winHeight)
 
     // Create the render target buffer and view.
     ID3D11Texture2D* pBackBuffer = nullptr;
+    ID3D11Texture2D* pDepthStencilBuffer = nullptr;
+    D3D11_TEXTURE2D_DESC depthStencilDesc = {};
+    DXGI_SWAP_CHAIN_DESC swapChainDesc;
     hr = m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&pBackBuffer));
     if (FAILED(hr))
     {
@@ -175,10 +178,6 @@ void D3D11Renderer::OnWindowResize(int winWidth, int winHeight)
     }
 
     // Create the depth/stencil buffer and view.
-    ID3D11Texture2D* pDepthStencilBuffer = nullptr;
-    D3D11_TEXTURE2D_DESC depthStencilDesc = {};
-    DXGI_SWAP_CHAIN_DESC swapChainDesc;
-    
     m_pSwapChain->GetDesc(&swapChainDesc);
     depthStencilDesc.Width = winWidth;
     depthStencilDesc.Height = winHeight;
