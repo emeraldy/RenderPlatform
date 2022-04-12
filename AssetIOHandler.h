@@ -23,24 +23,26 @@
 //This class only handles asset file I/O in byte form. It doesn't
 //interpret the actual content it reads or writes.
 //-----------------------------------------------------------------
-
-class AssetIOHandler
+namespace Emerald
 {
-protected:
-    BYTE* m_pBuffer;
-    DWORD m_bufferSize;//in byte, of course
+    class AssetIOHandler
+    {
+    protected:
+        BYTE* m_pBuffer;
+        DWORD m_bufferSize;//in byte, of course
 
-public:
-    //Constructor/Destructor
-    AssetIOHandler();
-    ~AssetIOHandler();
+    public:
+        //Constructor/Destructor
+        AssetIOHandler();
+        ~AssetIOHandler();
 
-    //General class functions
-    BOOL LoadAsset(LPCWSTR lpcwFileName);
+        //General class functions
+        BOOL LoadAsset(LPCWSTR lpcwFileName);
 
-    //Accessors
-    const BYTE*   GetBuffer() { return m_pBuffer; }
-    void          SetBuffer(BYTE* pNewBuffer) { SAFE_DELETEARRAY(m_pBuffer); m_pBuffer = pNewBuffer; }//test this!!!!!!!!!!!!
-    DWORD         GetBufferSize() { return m_bufferSize; }
-    void          SetBufferSize(DWORD newSize) { m_bufferSize = newSize; }
-};
+        //Accessors
+        const BYTE* GetBuffer() { return m_pBuffer; }
+        void          SetBuffer(BYTE* pNewBuffer) { SAFE_DELETEARRAY(m_pBuffer); m_pBuffer = pNewBuffer; }//test this!!!!!!!!!!!!
+        DWORD         GetBufferSize() { return m_bufferSize; }
+        void          SetBufferSize(DWORD newSize) { m_bufferSize = newSize; }
+    };
+}

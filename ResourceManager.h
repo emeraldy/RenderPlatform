@@ -18,69 +18,66 @@
 #include <string>
 #include <Strsafe.h>
 
-//-----------------------------------------------------------------
-// Macros Definition
-//-----------------------------------------------------------------
-
-
-//-----------------------------------------------------------------
-//data structure definitions
-//-----------------------------------------------------------------
-struct GLSLShader
+namespace Emerald
 {
-    GLuint  type;
-    LPWSTR  pFileName;
-    int     index;//index into the text resource pool
-};
+    //-----------------------------------------------------------------
+    //data structure definitions
+    //-----------------------------------------------------------------
+    struct GLSLShader
+    {
+        GLuint  type;
+        LPWSTR  pFileName;
+        int     index;//index into the text resource pool
+    };
 
-struct GLSLEffect
-{
-    GLSLShader* pGLSLShaders;
-    int         glShaderCount;
-    LPWSTR      pEffectName;
-    int         effectProgramIndex;//index into the GLSLEffectProgram pool maintained by OpenglRenderer
-    LPWSTR*     ppAttribNames;
-    int         attribCount;
-};
+    struct GLSLEffect
+    {
+        GLSLShader* pGLSLShaders;
+        int         glShaderCount;
+        LPWSTR      pEffectName;
+        int         effectProgramIndex;//index into the GLSLEffectProgram pool maintained by OpenglRenderer
+        LPWSTR* ppAttribNames;
+        int         attribCount;
+    };
 
-struct Mesh//mesh structure for storing model information, very crude for now
-{
-    float* pPositions;
-    float* pColours;
-    int    vertexCount;
-    int    vertexSize;//the dimension of a vertex
-};
+    struct Mesh//mesh structure for storing model information, very crude for now
+    {
+        float* pPositions;
+        float* pColours;
+        int    vertexCount;
+        int    vertexSize;//the dimension of a vertex
+    };
 
-struct Texture2D
-{
-    //texture data info
-    GLsizei width;
-    GLsizei height;
-    GLenum  pixelFormatClient;
-    GLenum  channelType;
-    GLint   pixelDataAlignment;//1, 2, 4 or 8  
+    struct Texture2D
+    {
+        //texture data info
+        GLsizei width;
+        GLsizei height;
+        GLenum  pixelFormatClient;
+        GLenum  channelType;
+        GLint   pixelDataAlignment;//1, 2, 4 or 8  
 
-    GLint   pixelFormatInternal;
+        GLint   pixelFormatInternal;
 
-    //texture paramter for openGL
-    GLint   minFilter;
-    GLint   magFilter;
-    GLint   wrapS;
-    GLint   wrapT;
+        //texture paramter for openGL
+        GLint   minFilter;
+        GLint   magFilter;
+        GLint   wrapS;
+        GLint   wrapT;
 
-    BYTE*   pData;
-};
+        BYTE* pData;
+    };
 
-//-----------------------------------------------------------------
-// Resource Manager Class
-//-----------------------------------------------------------------
-class ResourceManager
-{
+    //-----------------------------------------------------------------
+    // Resource Manager Class
+    //-----------------------------------------------------------------
+    class ResourceManager
+    {
     protected:
         AssetIOHandler* m_pAssetIOHandler;
 
         //text resource pool
-        LPWSTR*     m_ppTextResources;
+        LPWSTR* m_ppTextResources;
         int         m_textResourceCount;
         int         m_currentTextResourceIndex;
 
@@ -93,12 +90,12 @@ class ResourceManager
         std::map<std::string, ID3D10Blob*> m_HLSLShaderCodes;
 
         //mesh resource pool
-        Mesh*       m_pMeshResources;
+        Mesh* m_pMeshResources;
         int         m_meshResourceCount;
         int         m_currentMeshResourceIndex;
 
         //texture resource pool
-        Texture2D*  m_pTexture2DResources;
+        Texture2D* m_pTexture2DResources;
         int         m_texture2DResourceCount;
         int         m_currentTexture2DResourceIndex;
 
@@ -125,5 +122,6 @@ class ResourceManager
         const int        GetTextResourceCount() { return m_textResourceCount; }
         const GLSLEffect GetGLSLEffectResource(int index) { return m_pGLSLEffectResources[index]; }
         const Mesh       GetMeshResource(int index) { return m_pMeshResources[index]; }
-        ID3D10Blob*      GetHLSLShader(std::string name);
-};
+        ID3D10Blob* GetHLSLShader(std::string name);
+    };
+}

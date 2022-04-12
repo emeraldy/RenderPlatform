@@ -14,47 +14,28 @@
 #include "ResourceManager.h"
 #include <Strsafe.h>
 #include "pch.h"
-
-//-----------------------------------------------------------------
-// Windows Function Declarations
-//-----------------------------------------------------------------
-int WINAPI        WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
-                          PSTR szCmdLine, int iCmdShow);
-LRESULT CALLBACK  WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-
-//-----------------------------------------------------------------
-// Game Engine Function Declarations
-//-----------------------------------------------------------------
-BOOL GameInitialise(HINSTANCE hInstance);
-void GameStart(HWND hWindow);
-void GameEnd();
-void GameActivate(HWND hWindow);
-void GameDeactivate(HWND hWindow);
-HRESULT GamePaint();//rendering
-void GameCycle();//game control logic
-
-//-----------------------------------------------------------------
-// Macros Definition
-//-----------------------------------------------------------------
+#include "GameApp.h"
 
 
 
 //-----------------------------------------------------------------
 // Game Engine Class
 //-----------------------------------------------------------------
-class GameEngine
+namespace Emerald
 {
+    class GameEngine
+    {
     protected:
-        static GameEngine*     m_pGameEngine;
         HINSTANCE              m_hInstance;
         HWND                   m_hWindow;
-        WCHAR*                 m_pWindowClass;
-        WCHAR*                 m_pTitle;
+        WCHAR* m_pWindowClass;
+        WCHAR* m_pTitle;
         WORD                   m_icon, m_smallIcon;
         int                    m_clientWidth, m_clientHeight;
         int                    m_frameDelay;
         BOOL                   m_sleep;
         BOOL                   m_windowed;
+        GameApp* m_pGameApp;
 
         //window size states
         bool                   m_appPaused;
@@ -63,24 +44,22 @@ class GameEngine
         bool                   m_resizing;
 
         //subsystems
-        D3D11Renderer*    m_pD3D11Renderer;
-        OpenGLRenderer*   m_pOpenGLRenderer;
+        D3D11Renderer* m_pD3D11Renderer;
+        OpenGLRenderer* m_pOpenGLRenderer;
 
-        ResourceManager*  m_pResourceManager;
+        ResourceManager* m_pResourceManager;
 
     public:
         // Constructor(s)/Destructor
-        GameEngine(HINSTANCE hInstance, LPTSTR szWindowClass, LPTSTR szTitle,
+        GameEngine(HINSTANCE hInstance, GameApp* pGameApp, LPTSTR szWindowClass, LPTSTR szTitle,
             WORD icon, WORD smallIcon, int width = 800, int height = 600);
         ~GameEngine();
 
         // General Methods
-
         BOOL                Initialise(int iCmdShow);
         LRESULT             HandleEvent(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam);
 
         // Accessor Methods
-        static GameEngine*  GetEngine() { return m_pGameEngine; };
         HINSTANCE           GetInstance() { return m_hInstance; };
         HWND                GetWindow() { return m_hWindow; };
         void                SetWindow(HWND hWindow) { m_hWindow = hWindow; };
@@ -96,7 +75,9 @@ class GameEngine
         BOOL                GetSleep() { return m_sleep; };
         void                SetSleep(BOOL isSleep) { m_sleep = isSleep; };
         BOOL                GetWindowed() { return m_windowed; }
-        D3D11Renderer*      GetD3D11Renderer() { return m_pD3D11Renderer; }
-        OpenGLRenderer*     GetOpenGLRenderer() { return m_pOpenGLRenderer; }
-        ResourceManager*    GetResourceManager() { return m_pResourceManager; }
-};
+        void                SetGameApp(GameApp* pGameApp) { m_pGameApp = pGameApp; }
+        D3D11Renderer* GetD3D11Renderer() { return m_pD3D11Renderer; }
+        OpenGLRenderer* GetOpenGLRenderer() { return m_pOpenGLRenderer; }
+        ResourceManager* GetResourceManager() { return m_pResourceManager; }
+    };
+}

@@ -7,12 +7,15 @@
 // Include Files
 //-----------------------------------------------------------------
 #include "ResourceManager.h"
-
-//-----------------------------------------------------------------
-// helper function definitions
-//-----------------------------------------------------------------
-//callback function for libpng reading from memory
-void LoadPNGFromMemory(png_structp png_ptr, png_bytep data, png_size_t length);
+using namespace Emerald;
+namespace Emerald
+{
+    //-----------------------------------------------------------------
+    // helper function definitions
+    //-----------------------------------------------------------------
+    //callback function for libpng reading from memory
+    void LoadPNGFromMemory(png_structp png_ptr, png_bytep data, png_size_t length);
+}
 
 //-----------------------------------------------------------------
 // Class function definitions
@@ -236,7 +239,7 @@ int ResourceManager::GenerateMeshResource(Mesh* pMeshData)
     m_currentMeshResourceIndex++;
     return m_currentMeshResourceIndex - 1;
 }
-void LoadPNGFromMemory(png_structp png_ptr, png_bytep data, png_size_t length)
+void Emerald::LoadPNGFromMemory(png_structp png_ptr, png_bytep data, png_size_t length)
 {
     //get the buffer head
     png_voidp pSourceBuffer = png_get_io_ptr(png_ptr);

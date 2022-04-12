@@ -6,7 +6,7 @@
 // Include Files
 //-----------------------------------------------------------------
 #include "OpenGLRenderer.h"
-
+using namespace Emerald;
 extern BOOL ISWINDOWED;
 
 LRESULT CALLBACK dummyWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)

@@ -15,38 +15,36 @@
 #include "glm/glm.hpp"
 #include "pch.h"
 
-//-----------------------------------------------------------------
-// Macros Definition
-//-----------------------------------------------------------------
-
-//-----------------------------------------------------------------
-//data structure definitions
-//-----------------------------------------------------------------
-struct GLSLEffectProgram//basically the openglrenderer equivalent of the one in resource manager
+namespace Emerald
 {
-    int          shaderCount;
-    int          currentShaderIndex;//remember the next available shader slot in this program
-    LPWSTR       pEffectName;
-    GLuint*      pShaderIDs;
-    GLuint       programID;
-    LPWSTR*      ppAttribNames;//vertex attribute names declared in shaders, ordered by their attribute index
-    int          attribCount;
-};
+    //-----------------------------------------------------------------
+    //data structure definitions
+    //-----------------------------------------------------------------
+    struct GLSLEffectProgram//basically the openglrenderer equivalent of the one in resource manager
+    {
+        int          shaderCount;
+        int          currentShaderIndex;//remember the next available shader slot in this program
+        LPWSTR       pEffectName;
+        GLuint* pShaderIDs;
+        GLuint       programID;
+        LPWSTR* ppAttribNames;//vertex attribute names declared in shaders, ordered by their attribute index
+        int          attribCount;
+    };
 
-struct VertexArrayObject
-{
-    GLuint  ID;
-    LPWSTR  pModelName;
-    GLuint* pVBOs;//important!!!!: use them in the order of corresponding attribute indices
-    int     attribCount;
-};
+    struct VertexArrayObject
+    {
+        GLuint  ID;
+        LPWSTR  pModelName;
+        GLuint* pVBOs;//important!!!!: use them in the order of corresponding attribute indices
+        int     attribCount;
+    };
 
-//-----------------------------------------------------------------
-// OpenGL Renderer Class
-//-----------------------------------------------------------------
+    //-----------------------------------------------------------------
+    // OpenGL Renderer Class
+    //-----------------------------------------------------------------
 
-class OpenGLRenderer
-{
+    class OpenGLRenderer
+    {
     protected:
         HGLRC              m_renderContext;
         HDC                m_hDC;
@@ -85,4 +83,5 @@ class OpenGLRenderer
         void        SetHDC(HDC hdc) { m_hDC = hdc; }
         BOOL        GetIsWindowed() { return m_isWindowed; }
         void        SetIsWindowed(BOOL isWindowed) { m_isWindowed = isWindowed; }
-};
+    };
+}

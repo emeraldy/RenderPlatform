@@ -6,7 +6,7 @@
 // Include Files
 //-----------------------------------------------------------------
 #include "D3D11Renderer.h"
-
+using namespace Emerald;
 using namespace Microsoft::WRL;
 
 D3D11Renderer::D3D11Renderer()

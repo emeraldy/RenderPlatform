@@ -7,84 +7,34 @@
 // Include Files
 //-----------------------------------------------------------------
 #include "GameEngine.h"
-
 //-----------------------------------------------------------------
 // Global parameters (some system setting variables will later be 
 //replaced by reading from e.g., ini files)
 //-----------------------------------------------------------------
-
 BOOL ISWINDOWED = TRUE;
 BOOL USED3D11 = FALSE;
 int OPENGLMAJORVERSION = 4;
 int OPENGLMINORVERSION = 0;
-GameEngine* GameEngine::m_pGameEngine = NULL;
 
+using namespace Emerald;
+GameEngine* pGameEngine = nullptr;
 
 //-----------------------------------------------------------------
 // Windows Functions
 //-----------------------------------------------------------------
-int WINAPI  WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
-    PSTR szCmdLine, int iCmdShow)
-{
-    MSG         msg;
-    static int  tickTrigger = 0;
-    int         tickCount;
-
-    if (GameInitialise(hInstance))//Instantiate an engine
-    {
-        // Initialise the game engine (bring subsystems online)
-        if (!GameEngine::GetEngine()->Initialise(iCmdShow))
-            return FALSE;
-
-        // Enter the main message loop
-        while (TRUE)
-        {
-            if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-            {
-                // Process the message
-                if (msg.message == WM_QUIT)
-                    break;
-                TranslateMessage(&msg);
-                DispatchMessage(&msg);
-            }
-            else
-            {
-                // Make sure the game engine isn't sleeping
-                if (!GameEngine::GetEngine()->GetSleep())
-                {
-                    // Check the tick count to see if a game cycle has elapsed
-                    tickCount = GetTickCount();
-                    if (tickCount > tickTrigger)
-                    {
-                        tickTrigger = tickCount +
-                            GameEngine::GetEngine()->GetFrameDelay();
-                        GameCycle();
-                    }
-                }
-            }
-        }
-    }
-
-    // End the game
-    GameEnd();
-
-    return TRUE;
-}
-
 LRESULT CALLBACK WndProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     // Route all Windows messages to the game engine
-    return GameEngine::GetEngine()->HandleEvent(hWindow, msg, wParam, lParam);
+    return pGameEngine->HandleEvent(hWindow, msg, wParam, lParam);
 }
 
 //-----------------------------------------------------------------
 // GameEngine Constructor(s)/Destructor
 //-----------------------------------------------------------------
-GameEngine::GameEngine(HINSTANCE hInstance, LPTSTR szWindowClass,
+GameEngine::GameEngine(HINSTANCE hInstance, GameApp* pGameApp, LPTSTR szWindowClass,
     LPTSTR szTitle, WORD icon, WORD smallIcon, int width, int height)
 {
     // Set the member variables for the game engine
-    m_pGameEngine = this;
     m_hInstance = hInstance;
     m_hWindow = NULL;
     m_pWindowClass = new WCHAR[32];
@@ -121,6 +71,7 @@ GameEngine::GameEngine(HINSTANCE hInstance, LPTSTR szWindowClass,
     m_frameDelay = 50;   // 20 FPS default
     m_sleep = TRUE;
     m_windowed = ISWINDOWED;
+    m_pGameApp = pGameApp;
 
     m_appPaused = false;
     m_minimised = false;
@@ -250,7 +201,7 @@ BOOL GameEngine::Initialise(int iCmdShow)
 
     // Set the game window and start the game
     SetWindow(m_hWindow);
-    GameStart(m_hWindow);
+    m_pGameApp->GameStart();
 
     // Show and update the window
     ShowWindow(m_hWindow, iCmdShow);
@@ -268,12 +219,12 @@ LRESULT GameEngine::HandleEvent(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lP
             // Activate/deactivate the game and update the Sleep status
             if (wParam != WA_INACTIVE)
             {
-                GameActivate(hWindow);
+                m_pGameApp->GameActivate();
                 SetSleep(FALSE);
             }
             else
             {
-                GameDeactivate(hWindow);
+                m_pGameApp->GameDeactivate();
                 SetSleep(TRUE);
             }
             return 0;
