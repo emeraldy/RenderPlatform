@@ -28,14 +28,14 @@ namespace Emerald
     protected:
         HINSTANCE              m_hInstance;
         HWND                   m_hWindow;
-        WCHAR* m_pWindowClass;
-        WCHAR* m_pTitle;
+        WCHAR*                 m_pWindowClass;
+        WCHAR*                 m_pTitle;
         WORD                   m_icon, m_smallIcon;
         int                    m_clientWidth, m_clientHeight;
         int                    m_frameDelay;
         BOOL                   m_sleep;
         BOOL                   m_windowed;
-        GameApp* m_pGameApp;
+        GameApp*               m_pGameApp;
 
         //window size states
         bool                   m_appPaused;
@@ -44,10 +44,10 @@ namespace Emerald
         bool                   m_resizing;
 
         //subsystems
-        D3D11Renderer* m_pD3D11Renderer;
-        OpenGLRenderer* m_pOpenGLRenderer;
+        D3D11Renderer*         m_pD3D11Renderer;
+        OpenGLRenderer*        m_pOpenGLRenderer;
 
-        ResourceManager* m_pResourceManager;
+        ResourceManager*       m_pResourceManager;
 
     public:
         // Constructor(s)/Destructor
@@ -76,8 +76,8 @@ namespace Emerald
         void                SetSleep(BOOL isSleep) { m_sleep = isSleep; };
         BOOL                GetWindowed() { return m_windowed; }
         void                SetGameApp(GameApp* pGameApp) { m_pGameApp = pGameApp; }
-        D3D11Renderer* GetD3D11Renderer() { return m_pD3D11Renderer; }
-        OpenGLRenderer* GetOpenGLRenderer() { return m_pOpenGLRenderer; }
-        ResourceManager* GetResourceManager() { return m_pResourceManager; }
+        D3D11Renderer*      GetD3D11Renderer() { return m_pD3D11Renderer; }
+        OpenGLRenderer*     GetOpenGLRenderer() { return m_pOpenGLRenderer; }
+        ResourceManager*    GetResourceManager() { return m_pResourceManager; }
     };
 }

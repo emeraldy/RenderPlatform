@@ -36,7 +36,7 @@ namespace Emerald
         int         glShaderCount;
         LPWSTR      pEffectName;
         int         effectProgramIndex;//index into the GLSLEffectProgram pool maintained by OpenglRenderer
-        LPWSTR* ppAttribNames;
+        LPWSTR*     ppAttribNames;
         int         attribCount;
     };
 
@@ -65,7 +65,7 @@ namespace Emerald
         GLint   wrapS;
         GLint   wrapT;
 
-        BYTE* pData;
+        BYTE*   pData;
     };
 
     //-----------------------------------------------------------------
@@ -77,7 +77,7 @@ namespace Emerald
         AssetIOHandler* m_pAssetIOHandler;
 
         //text resource pool
-        LPWSTR* m_ppTextResources;
+        LPWSTR*     m_ppTextResources;
         int         m_textResourceCount;
         int         m_currentTextResourceIndex;
 
@@ -90,12 +90,12 @@ namespace Emerald
         std::map<std::string, ID3D10Blob*> m_HLSLShaderCodes;
 
         //mesh resource pool
-        Mesh* m_pMeshResources;
+        Mesh*       m_pMeshResources;
         int         m_meshResourceCount;
         int         m_currentMeshResourceIndex;
 
         //texture resource pool
-        Texture2D* m_pTexture2DResources;
+        Texture2D*  m_pTexture2DResources;
         int         m_texture2DResourceCount;
         int         m_currentTexture2DResourceIndex;
 
@@ -109,12 +109,12 @@ namespace Emerald
         ~ResourceManager();
 
         //General class functions
-        int GenerateTextResource(LPCWSTR pFileName, LPCWSTR pType);
-        int GenerateGLSLEffectResource(GLSLShader* pRequiredShaders, int requiredShaderCount, LPWSTR pName, LPWSTR* ppAttribs, int attribNum);
+        int     GenerateTextResource(LPCWSTR pFileName, LPCWSTR pType);
+        int     GenerateGLSLEffectResource(GLSLShader* pRequiredShaders, int requiredShaderCount, LPWSTR pName, LPWSTR* ppAttribs, int attribNum);
         HRESULT GenerateHLSLShaderResource();
         //the actual signature: int GenerateMeshResource(LPCWSTR fileName, LPCWSTR type); but for now:
-        int GenerateMeshResource(Mesh* pMeshData);
-        int GenerateTexture2DResource(LPCWSTR pFileName, LPCWSTR pType);
+        int     GenerateMeshResource(Mesh* pMeshData);
+        int     GenerateTexture2DResource(LPCWSTR pFileName, LPCWSTR pType);
 
 
         //Accessors
@@ -122,6 +122,6 @@ namespace Emerald
         const int        GetTextResourceCount() { return m_textResourceCount; }
         const GLSLEffect GetGLSLEffectResource(int index) { return m_pGLSLEffectResources[index]; }
         const Mesh       GetMeshResource(int index) { return m_pMeshResources[index]; }
-        ID3D10Blob* GetHLSLShader(std::string name);
+        ID3D10Blob*      GetHLSLShader(std::string name);
     };
 }

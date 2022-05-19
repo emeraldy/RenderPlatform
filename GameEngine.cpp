@@ -12,7 +12,7 @@
 //replaced by reading from e.g., ini files)
 //-----------------------------------------------------------------
 BOOL ISWINDOWED = TRUE;
-BOOL USED3D11 = FALSE;
+BOOL USED3D11 = TRUE;
 int OPENGLMAJORVERSION = 4;
 int OPENGLMINORVERSION = 0;
 
@@ -183,7 +183,9 @@ BOOL GameEngine::Initialise(int iCmdShow)
             return FALSE;
         }
         if (!(m_pD3D11Renderer->Initialise(m_hWindow, m_clientWidth, m_clientHeight)))
+        {
             return FALSE;
+        }
     }
     else
     {

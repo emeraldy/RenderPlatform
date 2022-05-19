@@ -12,8 +12,8 @@ int WINAPI  WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 {
     MSG         msg;
     static int  tickTrigger = 0;
-    int         tickCount;
-    TestGame* pTestGame = new TestGame();
+    int         tickCount = 0;
+    TestGame*   pTestGame = new TestGame();
     if (pTestGame == nullptr)
     {
         return FALSE;

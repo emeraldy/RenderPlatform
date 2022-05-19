@@ -41,8 +41,8 @@ namespace Emerald
 
         //Accessors
         const BYTE* GetBuffer() { return m_pBuffer; }
-        void          SetBuffer(BYTE* pNewBuffer) { SAFE_DELETEARRAY(m_pBuffer); m_pBuffer = pNewBuffer; }//test this!!!!!!!!!!!!
-        DWORD         GetBufferSize() { return m_bufferSize; }
-        void          SetBufferSize(DWORD newSize) { m_bufferSize = newSize; }
+        void        SetBuffer(BYTE* pNewBuffer) { SAFE_DELETEARRAY(m_pBuffer); m_pBuffer = pNewBuffer; }//test this!!!!!!!!!!!!
+        DWORD       GetBufferSize() { return m_bufferSize; }
+        void        SetBufferSize(DWORD newSize) { m_bufferSize = newSize; }
     };
 }
