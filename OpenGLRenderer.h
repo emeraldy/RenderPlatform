@@ -66,7 +66,7 @@ namespace Emerald
         public:
             //Constructor/Destructor
             OpenGLRenderer();
-            ~OpenGLRenderer();
+            virtual ~OpenGLRenderer();
 
             //General class functions
             BOOL       Initialise(HWND hWindow, HDC hdc, HINSTANCE hInstance, int majorVersion, int minorVersion, int profile);
@@ -79,9 +79,9 @@ namespace Emerald
             void       RenderScene();
 
             //Accessors
-            HDC         GetHDC() { return m_hDC; }
-            void        SetHDC(HDC hdc) { m_hDC = hdc; }
-            BOOL        GetIsWindowed() { return m_isWindowed; }
-            void        SetIsWindowed(BOOL isWindowed) { m_isWindowed = isWindowed; }
+            HDC        GetHDC() { return m_hDC; }
+            void       SetHDC(HDC hdc) { m_hDC = hdc; }
+            BOOL       GetIsWindowed() { return m_isWindowed; }
+            void       SetIsWindowed(BOOL isWindowed) { m_isWindowed = isWindowed; }
     };
 }

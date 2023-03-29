@@ -1,6 +1,5 @@
 //-----------------------------------------------------------------
 // Resource Manager class
-// C++ Header - ResourceManager.h
 //-----------------------------------------------------------------
 
 #pragma once
@@ -16,7 +15,6 @@
 #include "png.h"
 #include <map>
 #include <string>
-#include <Strsafe.h>
 
 namespace Emerald
 {
@@ -106,7 +104,7 @@ namespace Emerald
     public:
         //Constructor/Destructor
         ResourceManager();
-        ~ResourceManager();
+        virtual ~ResourceManager();
 
         //General class functions
         int     GenerateTextResource(LPCWSTR pFileName, LPCWSTR pType);

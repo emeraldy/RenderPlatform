@@ -1,0 +1,30 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33110.190
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "emerald", "emerald.vcxproj", "{A47A4A79-2ED6-4656-BD05-2AC8686535A6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug32|Win32 = Debug32|Win32
+		Debug32|x64 = Debug32|x64
+		Debug64|Win32 = Debug64|Win32
+		Debug64|x64 = Debug64|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A47A4A79-2ED6-4656-BD05-2AC8686535A6}.Debug32|Win32.ActiveCfg = Debug32|Win32
+		{A47A4A79-2ED6-4656-BD05-2AC8686535A6}.Debug32|Win32.Build.0 = Debug32|Win32
+		{A47A4A79-2ED6-4656-BD05-2AC8686535A6}.Debug32|x64.ActiveCfg = Debug32|Win32
+		{A47A4A79-2ED6-4656-BD05-2AC8686535A6}.Debug32|x64.Build.0 = Debug32|Win32
+		{A47A4A79-2ED6-4656-BD05-2AC8686535A6}.Debug64|Win32.ActiveCfg = Debug64|x64
+		{A47A4A79-2ED6-4656-BD05-2AC8686535A6}.Debug64|x64.ActiveCfg = Debug64|x64
+		{A47A4A79-2ED6-4656-BD05-2AC8686535A6}.Debug64|x64.Build.0 = Debug64|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6F413F4B-71F7-4EB3-95B1-2DBE91777130}
+	EndGlobalSection
+EndGlobal

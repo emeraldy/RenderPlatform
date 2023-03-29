@@ -23,7 +23,7 @@ namespace Emerald
     {
     public:
         D3D11Renderer();
-        ~D3D11Renderer();
+        virtual ~D3D11Renderer();
 
         BOOL                    Initialise(HWND hWindow, int winWidth, int winHeight);
         void                    OnWindowResize(int winWidth, int winHeight);

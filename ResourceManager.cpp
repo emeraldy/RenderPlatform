@@ -108,7 +108,7 @@ int ResourceManager::GenerateTextResource(LPCWSTR pFileName, LPCWSTR pType)
         return -1;
     }
 
-    if (m_pAssetIOHandler->LoadAsset(pFileName) == FALSE)
+    if (m_pAssetIOHandler->LoadRawAssetData(pFileName) == FALSE)
         return -1;
     //copy text to resource pool from asset io handler's local buffer
     if (lstrcmpi(pType, L"ascii") == 0)//in ANSI ASCII, convert to WCHAR
@@ -259,7 +259,7 @@ int ResourceManager::GenerateTexture2DResource(LPCWSTR pFileName, LPCWSTR pType)
         return -1;
     }
 
-    if (m_pAssetIOHandler->LoadAsset(pFileName) == FALSE)
+    if (m_pAssetIOHandler->LoadRawAssetData(pFileName) == FALSE)
         return -1;
 
     //process image data stream based on image type

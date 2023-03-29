@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------
-// Game Engine Class Header
+// Game engine class
 //-----------------------------------------------------------------
 
 #pragma once
@@ -53,7 +53,7 @@ namespace Emerald
         // Constructor(s)/Destructor
         GameEngine(HINSTANCE hInstance, GameApp* pGameApp, LPTSTR szWindowClass, LPTSTR szTitle,
             WORD icon, WORD smallIcon, int width = 800, int height = 600);
-        ~GameEngine();
+        virtual ~GameEngine();
 
         // General Methods
         BOOL                Initialise(int iCmdShow);

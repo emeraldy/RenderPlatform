@@ -14,7 +14,7 @@ namespace TestGameApp
     {
         public:
             TestGame();
-            ~TestGame() {};
+            virtual ~TestGame() {};
 
             bool GameInitialise(HINSTANCE hInstance, Emerald::GameApp* pGA);
             void GameStart();

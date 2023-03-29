@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------
-// Asset IO handler class
-// C++ Header - AssetIOHandler.h
+//This class only handles asset file I/O in byte form. It doesn't
+//interpret the actual content it reads or writes.
 //-----------------------------------------------------------------
 
 #pragma once
@@ -9,20 +9,10 @@
 // Include Files
 //-----------------------------------------------------------------
 #include <windows.h>
-#include <Strsafe.h>
+#include <string>
 #include "pch.h"
 
-//-----------------------------------------------------------------
-// Macros Definition
-//-----------------------------------------------------------------
 
-
-//-----------------------------------------------------------------
-//Asset IO class
-//
-//This class only handles asset file I/O in byte form. It doesn't
-//interpret the actual content it reads or writes.
-//-----------------------------------------------------------------
 namespace Emerald
 {
     class AssetIOHandler
@@ -34,10 +24,10 @@ namespace Emerald
     public:
         //Constructor/Destructor
         AssetIOHandler();
-        ~AssetIOHandler();
+        virtual ~AssetIOHandler();
 
         //General class functions
-        BOOL LoadAsset(LPCWSTR lpcwFileName);
+        BOOL LoadRawAssetData(LPCWSTR lpcwFileName);
 
         //Accessors
         const BYTE* GetBuffer() { return m_pBuffer; }

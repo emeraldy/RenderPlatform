@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------
-// Asset IO handler class
-// C++ Source - AssetIOHandler.cpp
+//This class only handles asset file I/O in byte form. It doesn't
+//interpret the actual content it reads or writes.
 //-----------------------------------------------------------------
 
 //-----------------------------------------------------------------
@@ -25,7 +25,7 @@ AssetIOHandler::~AssetIOHandler()
 //-----------------------------------------------------------------
 // Class general function definitions
 //-----------------------------------------------------------------
-BOOL AssetIOHandler::LoadAsset(LPCWSTR pFileName)
+BOOL AssetIOHandler::LoadRawAssetData(LPCWSTR pFileName)
 {
     DWORD fileSize;//4GB for a file
     HANDLE file;
@@ -37,23 +37,9 @@ BOOL AssetIOHandler::LoadAsset(LPCWSTR pFileName)
     if (file == INVALID_HANDLE_VALUE)
     {
         //error message display
-        unsigned int errorInfoLength = (unsigned int)lstrlen(pFileName);
-        errorInfoLength = errorInfoLength + lstrlen(TEXT(" failed to be opened!")) + 1;//for the NULL terminator
-        LPWSTR pErrorInfo = new WCHAR[errorInfoLength];
-
-        if (StringCbCopy(pErrorInfo, errorInfoLength * sizeof(WCHAR), pFileName) != S_OK)
-        {
-            MessageBox(NULL, TEXT("AssetIOHandler::LoadTextAsset String copy failed"), TEXT("ERROR"), MB_OK | MB_ICONEXCLAMATION);
-        }
-        else if (StringCbCat(pErrorInfo, errorInfoLength * sizeof(WCHAR), TEXT(" failed to be read!")) != S_OK)
-        {
-            MessageBox(NULL, TEXT("AssetIOHandler::LoadTextAsset String cat failed"), TEXT("ERROR"), MB_OK | MB_ICONEXCLAMATION);
-        }
-        else
-        {
-            MessageBox(NULL, pErrorInfo, TEXT("ERROR"), MB_OK | MB_ICONEXCLAMATION);
-        }
-        SAFE_DELETEARRAY(pErrorInfo);
+        std::wstring errorInfo(pFileName);
+        errorInfo.append(TEXT(" failed to be opened!"));
+        MessageBox(NULL, errorInfo.c_str(), TEXT("ERROR"), MB_OK | MB_ICONEXCLAMATION);
         return FALSE;
     }
 
@@ -64,23 +50,9 @@ BOOL AssetIOHandler::LoadAsset(LPCWSTR pFileName)
     if (ReadFile(file, m_pBuffer, fileSize, &bytesRead, NULL) != TRUE)
     {
         //error message display
-        unsigned int errorInfoLength = (unsigned int)lstrlen(pFileName);
-        errorInfoLength = errorInfoLength + lstrlen(TEXT(" failed to be read!")) + 1;//for the NULL terminator
-        LPWSTR pErrorInfo = new TCHAR[errorInfoLength];
-
-        if (StringCbCopy(pErrorInfo, errorInfoLength * sizeof(WCHAR), pFileName) != S_OK)
-        {
-            MessageBox(NULL, TEXT("AssetIOHandler::LoadTextAsset String copy failed"), TEXT("ERROR"), MB_OK | MB_ICONEXCLAMATION);
-        }
-        else if (StringCbCat(pErrorInfo, errorInfoLength * sizeof(WCHAR), TEXT(" failed to be read!")) != S_OK)
-        {
-            MessageBox(NULL, TEXT("AssetIOHandler::LoadTextAsset String cat failed"), TEXT("ERROR"), MB_OK | MB_ICONEXCLAMATION);
-        }
-        else
-        {
-            MessageBox(NULL, pErrorInfo, TEXT("ERROR"), MB_OK | MB_ICONEXCLAMATION);
-        }
-        SAFE_DELETEARRAY(pErrorInfo);
+        std::wstring errorInfo(pFileName);
+        errorInfo.append(TEXT(" failed to be read!"));
+        MessageBox(NULL, errorInfo.c_str(), TEXT("ERROR"), MB_OK | MB_ICONEXCLAMATION);
         return FALSE;
     }
 
