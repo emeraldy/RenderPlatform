@@ -376,6 +376,9 @@ void TestGame::GameStart()
 {
     if (m_useD3D11)
     {
+        FbxMeshImporter fbxMeshImporter;
+        fbxMeshImporter.LoadAssetFromFile(L"humanoid.fbx");
+        fbxMeshImporter.ParseScene();
         SetupD3D11Rendering();
     }
     else//use opengl

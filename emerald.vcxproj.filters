@@ -39,6 +39,9 @@
     <ClCompile Include="StringUtilities.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="FbxMeshImporter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AssetIOHandler.h">
@@ -62,13 +65,16 @@
     <ClInclude Include="TestGame.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="IAssetLoader.h">
+    <ClInclude Include="IAssetImporter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="FbxSdkCommon.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="StringUtilities.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FbxMeshImporter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

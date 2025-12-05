@@ -10,7 +10,7 @@
 
 using namespace Emerald;
 
-void FbxSdkCommon::InitializeSdkObjects()
+FbxSdkCommon::FbxSdkCommon()
 {
     pManager = FbxManager::Create();
     if (!pManager)
@@ -30,11 +30,31 @@ void FbxSdkCommon::InitializeSdkObjects()
     }
 }
 
-void FbxSdkCommon::DestroySdkObjects()
+FbxSdkCommon::~FbxSdkCommon()
 {
     if (pManager)
     {
         pManager->Destroy();
+    }
+    pScene = nullptr;
+    pManager = nullptr;
+}
+
+void FbxSdkCommon::ConvertCoordinateSystem(FbxAxisSystem& ourSystem)
+{
+    FbxAxisSystem theirSystem = pScene->GetGlobalSettings().GetAxisSystem();
+    if (theirSystem != ourSystem)
+    {
+        ourSystem.ConvertScene(pScene);
+    }
+}
+
+void FbxSdkCommon::ConvertUnitSystem(const FbxSystemUnit& ourUnit)
+{
+    FbxSystemUnit theirUnit = pScene->GetGlobalSettings().GetSystemUnit();
+    if (theirUnit.GetScaleFactor() != ourUnit.GetScaleFactor())
+    {
+        ourUnit.ConvertScene(pScene);
     }
 }
 
@@ -42,9 +62,7 @@ bool FbxSdkCommon::LoadScene(const char* pFileName)
 {
     int lFileMajor, lFileMinor, lFileRevision;
     int lSDKMajor, lSDKMinor, lSDKRevision;
-    int lAnimStackCount;
     bool lStatus;
-    char lPassword[1024];
 
     FbxManager::GetFileFormatVersion(lSDKMajor, lSDKMinor, lSDKRevision);
 

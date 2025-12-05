@@ -21,6 +21,7 @@ D3D11Renderer::D3D11Renderer()
 
 D3D11Renderer::~D3D11Renderer()
 {
+    m_pD3D11ImmediateContext->ClearState();
     RELEASECOM(m_pRenderTargetView);
     RELEASECOM(m_pDepthStencilView);
     RELEASECOM(m_pSwapChain);
@@ -32,7 +33,7 @@ BOOL D3D11Renderer::Initialise(HWND hWindow, int winWidth, int winHeight)
 {
     // Create the device and device context.
 
-    UINT createDeviceFlags = 0;
+    UINT createDeviceFlags = D3D11_CREATE_DEVICE_SINGLETHREADED;
     #if defined(DEBUG) || defined(_DEBUG)  
         createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
     #endif

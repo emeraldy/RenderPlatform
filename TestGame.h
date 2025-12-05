@@ -2,6 +2,8 @@
 
 #include "GameApp.h"
 #include "GameEngine.h"
+#include "FbxMeshImporter.h"//to be removed
+
 namespace TestGameApp
 {
     struct GameVertexFormat

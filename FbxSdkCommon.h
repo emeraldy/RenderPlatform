@@ -18,9 +18,15 @@ namespace Emerald
     class FbxSdkCommon
     {
     public:
-        void InitializeSdkObjects();
-        void DestroySdkObjects();
+        FbxManager* GetManager() { return pManager; }
+        FbxScene*   GetScene() { return pScene; }
+
         bool LoadScene(const char* pFilename);
+        void ConvertCoordinateSystem(FbxAxisSystem& ourSystem);
+        void ConvertUnitSystem(const FbxSystemUnit& ourUnit);
+
+        FbxSdkCommon();
+        virtual ~FbxSdkCommon();
     private:
         FbxManager* pManager;
         FbxScene*   pScene;

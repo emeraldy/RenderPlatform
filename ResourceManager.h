@@ -46,6 +46,13 @@ namespace Emerald
         int    vertexSize;//the dimension of a vertex
     };
 
+    //struct MeshV2
+    //{
+    //    DirectX::XMFLOAT3 positions;
+    //    DirectX::XMFLOAT3 normals;
+    //    DirectX::XMFLOAT2 uvs;
+    //};
+
     struct Texture2D
     {
         //texture data info
