@@ -1,4 +1,7 @@
+#include <string>
+#include <fstream>
 #include "TestGame.h"
+#include "Vector4.h"
 
 using namespace DirectX;
 using namespace Emerald;
@@ -14,6 +17,22 @@ int WINAPI  WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     static int  tickTrigger = 0;
     int         tickCount = 0;
     TestGame*   pTestGame = new TestGame();
+
+    std::wstring messageOut;
+    Vector4 testVec;
+    Vector4 testVec2(1.02f, 4.1f, -3.5f);
+    testVec = testVec2;
+    messageOut = std::to_wstring(testVec.z);
+    std::string logName = "test.log";
+    std::fstream file(logName, std::ios_base::out);
+    if (file.is_open())
+    {
+        file << testVec << std::endl;
+    }
+    file.close();
+
+    MessageBox(NULL, messageOut.c_str(), TEXT("MESSAGE"), MB_OK | MB_ICONINFORMATION);
+
     if (pTestGame == nullptr)
     {
         return FALSE;

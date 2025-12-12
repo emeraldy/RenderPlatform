@@ -10,7 +10,7 @@
 #include <wrl.h>
 #include <wrl/client.h>
 #include <d3d11_4.h>
-#include <cassert>
+#include "StandardIncludes.h"
 #include "pch.h"
 
 //-----------------------------------------------------------------

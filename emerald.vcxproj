@@ -14,6 +14,7 @@
     <ProjectGuid>{A47A4A79-2ED6-4656-BD05-2AC8686535A6}</ProjectGuid>
     <RootNamespace>emerald</RootNamespace>
     <Keyword>Win32Proj</Keyword>
+    <ProjectName>Core</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug32|Win32'">
@@ -59,6 +60,9 @@
       <DisableSpecificWarnings>
       </DisableSpecificWarnings>
     </ClCompile>
+    <PostBuildEvent>
+      <Command>copy $(TargetDir)$(TargetFileName) working\</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug64|x64'">
     <Link>
@@ -72,6 +76,7 @@
     <ClCompile Include="FbxMeshImporter.cpp" />
     <ClCompile Include="FbxSdkCommon.cpp" />
     <ClCompile Include="GameEngine.cpp" />
+    <ClCompile Include="Matrix3.cpp" />
     <ClCompile Include="OpenGLRenderer.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="StringUtilities.cpp" />
@@ -84,11 +89,16 @@
     <ClInclude Include="FbxSdkCommon.h" />
     <ClInclude Include="GameEngine.h" />
     <ClInclude Include="IAssetImporter.h" />
+    <ClInclude Include="Matrix3.h" />
     <ClInclude Include="OpenGLRenderer.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="ResourceManager.h" />
+    <ClInclude Include="StandardIncludes.h" />
     <ClInclude Include="StringUtilities.h" />
     <ClInclude Include="TestGame.h" />
+    <ClInclude Include="Vector2.h" />
+    <ClInclude Include="Vector3.h" />
+    <ClInclude Include="Vector4.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="triangle.frag" />
