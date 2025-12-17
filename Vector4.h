@@ -31,28 +31,34 @@ namespace Emerald
             w = aw;
         }
 
+        float dot(const Vector4& other) const
+        {
+            return x * other.x + y * other.y + z * other.z + w * other.w;
+        }
+        friend std::ostream& operator << (std::ostream& o, const Vector4& v)
+        {
+            o << "[" << v.x << ", " << v.y << ", " << v.z << ", " << v.w << "]";
+            return o;
+        }
+
         float operator [] (size_t index) const
         {
             assert(index < 4);
             return  *(&x + index);
         }
-
         float& operator [] (size_t index)
         {
             assert(index < 4);
             return *(&x + index);
         }
-
         bool operator == (const Vector4& other) const
         {
             return (x == other.x && y == other.y && z == other.z && w == other.w);
         }
-
         bool operator != (const Vector4& other) const
         {
             return (x != other.x || y != other.y || z != other.z || w != other.w);
         }
-
         Vector4 operator + (const Vector4& other) const
         {
             Vector4 sum;
@@ -64,7 +70,6 @@ namespace Emerald
 
             return sum;
         }
-
         inline Vector4 operator - (const Vector4& other) const
         {
             Vector4 difference;
@@ -76,7 +81,6 @@ namespace Emerald
 
             return difference;
         }
-
         Vector4 operator * (float scalar) const
         {
             Vector4 product;
@@ -88,7 +92,6 @@ namespace Emerald
 
             return product;
         }
-
         Vector4 operator / (float scalar) const
         {
             assert(scalar != 0.0);
@@ -102,7 +105,6 @@ namespace Emerald
 
             return quotient;
         }
-
         Vector4 operator - () const
         {
             Vector4 negate;
@@ -114,7 +116,6 @@ namespace Emerald
 
             return negate;
         }
-
         Vector4& operator += (const Vector4& other)
         {
             x += other.x;
@@ -124,7 +125,6 @@ namespace Emerald
 
             return *this;
         }
-
         Vector4& operator -= (const Vector4& other)
         {
             x -= other.x;
@@ -134,7 +134,6 @@ namespace Emerald
 
             return *this;
         }
-
         Vector4& operator *= (float scalar)
         {
             x *= scalar;
@@ -144,7 +143,6 @@ namespace Emerald
 
             return *this;
         }
-
         Vector4& operator /= (float scalar)
         {
             assert(scalar != 0.0);
@@ -155,17 +153,6 @@ namespace Emerald
             w /= scalar;
 
             return *this;
-        }
-
-        float dot(const Vector4& other) const
-        {
-            return x * other.x + y * other.y + z * other.z + w * other.w;
-        }
-
-        friend std::ostream& operator << (std::ostream& o, const Vector4& v)
-        {
-            o << "[" << v.x << ", " << v.y << ", " << v.z << ", " << v.w << "]";
-            return o;
         }
     };
 }

@@ -31,128 +31,10 @@ namespace Emerald
             z = az;
         }
 
-        float operator [] (size_t index) const
-        {
-            assert(index < 3);
-            return  *(&x + index);
-        }
-
-        float& operator [] (size_t index)
-        {
-            assert(index < 3);
-            return *(&x + index);
-        }
-
-        bool operator == (const Vector3& other) const
-        {
-            return (x == other.x && y == other.y && z == other.z);
-        }
-
-        bool operator != (const Vector3& other) const
-        {
-            return (x != other.x || y != other.y || z != other.z);
-        }
-
-        Vector3 operator + (const Vector3& other) const
-        {
-            Vector3 sum;
-
-            sum.x = x + other.x;
-            sum.y = y + other.y;
-            sum.z = z + other.z;
-
-            return sum;
-        }
-
-        inline Vector3 operator - (const Vector3& other) const
-        {
-            Vector3 difference;
-
-            difference.x = x - other.x;
-            difference.y = y - other.y;
-            difference.z = z - other.z;
-
-            return difference;
-        }
-
-        Vector3 operator * (float scalar) const
-        {
-            Vector3 product;
-
-            product.x = scalar * x;
-            product.y = scalar * y;
-            product.z = scalar * z;
-
-            return product;
-        }
-
-        Vector3 operator / (float scalar) const
-        {
-            assert(scalar != 0.0);
-
-            Vector3 quotient;
-
-            quotient.x = x / scalar;
-            quotient.y = y / scalar;
-            quotient.z = z / scalar;
-
-            return quotient;
-        }
-
-        Vector3 operator - () const
-        {
-            Vector3 negate;
-
-            negate.x = -x;
-            negate.y = -y;
-            negate.z = -z;
-
-            return negate;
-        }
-
-        Vector3& operator += (const Vector3& other)
-        {
-            x += other.x;
-            y += other.y;
-            z += other.z;
-
-            return *this;
-        }
-
-        Vector3& operator -= (const Vector3& other)
-        {
-            x -= other.x;
-            y -= other.y;
-            z -= other.z;
-
-            return *this;
-        }
-
-        Vector3& operator *= (float scalar)
-        {
-            x *= scalar;
-            y *= scalar;
-            z *= scalar;
-
-            return *this;
-        }
-
-        Vector3& operator /= (float scalar)
-        {
-            assert(scalar != 0.0);
-
-            x /= scalar;
-            y /= scalar;
-            z /= scalar;
-
-            return *this;
-        }
-
         float length() const
         {
             return sqrt(x * x + y * y + z * z);
         }
-
         Vector3 normalise()
         {
             float len = length();
@@ -166,12 +48,10 @@ namespace Emerald
 
             return *this;
         }
-
         float dot(const Vector3& other) const
         {
-            return x * other.x + y * other.y + z * other.z; 
+            return x * other.x + y * other.y + z * other.z;
         }
-
         Vector3 cross(const Vector3& other) const
         {
             Vector3 product;
@@ -180,11 +60,115 @@ namespace Emerald
             product.y = z * other.x - x * other.z;
             product.z = x * other.y - y * other.x;
         }
-
         friend std::ostream& operator << (std::ostream& o, const Vector3& v)
         {
             o << "[" << v.x << ", " << v.y << ", " << v.z << "]";
             return o;
+        }
+
+        float operator [] (size_t index) const
+        {
+            assert(index < 3);
+            return *(&x + index);
+        }
+        float& operator [] (size_t index)
+        {
+            assert(index < 3);
+            return *(&x + index);
+        }
+        bool operator == (const Vector3& other) const
+        {
+            return (x == other.x && y == other.y && z == other.z);
+        }
+        bool operator != (const Vector3& other) const
+        {
+            return (x != other.x || y != other.y || z != other.z);
+        }
+        Vector3 operator + (const Vector3& other) const
+        {
+            Vector3 sum;
+
+            sum.x = x + other.x;
+            sum.y = y + other.y;
+            sum.z = z + other.z;
+
+            return sum;
+        }
+        inline Vector3 operator - (const Vector3& other) const
+        {
+            Vector3 difference;
+
+            difference.x = x - other.x;
+            difference.y = y - other.y;
+            difference.z = z - other.z;
+
+            return difference;
+        }
+        Vector3 operator * (float scalar) const
+        {
+            Vector3 product;
+
+            product.x = scalar * x;
+            product.y = scalar * y;
+            product.z = scalar * z;
+
+            return product;
+        }
+        Vector3 operator / (float scalar) const
+        {
+            assert(scalar != 0.0);
+
+            Vector3 quotient;
+
+            quotient.x = x / scalar;
+            quotient.y = y / scalar;
+            quotient.z = z / scalar;
+
+            return quotient;
+        }
+        Vector3 operator - () const
+        {
+            Vector3 negate;
+
+            negate.x = -x;
+            negate.y = -y;
+            negate.z = -z;
+
+            return negate;
+        }
+        Vector3& operator += (const Vector3& other)
+        {
+            x += other.x;
+            y += other.y;
+            z += other.z;
+
+            return *this;
+        }
+        Vector3& operator -= (const Vector3& other)
+        {
+            x -= other.x;
+            y -= other.y;
+            z -= other.z;
+
+            return *this;
+        }
+        Vector3& operator *= (float scalar)
+        {
+            x *= scalar;
+            y *= scalar;
+            z *= scalar;
+
+            return *this;
+        }
+        Vector3& operator /= (float scalar)
+        {
+            assert(scalar != 0.0);
+
+            x /= scalar;
+            y /= scalar;
+            z /= scalar;
+
+            return *this;
         }
 
     };

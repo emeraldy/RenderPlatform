@@ -49,6 +49,41 @@ Matrix3 Matrix3::Transpose() const
     return result;
 }
 
+float Matrix3::Determinant() const
+{
+    return m[0] * (m[4] * m[8] - m[7] * m[5]) +
+           m[3] * (m[7] * m[2] - m[1] * m[8]) +
+           m[6] * (m[1] * m[5] - m[4] * m[2]);
+}
+
+bool Matrix3::Inverse(Matrix3& result, float tolerance) const
+{
+    //Adjoint method: inv(M) = (1 / det(M)) * adj(M)
+    
+    //adj(M):
+    result[0] = m[4] * m[8] - m[7] * m[5];
+    result[3] = m[6] * m[5] - m[3] * m[8];
+    result[6] = m[3] * m[7] - m[6] * m[4];
+    result[1] = m[7] * m[2] - m[1] * m[8];
+    result[4] = m[0] * m[8] - m[6] * m[2];
+    result[7] = m[6] * m[1] - m[0] * m[7];
+    result[2] = m[1] * m[5] - m[4] * m[2];
+    result[5] = m[3] * m[2] - m[0] * m[5];
+    result[8] = m[0] * m[4] - m[3] * m[1];
+
+    //det(M):
+    float det = m[0] * result[0] + m[3] * result[1] + m[6] * result[2];
+
+    if (fabs(det) < tolerance)
+    {
+        return false;
+    }
+    
+    result = result * (1.0 / det);
+
+    return true;
+}
+
 float Matrix3::operator[](size_t index) const
 {
     assert(0 <= index && index < 9);
@@ -59,4 +94,15 @@ float& Matrix3::operator[](size_t index)
 {
     assert(0 <= index && index < 9);
     return m[index];
+}
+
+Matrix3 Matrix3::operator* (float scalar) const
+{
+    Matrix3 result;
+    for (size_t i = 0; i < 9; i++)
+    {
+        result[i] = m[i] * scalar;
+    }
+
+    return result;
 }

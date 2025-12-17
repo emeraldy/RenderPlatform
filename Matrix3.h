@@ -33,16 +33,16 @@ namespace Emerald
 
         //0-indexed column
         Vector3 GetColumn(size_t col) const;
-
         //0-indexed column
         void SetColumn(size_t col, const Vector3& values);
-
         void BuildFromAxes(const Vector3& xAxis, const Vector3& yAxis, const Vector3& zAxis);
-
         Matrix3 Transpose() const;
+        float Determinant() const;
+        bool Inverse(Matrix3& result, float tolerance = 1e-6) const;
 
         float operator[](size_t index) const;
         float& operator[](size_t index);
+        Matrix3 operator* (float scalar) const;
 
     private:
         float m[9];
