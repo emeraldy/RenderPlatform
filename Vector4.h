@@ -92,6 +92,10 @@ namespace Emerald
 
             return product;
         }
+        friend Vector4 operator * (float scalar, const Vector4& vec)
+        {
+            return vec * scalar;
+        }
         Vector4 operator / (float scalar) const
         {
             assert(scalar != 0.0);

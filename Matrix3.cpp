@@ -25,11 +25,43 @@ void Matrix3::SetColumn(size_t col, const Vector3& values)
     m[col * 3 + 2] = values[2];
 }
 
+//0-indexed row
+Vector3 Matrix3::GetRow(size_t row) const
+{
+    assert(0 <= row && row < 3);
+    return Vector3(m[row], m[row + 3], m[row + 6]);
+}
+
+//0-indexed row
+void Matrix3::SetRow(size_t row, const Vector3& values)
+{
+    assert(0 <= row && row < 3);
+    m[row] = values[0];
+    m[row + 3] = values[1];
+    m[row + 6] = values[2];
+}
+
 void Matrix3::BuildFromAxes(const Vector3& xAxis, const Vector3& yAxis, const Vector3& zAxis)
 {
     SetColumn(0, xAxis);
     SetColumn(1, yAxis);
     SetColumn(2, zAxis);
+}
+
+//0-indexed row
+Vector3 Matrix3::GetRow(size_t row) const
+{
+    assert(0 <= row && row < 3);
+    return Vector3(m[row], m[row + 3], m[row + 6]);
+}
+
+//0-indexed row
+void Matrix3::SetRow(size_t row, const Vector3& values)
+{
+    assert(0 <= row && row < 3);
+    m[row] = values[0];
+    m[row + 3] = values[1];
+    m[row + 6] = values[2];
 }
 
 Matrix3 Matrix3::Transpose() const
@@ -84,19 +116,74 @@ bool Matrix3::Inverse(Matrix3& result, float tolerance) const
     return true;
 }
 
-float Matrix3::operator[](size_t index) const
+void Matrix3::Orthogonalise()
+{
+    Vector3 row0, row1, row2;
+    row0 = GetRow(0);
+    row1 = GetRow(1);
+    row2 = GetRow(2);
+
+    row0 = row0.normalise();
+    row1 = row1 - row1.dot(row0) * row0;
+    row1 = row1.normalise();
+    row2 = row2 - row2.dot(row0) * row0 - row2.dot(row1) * row1;
+    row2 = row2.normalise();
+
+    SetRow(0, row0);
+    SetRow(1, row1);
+    SetRow(2, row2);
+}
+
+float Matrix3::operator [] (size_t index) const
 {
     assert(0 <= index && index < 9);
     return m[index];
 }
 
-float& Matrix3::operator[](size_t index)
+float& Matrix3::operator [] (size_t index)
 {
     assert(0 <= index && index < 9);
     return m[index];
 }
 
-Matrix3 Matrix3::operator* (float scalar) const
+Matrix3 Matrix3::operator + (const Matrix3& other) const
+{
+    Matrix3 sum;
+    for (int i = 0; i < 9; i++)
+    {
+        sum[i] = m[i] + other[i];
+    }
+
+    return sum;
+}
+
+Matrix3 Matrix3::operator - (const Matrix3& other) const
+{
+    Matrix3 difference;
+    for (int i = 0; i < 9; i++)
+    {
+        difference[i] = m[i] - other[i];
+    }
+
+    return difference;
+}
+
+Matrix3 Matrix3::operator * (const Matrix3& other) const
+{
+    Matrix3 product;
+    for (int row = 0; row < 3; row++)
+    {
+        for (int col = 0; col < 3; col++)
+        {
+            product[row + col * 3] = m[row] * other[col * 3] + m[row + 3] * other[col * 3 + 1] + m[row + 6] * other[col * 3 + 2];
+        }
+    }
+
+    return product;
+
+}
+
+Matrix3 Matrix3::operator * (float scalar) const
 {
     Matrix3 result;
     for (size_t i = 0; i < 9; i++)
@@ -105,4 +192,9 @@ Matrix3 Matrix3::operator* (float scalar) const
     }
 
     return result;
+}
+
+Matrix3 operator * (float scalar, const Matrix3& mat)
+{
+    return mat * scalar;
 }
