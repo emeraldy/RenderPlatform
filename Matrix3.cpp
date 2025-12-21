@@ -48,22 +48,6 @@ void Matrix3::BuildFromAxes(const Vector3& xAxis, const Vector3& yAxis, const Ve
     SetColumn(2, zAxis);
 }
 
-//0-indexed row
-Vector3 Matrix3::GetRow(size_t row) const
-{
-    assert(0 <= row && row < 3);
-    return Vector3(m[row], m[row + 3], m[row + 6]);
-}
-
-//0-indexed row
-void Matrix3::SetRow(size_t row, const Vector3& values)
-{
-    assert(0 <= row && row < 3);
-    m[row] = values[0];
-    m[row + 3] = values[1];
-    m[row + 6] = values[2];
-}
-
 Matrix3 Matrix3::Transpose() const
 {
     Matrix3 result;

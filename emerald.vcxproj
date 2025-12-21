@@ -41,11 +41,13 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug32|Win32'">
     <IncludePath>$(ThirdPartyPath)\glew-2.1.0\include;$(ThirdPartyPath)\glm;$(ThirdPartyPath)\libjpeg9e\include;$(ThirdPartyPath)\libpng\include;$(ThirdPartyPath)\fbxsdk\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ThirdPartyPath)\glew-2.1.0\lib\release\Win32;$(ThirdPartyPath)\libjpeg9e\lib;$(ThirdPartyPath)\libpng\lib;$(ThirdPartyPath)\fbxsdk\lib\x86\debug;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ThirdPartyPath)\glew-2.1.0\lib\release\Win32;$(ThirdPartyPath)\libjpeg9e\lib;$(ThirdPartyPath)\libpng\lib;$(ThirdPartyPath)\fbxsdk\lib\x64\debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug64|x64'">
-    <IncludePath>$(ThirdPartyPath)\glew-2.1.0\include;$(ThirdPartyPath)\glm;$(ThirdPartyPath)\libjpeg9e\include;$(ThirdPartyPath)\libpng\include;$(ThirdPartyPath)\fbxsdk\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(ThirdPartyPath)\glew-2.1.0\lib\release\Win32;$(ThirdPartyPath)\libjpeg9e\lib;$(ThirdPartyPath)\libpng\lib;$(ThirdPartyPath)\fbxsdk\lib\x86\debug;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ThirdPartyPath)\glew\include;$(ThirdPartyPath)\glm;$(ThirdPartyPath)\libjpeg\include;$(ThirdPartyPath)\libpng\include;$(ThirdPartyPath)\fbxsdk\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(ThirdPartyPath)\glew\lib\release\x64;$(ThirdPartyPath)\libjpeg\lib;$(ThirdPartyPath)\libpng\lib;$(ThirdPartyPath)\fbxsdk\lib\x64\debug;$(LibraryPath)</LibraryPath>
+    <IgnoreImportLibrary>
+    </IgnoreImportLibrary>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug32|Win32'">
     <Link>
@@ -67,8 +69,16 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug64|x64'">
     <Link>
       <TargetMachine>MachineX64</TargetMachine>
-      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);d3d11.lib;d3dcompiler.lib;opengl32.lib;glew32.lib;jpeg.lib;libpng16.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;opengl32.lib;glew32.lib;jpeg.lib;libpng16.lib;libfbxsdk-mt.lib;libxml2-mt.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>MSVCRTD</IgnoreSpecificDefaultLibraries>
     </Link>
+    <ClCompile>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <PostBuildEvent>
+      <Command>copy $(OutputPath)$(TargetFileName) working\</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AssetIOHandler.cpp" />
