@@ -39,7 +39,7 @@ GameEngine::GameEngine(HINSTANCE hInstance, GameApp* pGameApp, LPTSTR szWindowCl
     m_hWindow = NULL;
     m_pWindowClass = new WCHAR[32];
     m_pTitle = new WCHAR[32];
-    unsigned int stringSize;
+    size_t stringSize;
     if (StringCbLength(szWindowClass, 32 * sizeof(WCHAR), &stringSize) == S_OK)//test incoming string length
     {
         if (StringCbCopy(m_pWindowClass, 32 * sizeof(WCHAR), szWindowClass) != S_OK)
