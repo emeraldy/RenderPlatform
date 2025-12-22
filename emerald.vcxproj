@@ -44,8 +44,8 @@
     <LibraryPath>$(ThirdPartyPath)\glew-2.1.0\lib\release\Win32;$(ThirdPartyPath)\libjpeg9e\lib;$(ThirdPartyPath)\libpng\lib;$(ThirdPartyPath)\fbxsdk\lib\x64\debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug64|x64'">
-    <IncludePath>$(ThirdPartyPath)\glew-2.1.0\include;$(ThirdPartyPath)\glm;$(ThirdPartyPath)\libjpeg\include;$(ThirdPartyPath)\libpng\include;$(ThirdPartyPath)\fbxsdk\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(ThirdPartyPath)\glew-2.1.0\lib\release\x64;$(ThirdPartyPath)\libjpeg\lib;$(ThirdPartyPath)\libpng\lib;$(ThirdPartyPath)\fbxsdk\lib\x64\debug;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ThirdPartyPath)\glew\include;$(ThirdPartyPath)\glm;$(ThirdPartyPath)\libjpeg\include;$(ThirdPartyPath)\libpng\include;$(ThirdPartyPath)\fbxsdk\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(ThirdPartyPath)\glew\lib\release\x64;$(ThirdPartyPath)\libjpeg\lib;$(ThirdPartyPath)\libpng\lib;$(ThirdPartyPath)\fbxsdk\lib\x64\debug;$(LibraryPath)</LibraryPath>
     <IgnoreImportLibrary>
     </IgnoreImportLibrary>
   </PropertyGroup>
