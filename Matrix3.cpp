@@ -9,6 +9,8 @@
 
 using namespace Emerald;
 
+const Matrix3 Matrix3::IDENTITY(1, 0, 0, 0, 1, 0, 0, 0, 1);
+
 //0-indexed column
 Vector3 Matrix3::GetColumn(size_t col) const
 {
@@ -164,7 +166,18 @@ Matrix3 Matrix3::operator * (const Matrix3& other) const
     }
 
     return product;
+}
 
+Vector3 Matrix3::operator * (const Vector3& vec) const
+{
+    Vector3 product;
+
+    for (int row = 0; row < 3; row++)
+    {
+        product[row] = m[row] * vec[0] + m[row + 3] * vec[1] + m[row + 6] * vec[2];
+    }
+
+    return product;
 }
 
 Matrix3 Matrix3::operator * (float scalar) const
@@ -178,7 +191,42 @@ Matrix3 Matrix3::operator * (float scalar) const
     return result;
 }
 
-Matrix3 operator * (float scalar, const Matrix3& mat)
+namespace Emerald
 {
-    return mat * scalar;
+    Matrix3 operator * (float scalar, const Matrix3& mat)
+    {
+        return mat * scalar;
+    }
+}
+
+bool Matrix3::operator == (const Matrix3& other) const
+{
+    for (int i = 0; i < 9; i++)
+    {
+        if (m[i] != other[i])
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool Matrix3::operator != (const Matrix3& other) const
+{
+    return !operator == (other);
+}
+
+namespace Emerald
+{
+    std::ostream& operator << (std::ostream& o, const Matrix3& mat)
+    {
+        o << mat[0] << "  " << mat[3] << "  " << mat[6] << "\n"
+          << mat[1] << "  " << mat[4] << "  " << mat[7] << "\n"
+          << mat[2] << "  " << mat[5] << "  " << mat[8];
+
+        o << "\n" << "\n";
+        
+        return o;
+    }
 }

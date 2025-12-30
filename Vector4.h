@@ -9,6 +9,7 @@
 //-----------------------------------------------------------------
 #include <cmath>
 #include "StandardIncludes.h"
+#include "Vector3.h"
 
 namespace Emerald
 {
@@ -28,6 +29,14 @@ namespace Emerald
             x = ax;
             y = ay;
             z = az;
+            w = aw;
+        }
+
+        Vector4(const Vector3& vec, float aw)
+        {
+            x = vec.x;
+            y = vec.y;
+            z = vec.z;
             w = aw;
         }
 
