@@ -22,6 +22,8 @@ namespace Emerald
     class Matrix3
     {
     public:
+        static const Matrix3 IDENTITY;
+
         Matrix3(float e0 = 0.0f, float e1 = 0.0f, float e2 = 0.0f,
                 float e3 = 0.0f, float e4 = 0.0f, float e5 = 0.0f,
                 float e6 = 0.0f, float e7 = 0.0f, float e8 = 0.0f)
@@ -49,11 +51,13 @@ namespace Emerald
         Matrix3 operator + (const Matrix3& other) const;
         Matrix3 operator - (const Matrix3& other) const;
         Matrix3 operator * (const Matrix3& other) const;
-        Matrix3 operator * (const Vector3& vec) const;
+        Vector3 operator * (const Vector3& vec) const;
         Matrix3 operator * (float scalar) const;
         friend Matrix3 operator * (float scalar, const Matrix3& mat);
         bool operator == (const Matrix3& other) const;
         bool operator != (const Matrix3& other) const;
+
+        friend std::ostream& operator << (std::ostream& o, const Matrix3& mat);
 
     private:
         float m[9];

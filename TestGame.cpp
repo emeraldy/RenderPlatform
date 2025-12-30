@@ -1,7 +1,7 @@
 #include <string>
 #include <fstream>
 #include "TestGame.h"
-#include "Vector4.h"
+#include "Matrix3.h"
 
 using namespace DirectX;
 using namespace Emerald;
@@ -19,15 +19,13 @@ int WINAPI  WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     TestGame*   pTestGame = new TestGame();
 
     std::wstring messageOut;
-    Vector4 testVec;
-    Vector4 testVec2(1.02f, 4.1f, -3.5f);
-    testVec = testVec2;
-    messageOut = std::to_wstring(testVec.z);
+    Matrix3 testMat(1.02f, 4.1f, -3.5f, 9.0f, 5.6f, 77.0f, 3.0f, 4.0f, 99.0f);
+    messageOut = std::to_wstring(testMat[8]);
     std::string logName = "test.log";
     std::fstream file(logName, std::ios_base::out);
     if (file.is_open())
     {
-        file << testVec << std::endl;
+        file << testMat << std::endl;
     }
     file.close();
 

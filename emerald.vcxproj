@@ -87,6 +87,7 @@
     <ClCompile Include="FbxSdkCommon.cpp" />
     <ClCompile Include="GameEngine.cpp" />
     <ClCompile Include="Matrix3.cpp" />
+    <ClCompile Include="Matrix4.cpp" />
     <ClCompile Include="OpenGLRenderer.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="StringUtilities.cpp" />
@@ -100,6 +101,7 @@
     <ClInclude Include="GameEngine.h" />
     <ClInclude Include="IAssetImporter.h" />
     <ClInclude Include="Matrix3.h" />
+    <ClInclude Include="Matrix4.h" />
     <ClInclude Include="OpenGLRenderer.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="ResourceManager.h" />
