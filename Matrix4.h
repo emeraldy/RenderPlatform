@@ -45,6 +45,8 @@ namespace Emerald
         Vector4 GetRow(size_t row) const;
         void SetRow(size_t row, const Vector4& values);
 
+        //extract a 3x3 submatrix by eliminating row and col from m
+        Matrix3 SubMatrix3(size_t row, size_t col) const;
         Matrix4 Transpose() const;
         float Determinant() const;
         bool Inverse(Matrix4& result, float tolerance = 1e-6) const;

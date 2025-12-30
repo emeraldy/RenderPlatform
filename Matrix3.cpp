@@ -192,9 +192,12 @@ Matrix3 Matrix3::operator * (float scalar) const
     return result;
 }
 
-Matrix3 operator * (float scalar, const Matrix3& mat)
+namespace Emerald
 {
-    return mat * scalar;
+    Matrix3 operator * (float scalar, const Matrix3& mat)
+    {
+        return mat * scalar;
+    }
 }
 
 bool Matrix3::operator == (const Matrix3& other) const
