@@ -2,6 +2,7 @@
 #include <fstream>
 #include "TestGame.h"
 #include "Matrix3.h"
+#include "Matrix4.h"
 
 using namespace DirectX;
 using namespace Emerald;
@@ -19,7 +20,8 @@ int WINAPI  WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     TestGame*   pTestGame = new TestGame();
 
     std::wstring messageOut;
-    Matrix3 testMat(1.02f, 4.1f, -3.5f, 9.0f, 5.6f, 77.0f, 3.0f, 4.0f, 99.0f);
+    Matrix4 testMat(0.0f, 1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f, 9.0f, 10.0f, 11.0f, 12.0f, 13.0f, 14.0f, 15.0f);
+    Matrix3 testSubMat;
     messageOut = std::to_wstring(testMat[8]);
     std::string logName = "test.log";
     std::fstream file(logName, std::ios_base::out);
@@ -27,7 +29,23 @@ int WINAPI  WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     {
         file << testMat << std::endl;
     }
+    testSubMat = testMat.SubMatrix3(2,3);
+    if (file.is_open())
+    {
+        file << testSubMat << std::endl;
+    }
+    Matrix4 testTranslation = Matrix4::MakeTranslation(Vector3(1, 2, 3));
+    if (file.is_open())
+    {
+        file << testTranslation << std::endl;
+    }
+    Matrix4 testScale = Matrix4::MakeScale(Vector3(3, 3, 3));
+    if (file.is_open())
+    {
+        file << testScale << std::endl;
+    }
     file.close();
+
 
     MessageBox(NULL, messageOut.c_str(), TEXT("MESSAGE"), MB_OK | MB_ICONINFORMATION);
 

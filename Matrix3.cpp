@@ -166,7 +166,6 @@ Matrix3 Matrix3::operator * (const Matrix3& other) const
     }
 
     return product;
-
 }
 
 Vector3 Matrix3::operator * (const Vector3& vec) const
@@ -222,9 +221,11 @@ namespace Emerald
 {
     std::ostream& operator << (std::ostream& o, const Matrix3& mat)
     {
-        o << "|" << mat[0] << "  " << mat[3] << "  " << mat[6] << "|" << "\n"
-          << "|" << mat[1] << "  " << mat[4] << "  " << mat[7] << "|" << "\n"
-          << "|" << mat[2] << "  " << mat[5] << "  " << mat[8] << "|";
+        o << mat[0] << "  " << mat[3] << "  " << mat[6] << "\n"
+          << mat[1] << "  " << mat[4] << "  " << mat[7] << "\n"
+          << mat[2] << "  " << mat[5] << "  " << mat[8];
+
+        o << "\n" << "\n";
         
         return o;
     }

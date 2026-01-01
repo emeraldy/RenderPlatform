@@ -26,6 +26,8 @@ namespace Emerald
     {
     public:
         static const Matrix4 IDENTITY;
+        static Matrix4 MakeTranslation(const Vector3& vec);
+        static Matrix4 MakeScale(const Vector3& vec);
 
         Matrix4(float e0 = 0.0f, float e1 = 0.0f, float e2 = 0.0f, float e3 = 0.0f,
                 float e4 = 0.0f, float e5 = 0.0f, float e6 = 0.0f, float e7 = 0.0f,
@@ -44,6 +46,9 @@ namespace Emerald
         //0-indexed row
         Vector4 GetRow(size_t row) const;
         void SetRow(size_t row, const Vector4& values);
+        Matrix3 Retrieve3x3() const;
+        Vector3 GetTranslation() const;
+        Vector3 GetScale() const;
 
         //extract a 3x3 submatrix by eliminating row and col from m
         Matrix3 SubMatrix3(size_t row, size_t col) const;
