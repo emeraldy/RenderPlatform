@@ -3,6 +3,7 @@
 #include "TestGame.h"
 #include "Matrix3.h"
 #include "Matrix4.h"
+#include "Quaternion.h"
 
 using namespace DirectX;
 using namespace Emerald;

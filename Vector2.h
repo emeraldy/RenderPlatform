@@ -8,12 +8,11 @@
 // Include Files
 //-----------------------------------------------------------------
 #include <cmath>
+#include "Maths.h"
 #include "StandardIncludes.h"
 
 namespace Emerald
 {
-    constexpr float ZEROTHRESHOLD = 1e-8;
-    
     /*
     * The convention is column vector
     */
@@ -29,13 +28,13 @@ namespace Emerald
             y = ay;
         }
 
-        float length() const
+        float Length() const
         {
-            return sqrt(x * x + y * y);
+            return std::sqrt(x * x + y * y);
         }
-        Vector2 normalise()
+        Vector2 Normalise()
         {
-            float len = length();
+            float len = Length();
 
             if (len > ZEROTHRESHOLD)
             {
@@ -45,7 +44,7 @@ namespace Emerald
 
             return *this;
         }
-        float dot(const Vector2& other) const
+        float Dot(const Vector2& other) const
         {
             return x * other.x + y * other.y;
         }

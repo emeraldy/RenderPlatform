@@ -40,7 +40,7 @@ namespace Emerald
             w = aw;
         }
 
-        float dot(const Vector4& other) const
+        float Dot(const Vector4& other) const
         {
             return x * other.x + y * other.y + z * other.z + w * other.w;
         }
