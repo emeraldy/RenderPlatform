@@ -1,8 +1,7 @@
 #include <string>
 #include <fstream>
 #include "TestGame.h"
-#include "Matrix3.h"
-#include "Matrix4.h"
+#include "Quaternion.h"
 
 using namespace DirectX;
 using namespace Emerald;
@@ -19,22 +18,20 @@ int WINAPI  WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     DWORD         tickCount = 0;
     TestGame*   pTestGame = new TestGame();
 
+    Quaternion testQ(0.56f, -0.2f, -0.75f, 0.28f);
+    Quaternion logQ;
+    bool qResult = testQ.Log(logQ);
+    Quaternion expQ;
+    qResult = logQ.Exp(expQ);
 
     std::wstring messageOut;
-    Matrix3 testMat(0.3404f, 0.5853f, 0.2238f,
-        0.7513f, 0.2551f, 0.5060f,
-        0.6991f, 0.8909f, 0.9593f);
-
-    Matrix3 testInvMat;
-    testMat.Inverse(testInvMat);
-    float det = testMat.Determinant();
-    messageOut = std::to_wstring(det);
+    messageOut = std::to_wstring(qResult);
     std::string logName = "test.log";
     std::fstream file(logName, std::ios_base::out);
     if (file.is_open())
     {
-        file << testMat << std::endl;
-        file << testInvMat << std::endl;
+        file << logQ << std::endl;
+        file << expQ << std::endl;
     }
     file.close();
 

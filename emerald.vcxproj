@@ -75,6 +75,7 @@
     <ClCompile>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <Optimization>Disabled</Optimization>
     </ClCompile>
     <PostBuildEvent>
       <Command>copy $(OutputPath)$(TargetFileName) working\</Command>
@@ -86,9 +87,11 @@
     <ClCompile Include="FbxMeshImporter.cpp" />
     <ClCompile Include="FbxSdkCommon.cpp" />
     <ClCompile Include="GameEngine.cpp" />
+    <ClCompile Include="Maths.cpp" />
     <ClCompile Include="Matrix3.cpp" />
     <ClCompile Include="Matrix4.cpp" />
     <ClCompile Include="OpenGLRenderer.cpp" />
+    <ClCompile Include="Quaternion.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="StringUtilities.cpp" />
     <ClCompile Include="TestGame.cpp" />
@@ -100,9 +103,11 @@
     <ClInclude Include="FbxSdkCommon.h" />
     <ClInclude Include="GameEngine.h" />
     <ClInclude Include="IAssetImporter.h" />
+    <ClInclude Include="Maths.h" />
     <ClInclude Include="Matrix3.h" />
     <ClInclude Include="Matrix4.h" />
     <ClInclude Include="OpenGLRenderer.h" />
+    <ClInclude Include="Quaternion.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="StandardIncludes.h" />

@@ -109,11 +109,11 @@ void Matrix3::Orthogonalise()
     row1 = GetRow(1);
     row2 = GetRow(2);
 
-    row0 = row0.normalise();
-    row1 = row1 - row1.dot(row0) * row0;
-    row1 = row1.normalise();
-    row2 = row2 - row2.dot(row0) * row0 - row2.dot(row1) * row1;
-    row2 = row2.normalise();
+    row0 = row0.Normalise();
+    row1 = row1 - row1.Dot(row0) * row0;
+    row1 = row1.Normalise();
+    row2 = row2 - row2.Dot(row0) * row0 - row2.Dot(row1) * row1;
+    row2 = row2.Normalise();
 
     SetRow(0, row0);
     SetRow(1, row1);
