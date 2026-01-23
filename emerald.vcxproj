@@ -75,6 +75,7 @@
     <ClCompile>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <Optimization>Disabled</Optimization>
     </ClCompile>
     <PostBuildEvent>
       <Command>copy $(OutputPath)$(TargetFileName) working\</Command>

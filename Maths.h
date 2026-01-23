@@ -3,17 +3,19 @@
 //-----------------------------------------------------------------
 
 #pragma once
-
+#pragma STDC FENV_ACCESS on
 //-----------------------------------------------------------------
 // Include Files
 //-----------------------------------------------------------------
 #include <cmath>
+#include <cfenv>
 #include "StandardIncludes.h"
 
 namespace Emerald
 {
-    const float PI = 4.0f * atan(1.0f);
-    constexpr float ZEROTHRESHOLD = 1e-8;
+    const float PI = 4.0f * std::atan(1.0f);
+    const float EULERSNUMBER = std::exp(1.0f);
+    constexpr float ZEROTHRESHOLD = 1e-6;
 
     class Degree;
     class Radian
