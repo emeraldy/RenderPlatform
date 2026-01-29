@@ -2,8 +2,8 @@
 #include <fstream>
 #include "TestGame.h"
 #include "Quaternion.h"
+#include "Matrix4.h"
 
-using namespace DirectX;
 using namespace Emerald;
 using namespace TestGameApp;
 
@@ -17,26 +17,6 @@ int WINAPI  WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     static int  tickTrigger = 0;
     DWORD         tickCount = 0;
     TestGame*   pTestGame = new TestGame();
-
-    Quaternion testQ(0.56f, -0.2f, -0.75f, 0.28f);
-    Quaternion logQ;
-    bool qResult = testQ.Log(logQ);
-    Quaternion expQ;
-    qResult = logQ.Exp(expQ);
-
-    std::wstring messageOut;
-    messageOut = std::to_wstring(qResult);
-    std::string logName = "test.log";
-    std::fstream file(logName, std::ios_base::out);
-    if (file.is_open())
-    {
-        file << logQ << std::endl;
-        file << expQ << std::endl;
-    }
-    file.close();
-
-
-    MessageBox(NULL, messageOut.c_str(), TEXT("MESSAGE"), MB_OK | MB_ICONINFORMATION);
 
     if (pTestGame == nullptr)
     {
@@ -119,9 +99,9 @@ bool TestGame::SetupD3D11Rendering()
     //vertex data
     GameVertexFormat triangleMesh[] =
     {
-        {XMFLOAT3(-0.5f, -0.5f, 0.5f), XMFLOAT3(0.0f, 0.0f, 0.0f)},
-        {XMFLOAT3(0.0f,  0.5f, 0.5f), XMFLOAT3(0.0f, 0.0f, 1.0f)},
-        {XMFLOAT3(0.5f, -0.5f, 0.5f), XMFLOAT3(0.0f, 1.0f, 0.0f)}
+        {Vector3(-0.5f, -0.5f, 0.5f), Vector3(0.0f, 0.0f, 0.0f)},
+        {Vector3(0.0f,  0.5f, 0.5f), Vector3(0.0f, 0.0f, 1.0f)},
+        {Vector3(0.5f, -0.5f, 0.5f), Vector3(0.0f, 1.0f, 0.0f)}
     };
     D3D11_SUBRESOURCE_DATA vertexData{};
     vertexData.pSysMem = triangleMesh;
@@ -459,7 +439,35 @@ void TestGame::GamePaint()
 {
     if (m_useD3D11)
     {
+        static Degree angle;
+        ID3D11Device* pDevice = pGameEngine->GetD3D11Renderer()->GetDevice();
         ID3D11DeviceContext* pDeviceContext = pGameEngine->GetD3D11Renderer()->GetDeviceContext();
+
+        //constant buffer for transformation matrix
+        Quaternion revolve(angle, Vector3(0, 0, 1.0f));
+        Matrix3 revolveMat3 = revolve.ToMatrix3();
+        Matrix4 revolveMat4(revolveMat3);
+        revolveMat4 = revolveMat4.Transpose();
+
+        D3D11_SUBRESOURCE_DATA vertexCBData{};
+        vertexCBData.pSysMem = &revolveMat4;
+        vertexCBData.SysMemPitch = 0;
+        vertexCBData.SysMemSlicePitch = 0;
+
+        D3D11_BUFFER_DESC vertexCBDesc{};
+        vertexCBDesc.ByteWidth = sizeof(revolveMat4);
+        vertexCBDesc.Usage = D3D11_USAGE_DYNAMIC;
+        vertexCBDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+        vertexCBDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+        Microsoft::WRL::ComPtr<ID3D11Buffer> pVertexConstantBuffer;
+        pDevice->CreateBuffer(&vertexCBDesc, &vertexCBData, pVertexConstantBuffer.GetAddressOf());
+
+        ID3D11Buffer* pVertexConstantBuffers[D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT] = { nullptr };
+        pVertexConstantBuffers[0] = pVertexConstantBuffer.Get();
+
+        pDeviceContext->VSSetConstantBuffers(0, 1, pVertexConstantBuffers);
+
         const float teal[] = { 0.098f, 0.439f, 0.439f, 1.000f };
         pDeviceContext->ClearRenderTargetView(
             pGameEngine->GetD3D11Renderer()->GetRenderTargetView(),
@@ -472,6 +480,12 @@ void TestGame::GamePaint()
             0);
         pDeviceContext->Draw(3, 0);
         pGameEngine->GetD3D11Renderer()->GetSwapChain()->Present(0, 0);
+        
+        angle += 5.0f;
+        if (angle > 360.0f)
+        {
+            angle = 0.0f;
+        }
     }
     else//use opengl
     {

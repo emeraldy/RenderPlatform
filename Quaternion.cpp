@@ -44,7 +44,17 @@ Quaternion::Quaternion(const Vector4& v)
 
 float Quaternion::Magnitude() const
 {
-    return std::sqrt(w * w + x * x + y * y + z * z);
+    float result = 0;
+    std::feclearexcept(FE_ALL_EXCEPT);
+    result = std::sqrt(w * w + x * x + y * y + z * z);
+    if (fetestexcept(FE_INVALID))
+    {
+        return 0;
+    }
+    else
+    {
+        return result;
+    }
 }
 
 bool Quaternion::Normalise()
@@ -123,16 +133,12 @@ bool Quaternion::Inverse(Quaternion& result) const
 bool Quaternion::Exp(Quaternion& result) const
 {
     //Q = [w, V], where V = [x, y, z]
-    float magV = std::sqrt(x * x + y * y + z * z);
-    if (magV < ZEROTHRESHOLD)
-    {
-        return false;
-    }
     std::feclearexcept(FE_ALL_EXCEPT);
+    float magV = std::sqrt(x * x + y * y + z * z);
     float powerEW = std::pow(EULERSNUMBER, w);
     float cosMagV = std::cos(magV);
     float sinMagV = std::sin(magV);
-    if (fetestexcept(FE_DIVBYZERO | FE_INVALID))
+    if (fetestexcept(FE_DIVBYZERO | FE_INVALID) || magV < ZEROTHRESHOLD)
     {
         return false;
     }
@@ -147,15 +153,15 @@ bool Quaternion::Log(Quaternion& result) const
 {
     //Q = [w, V], where V = [x, y, z]
     float magQ = Magnitude();
-    float magV = std::sqrt(x * x + y * y + z * z);
-    if (magQ < ZEROTHRESHOLD || magV < ZEROTHRESHOLD)
+    if (magQ < ZEROTHRESHOLD)
     {
         return false;
     }
     std::feclearexcept(FE_ALL_EXCEPT);
+    float magV = std::sqrt(x * x + y * y + z * z);
     float acosWOverMagQ = std::acos(w / magQ);
     float logMagQ = std::log(magQ);
-    if (fetestexcept(FE_INVALID | FE_DIVBYZERO))
+    if (fetestexcept(FE_INVALID | FE_DIVBYZERO) || magV < ZEROTHRESHOLD)
     {
         return false;
     }
@@ -164,6 +170,85 @@ bool Quaternion::Log(Quaternion& result) const
     result = Quaternion(logMagQ, coefficient * x, coefficient * y, coefficient * z);
 
     return true;
+}
+
+Matrix3 Quaternion::ToMatrix3() const
+{
+    
+    Matrix3 result;
+    Vector3 col0(1 - 2 * y * y - 2 * z * z, 2 * x * y + 2 * w * z, 2 * x * z - 2 * w * y);
+    Vector3 col1(2 * x * y - 2 * w * z, 1 - 2 * x * x - 2 * z * z, 2 * y * z + 2 * w * x);
+    Vector3 col2(2 * x * z + 2 * w * y, 2 * y * z - 2 * w * x, 1 - 2 * x * x - 2 * y * y);
+    result.SetColumn(0, col0);
+    result.SetColumn(1, col1);
+    result.SetColumn(2, col2);
+    
+    return result;
+}
+
+Quaternion Quaternion::FromMatrix3(const Matrix3& source)
+{
+    float wTerm = source[0] + source[4] + source[8];
+    float xTerm = source[0] - source[4] - source[8];
+    float yTerm = source[4] - source[0] - source[8];
+    float zTerm = source[8] - source[0] - source[4];
+
+    int largestIndex = 0;
+    float largestTerm = wTerm;
+    if (xTerm > largestTerm)
+    {
+        largestTerm = xTerm;
+        largestIndex = 1;
+    }
+    if (yTerm > largestTerm)
+    {
+        largestTerm = yTerm;
+        largestIndex = 2;
+    }
+    if (zTerm > largestTerm)
+    {
+        largestTerm = zTerm;
+        largestIndex = 3;
+    }
+
+    std::feclearexcept(FE_ALL_EXCEPT);
+    float largestComponent = std::sqrt(largestTerm + 1.0f) * 0.5f;
+    if (fetestexcept(FE_INVALID) || largestTerm < ZEROTHRESHOLD)
+    {
+        return Quaternion();
+    }
+
+    float coefficient = 0.25f / largestTerm;
+    Quaternion result;
+    switch (largestIndex)
+    {
+    case 0:
+        result.w = largestComponent;
+        result.x = (source[5] - source[7]) * coefficient;
+        result.y = (source[6] - source[2]) * coefficient;
+        result.z = (source[1] - source[3]) * coefficient;
+        break;
+    case 1:
+        result.x = largestComponent;
+        result.w = (source[5] - source[7]) * coefficient;
+        result.y = (source[1] + source[3]) * coefficient;
+        result.z = (source[6] + source[2]) * coefficient;
+        break;
+    case 2:
+        result.y = largestComponent;
+        result.w = (source[6] - source[2]) * coefficient;
+        result.x = (source[1] - source[3]) * coefficient;
+        result.z = (source[5] + source[7]) * coefficient;
+        break;
+    case 3:
+        result.z = largestComponent;
+        result.w = (source[1] - source[3]) * coefficient;
+        result.x = (source[2] + source[2]) * coefficient;
+        result.y = (source[5] + source[7]) * coefficient;
+        break;
+    }
+
+    return result;
 }
 
 bool Quaternion::Slerp(const Quaternion& q0, const Quaternion& q1, Quaternion& result, float t)

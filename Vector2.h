@@ -27,10 +27,19 @@ namespace Emerald
             x = ax;
             y = ay;
         }
-
         float Length() const
         {
-            return std::sqrt(x * x + y * y);
+            float result = 0;
+            std::feclearexcept(FE_ALL_EXCEPT);
+            result = std::sqrt(x * x + y * y);
+            if (fetestexcept(FE_INVALID))
+            {
+                return 0;
+            }
+            else
+            {
+                return result;
+            }
         }
         Vector2 Normalise()
         {
@@ -53,7 +62,6 @@ namespace Emerald
             o << "[" << v.x << ", " << v.y << "]";
             return o;
         }
-
         float operator [] (size_t index) const
         {
             assert(index < 2);

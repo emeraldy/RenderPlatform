@@ -3,7 +3,7 @@
 //-----------------------------------------------------------------
 
 #pragma once
-#pragma STDC FENV_ACCESS on
+
 //-----------------------------------------------------------------
 // Include Files
 //-----------------------------------------------------------------
@@ -26,7 +26,7 @@ namespace Emerald
         
         float ToDegreeValue() const{ return value * 180.0f / PI; }
         operator float() const { return value; }//so we can use a Radian object as float
-        const Radian& operator = (const float& f) { value = f; return *this; }
+        const Radian& operator = (float f) { value = f; return *this; }
         const Radian& operator = (const Degree& d);
         Radian operator + (const Radian& r) const { return Radian(value + r.value); }
         Radian& operator += (const Radian& r) { value += r.value; return *this; }
@@ -40,11 +40,17 @@ namespace Emerald
         Radian& operator /= (float f) { value /= f; return *this; }
 
         bool operator <  (const Radian& r) const { return value < r.value; }
+        bool operator <  (float f) const { return value < f; }
         bool operator <= (const Radian& r) const { return value <= r.value; }
+        bool operator <= (float f) const { return value <= f; }
         bool operator == (const Radian& r) const { return value == r.value; }
+        bool operator == (float f) const { return value == f; }
         bool operator != (const Radian& r) const { return value != r.value; }
+        bool operator != (float f) const { return value != f; }
         bool operator >= (const Radian& r) const { return value >= r.value; }
+        bool operator >= (float f) const { return value >= f; }
         bool operator >  (const Radian& r) const { return value > r.value; }
+        bool operator >  (float f) const { return value > f; }
 
     private:
         float value;
@@ -58,7 +64,7 @@ namespace Emerald
 
         float ToRadianValue() const { return value * PI / 180.0f; }
         operator float() const { return value; }//so we can use a Degree object as float
-        const Degree& operator = (const float& f) { value = f; return *this; }
+        const Degree& operator = (float f) { value = f; return *this; }
         const Degree& operator = (const Radian& r) { value = r.ToDegreeValue(); return *this; }
         Degree operator + (const Degree& d) const { return Degree(value + d.value); }
         Degree& operator += (const Degree& d) { value += d.value; return *this; }
@@ -72,11 +78,17 @@ namespace Emerald
         Degree& operator /= (float f) { value /= f; return *this; }
 
         bool operator <  (const Degree& d) const { return value < d.value; }
+        bool operator <  (float f) const { return value < f; }
         bool operator <= (const Degree& d) const { return value <= d.value; }
+        bool operator <= (float f) const { return value <= f; }
         bool operator == (const Degree& d) const { return value == d.value; }
+        bool operator == (float f) const { return value == f; }
         bool operator != (const Degree& d) const { return value != d.value; }
+        bool operator != (float f) const { return value != f; }
         bool operator >= (const Degree& d) const { return value >= d.value; }
+        bool operator >= (float f) const { return value >= f; }
         bool operator >  (const Degree& d) const { return value > d.value; }
+        bool operator >  (float f) const { return value > f; }
 
     private:
         float value;

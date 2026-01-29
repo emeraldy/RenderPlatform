@@ -1,3 +1,8 @@
+cbuffer VSConstants
+{
+    float4x4 mvp;
+};
+
 struct VertexShaderInput
 {
     float3 pos : POSITION;
@@ -13,7 +18,8 @@ struct PixelShaderInput
 PixelShaderInput main(VertexShaderInput input)
 {
     PixelShaderInput output;
-    output.pos = float4(input.pos, 1.0f);
+    float4 clipPos = mul(float4(input.pos, 1.0f), mvp);
+    output.pos = clipPos;
     output.color = input.color;
 
     return output;
