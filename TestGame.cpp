@@ -2,8 +2,8 @@
 #include <fstream>
 #include "TestGame.h"
 #include "Quaternion.h"
+#include "Matrix4.h"
 
-using namespace DirectX;
 using namespace Emerald;
 using namespace TestGameApp;
 
@@ -17,26 +17,6 @@ int WINAPI  WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     static int  tickTrigger = 0;
     DWORD         tickCount = 0;
     TestGame*   pTestGame = new TestGame();
-
-    Quaternion testQ(0.56f, -0.2f, -0.75f, 0.28f);
-    Quaternion logQ;
-    bool qResult = testQ.Log(logQ);
-    Quaternion expQ;
-    qResult = logQ.Exp(expQ);
-
-    std::wstring messageOut;
-    messageOut = std::to_wstring(qResult);
-    std::string logName = "test.log";
-    std::fstream file(logName, std::ios_base::out);
-    if (file.is_open())
-    {
-        file << logQ << std::endl;
-        file << expQ << std::endl;
-    }
-    file.close();
-
-
-    MessageBox(NULL, messageOut.c_str(), TEXT("MESSAGE"), MB_OK | MB_ICONINFORMATION);
 
     if (pTestGame == nullptr)
     {
@@ -119,9 +99,9 @@ bool TestGame::SetupD3D11Rendering()
     //vertex data
     GameVertexFormat triangleMesh[] =
     {
-        {XMFLOAT3(-0.5f, -0.5f, 0.5f), XMFLOAT3(0.0f, 0.0f, 0.0f)},
-        {XMFLOAT3(0.0f,  0.5f, 0.5f), XMFLOAT3(0.0f, 0.0f, 1.0f)},
-        {XMFLOAT3(0.5f, -0.5f, 0.5f), XMFLOAT3(0.0f, 1.0f, 0.0f)}
+        {Vector3(-0.5f, -0.5f, 0.5f), Vector3(0.0f, 0.0f, 0.0f)},
+        {Vector3(0.0f,  0.5f, 0.5f), Vector3(0.0f, 0.0f, 1.0f)},
+        {Vector3(0.5f, -0.5f, 0.5f), Vector3(0.0f, 1.0f, 0.0f)}
     };
     D3D11_SUBRESOURCE_DATA vertexData{};
     vertexData.pSysMem = triangleMesh;
@@ -137,6 +117,37 @@ bool TestGame::SetupD3D11Rendering()
 
     Microsoft::WRL::ComPtr<ID3D11Buffer> pVertexBuffer;
     pDevice->CreateBuffer(&vertexBufferDesc, &vertexData, pVertexBuffer.GetAddressOf());
+
+    //constant buffer for vertex shader
+    Quaternion revolveY(45, Vector3(0, 0, 1.0f));
+    if (revolveY == Quaternion::IDENTITY)
+    {
+        MessageBox(0, L"Failed at creating quaternion", 0, 0);
+    }
+    Matrix3 revolveYMat3 = revolveY.ToMatrix3();
+    Matrix4 revolveYMat4(revolveYMat3);
+    //revolveYMat4.SetColumn(0, Vector4(std::cos(PI / 2), std::sin(PI / 2), 0, 0));
+    //revolveYMat4.SetColumn(1, Vector4(-std::sin(PI / 2), std::cos(PI / 2), 0, 0));
+    //revolveYMat4.SetColumn(2, Vector4(0, 0, 1.0f, 0));
+    //revolveYMat4.SetColumn(3, Vector4(0, 0, 0, 1.0f));
+    revolveYMat4 = revolveYMat4.Transpose();
+
+    D3D11_SUBRESOURCE_DATA vertexCBData{};
+    vertexCBData.pSysMem = &revolveYMat4;
+    vertexCBData.SysMemPitch = 0;
+    vertexCBData.SysMemSlicePitch = 0;
+
+    D3D11_BUFFER_DESC vertexCBDesc{};
+    vertexCBDesc.ByteWidth = sizeof(revolveYMat4);
+    vertexCBDesc.Usage = D3D11_USAGE_DYNAMIC;
+    vertexCBDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    vertexCBDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+    Microsoft::WRL::ComPtr<ID3D11Buffer> pVertexConstantBuffer;
+    pDevice->CreateBuffer(&vertexCBDesc, &vertexCBData, pVertexConstantBuffer.GetAddressOf());
+
+    ID3D11Buffer* pVertexConstantBuffers[D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT] = { nullptr };
+    pVertexConstantBuffers[0] = pVertexConstantBuffer.Get();
 
     //load shaders and compile them
     HRESULT hr = pGameEngine->GetResourceManager()->GenerateHLSLShaderResource();
@@ -204,6 +215,8 @@ bool TestGame::SetupD3D11Rendering()
     pContext->IASetInputLayout(pInputLayout.Get());
 
     pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+    pContext->VSSetConstantBuffers(0, 1, pVertexConstantBuffers);
 
     pContext->VSSetShader(pVertexShader.Get(), nullptr, 0);
 

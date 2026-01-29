@@ -40,6 +40,14 @@ namespace Emerald
             m[3] = e3; m[7] = e7; m[11] = e11; m[15] = e15;
         }
 
+        Matrix4(const Matrix3& mat3)
+        {
+            m[0] = mat3[0]; m[4] = mat3[3]; m[8] =  mat3[6]; m[12] = 0;
+            m[1] = mat3[1]; m[5] = mat3[4]; m[9] =  mat3[7]; m[13] = 0;
+            m[2] = mat3[2]; m[6] = mat3[5]; m[10] = mat3[8]; m[14] = 0;
+            m[3] = 0;       m[7] = 0;       m[11] = 0;       m[15] = 1.0f;
+        }
+
         //0-indexed column
         Vector4 GetColumn(size_t col) const;
         void SetColumn(size_t col, const Vector4& values);

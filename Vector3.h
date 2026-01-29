@@ -32,7 +32,17 @@ namespace Emerald
 
         float Length() const
         {
-            return std::sqrt(x * x + y * y + z * z);
+            float result = 0;
+            std::feclearexcept(FE_ALL_EXCEPT);
+            result = std::sqrt(x * x + y * y + z * z);
+            if (fetestexcept(FE_INVALID))
+            {
+                return 0;
+            }
+            else
+            {
+                return result;
+            }
         }
         Vector3 Normalise()
         {

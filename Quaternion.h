@@ -12,6 +12,7 @@
 #include "Maths.h"
 #include "Vector3.h"
 #include "Vector4.h"
+#include "Matrix3.h"
 
 namespace Emerald
 {
@@ -31,6 +32,8 @@ namespace Emerald
         bool Inverse(Quaternion& result) const;
         bool Exp(Quaternion& result) const;
         bool Log(Quaternion& result) const;
+        Matrix3 ToMatrix3() const;
+        static Quaternion FromMatrix3(const Matrix3& source);
         static bool Slerp(const Quaternion& q0, const Quaternion& q1, Quaternion& result, float t);
         friend std::ostream& operator << (std::ostream& o, const Quaternion& q);
 

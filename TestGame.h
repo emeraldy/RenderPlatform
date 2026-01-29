@@ -2,14 +2,16 @@
 
 #include "GameApp.h"
 #include "GameEngine.h"
+#include "Vector3.h"
 #include "FbxMeshImporter.h"//to be removed
 
 namespace TestGameApp
 {
+    using namespace Emerald;
     struct GameVertexFormat
     {
-        DirectX::XMFLOAT3 position;
-        DirectX::XMFLOAT3 colour;
+        Vector3 position;
+        Vector3 colour;
     };
 
     class TestGame : public Emerald::GameApp
