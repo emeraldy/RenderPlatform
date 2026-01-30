@@ -118,37 +118,6 @@ bool TestGame::SetupD3D11Rendering()
     Microsoft::WRL::ComPtr<ID3D11Buffer> pVertexBuffer;
     pDevice->CreateBuffer(&vertexBufferDesc, &vertexData, pVertexBuffer.GetAddressOf());
 
-    //constant buffer for vertex shader
-    Quaternion revolveY(45, Vector3(0, 0, 1.0f));
-    if (revolveY == Quaternion::IDENTITY)
-    {
-        MessageBox(0, L"Failed at creating quaternion", 0, 0);
-    }
-    Matrix3 revolveYMat3 = revolveY.ToMatrix3();
-    Matrix4 revolveYMat4(revolveYMat3);
-    //revolveYMat4.SetColumn(0, Vector4(std::cos(PI / 2), std::sin(PI / 2), 0, 0));
-    //revolveYMat4.SetColumn(1, Vector4(-std::sin(PI / 2), std::cos(PI / 2), 0, 0));
-    //revolveYMat4.SetColumn(2, Vector4(0, 0, 1.0f, 0));
-    //revolveYMat4.SetColumn(3, Vector4(0, 0, 0, 1.0f));
-    revolveYMat4 = revolveYMat4.Transpose();
-
-    D3D11_SUBRESOURCE_DATA vertexCBData{};
-    vertexCBData.pSysMem = &revolveYMat4;
-    vertexCBData.SysMemPitch = 0;
-    vertexCBData.SysMemSlicePitch = 0;
-
-    D3D11_BUFFER_DESC vertexCBDesc{};
-    vertexCBDesc.ByteWidth = sizeof(revolveYMat4);
-    vertexCBDesc.Usage = D3D11_USAGE_DYNAMIC;
-    vertexCBDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-    vertexCBDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-
-    Microsoft::WRL::ComPtr<ID3D11Buffer> pVertexConstantBuffer;
-    pDevice->CreateBuffer(&vertexCBDesc, &vertexCBData, pVertexConstantBuffer.GetAddressOf());
-
-    ID3D11Buffer* pVertexConstantBuffers[D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT] = { nullptr };
-    pVertexConstantBuffers[0] = pVertexConstantBuffer.Get();
-
     //load shaders and compile them
     HRESULT hr = pGameEngine->GetResourceManager()->GenerateHLSLShaderResource();
     if (FAILED(hr))
@@ -215,8 +184,6 @@ bool TestGame::SetupD3D11Rendering()
     pContext->IASetInputLayout(pInputLayout.Get());
 
     pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-    pContext->VSSetConstantBuffers(0, 1, pVertexConstantBuffers);
 
     pContext->VSSetShader(pVertexShader.Get(), nullptr, 0);
 
@@ -472,7 +439,35 @@ void TestGame::GamePaint()
 {
     if (m_useD3D11)
     {
+        static Degree angle;
+        ID3D11Device* pDevice = pGameEngine->GetD3D11Renderer()->GetDevice();
         ID3D11DeviceContext* pDeviceContext = pGameEngine->GetD3D11Renderer()->GetDeviceContext();
+
+        //constant buffer for transformation matrix
+        Quaternion revolve(angle, Vector3(0, 0, 1.0f));
+        Matrix3 revolveMat3 = revolve.ToMatrix3();
+        Matrix4 revolveMat4(revolveMat3);
+        revolveMat4 = revolveMat4.Transpose();
+
+        D3D11_SUBRESOURCE_DATA vertexCBData{};
+        vertexCBData.pSysMem = &revolveMat4;
+        vertexCBData.SysMemPitch = 0;
+        vertexCBData.SysMemSlicePitch = 0;
+
+        D3D11_BUFFER_DESC vertexCBDesc{};
+        vertexCBDesc.ByteWidth = sizeof(revolveMat4);
+        vertexCBDesc.Usage = D3D11_USAGE_DYNAMIC;
+        vertexCBDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+        vertexCBDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+        Microsoft::WRL::ComPtr<ID3D11Buffer> pVertexConstantBuffer;
+        pDevice->CreateBuffer(&vertexCBDesc, &vertexCBData, pVertexConstantBuffer.GetAddressOf());
+
+        ID3D11Buffer* pVertexConstantBuffers[D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT] = { nullptr };
+        pVertexConstantBuffers[0] = pVertexConstantBuffer.Get();
+
+        pDeviceContext->VSSetConstantBuffers(0, 1, pVertexConstantBuffers);
+
         const float teal[] = { 0.098f, 0.439f, 0.439f, 1.000f };
         pDeviceContext->ClearRenderTargetView(
             pGameEngine->GetD3D11Renderer()->GetRenderTargetView(),
@@ -485,6 +480,12 @@ void TestGame::GamePaint()
             0);
         pDeviceContext->Draw(3, 0);
         pGameEngine->GetD3D11Renderer()->GetSwapChain()->Present(0, 0);
+        
+        angle += 5.0f;
+        if (angle > 360.0f)
+        {
+            angle = 0.0f;
+        }
     }
     else//use opengl
     {

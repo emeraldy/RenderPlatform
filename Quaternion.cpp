@@ -179,9 +179,6 @@ Matrix3 Quaternion::ToMatrix3() const
     Vector3 col0(1 - 2 * y * y - 2 * z * z, 2 * x * y + 2 * w * z, 2 * x * z - 2 * w * y);
     Vector3 col1(2 * x * y - 2 * w * z, 1 - 2 * x * x - 2 * z * z, 2 * y * z + 2 * w * x);
     Vector3 col2(2 * x * z + 2 * w * y, 2 * y * z - 2 * w * x, 1 - 2 * x * x - 2 * y * y);
-    col0 = col0.Normalise();
-    col1 = col1.Normalise();
-    col2 = col2.Normalise();
     result.SetColumn(0, col0);
     result.SetColumn(1, col1);
     result.SetColumn(2, col2);
