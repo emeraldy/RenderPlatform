@@ -84,6 +84,7 @@
   <ItemGroup>
     <ClCompile Include="AssetIOHandler.cpp" />
     <ClCompile Include="D3D11Renderer.cpp" />
+    <ClCompile Include="Error.cpp" />
     <ClCompile Include="FbxMeshImporter.cpp" />
     <ClCompile Include="FbxSdkCommon.cpp" />
     <ClCompile Include="GameEngine.cpp" />
@@ -99,6 +100,7 @@
   <ItemGroup>
     <ClInclude Include="AssetIOHandler.h" />
     <ClInclude Include="D3D11Renderer.h" />
+    <ClInclude Include="Error.h" />
     <ClInclude Include="FbxMeshImporter.h" />
     <ClInclude Include="FbxSdkCommon.h" />
     <ClInclude Include="GameEngine.h" />

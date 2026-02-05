@@ -1,7 +1,5 @@
 //-----------------------------------------------------------------
-// String utilities Class Header
-// 
-// Handle string-related operations
+// Error Class Header
 //-----------------------------------------------------------------
 
 #pragma once
@@ -13,10 +11,14 @@
 
 namespace Emerald
 {
-    class StringUtilities
+    class Error
     {
     public:
-        static std::wstring ConvertCharStringToWide(const std::string& source);
-        static std::string ConvertWideStringToChar(const std::wstring& source);
+        Error operator += (const std::wstring& newText);
+        Error operator = (const std::wstring& newText);
+        explicit operator bool() const;
+        const std::wstring GetErrorText() const;
+    private:
+        std::wstring text;
     };
 }

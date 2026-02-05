@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------
-// Handle string-related operations
+// String Utilities Class
 //-----------------------------------------------------------------
 
 
@@ -8,9 +8,10 @@
 // Include Files
 //-----------------------------------------------------------------
 #include "StringUtilities.h"
-#include <cassert>
 
-std::wstring Emerald::ConvertCharStringToWide(const std::string& source)
+using namespace Emerald;
+
+std::wstring StringUtilities::ConvertCharStringToWide(const std::string& source)
 {
     std::wstring destination;
     std::size_t sourceLength = source.length();
@@ -20,11 +21,14 @@ std::wstring Emerald::ConvertCharStringToWide(const std::string& source)
     }
     destination.assign(sourceLength, '+');
     std::size_t destinationLength = std::mbstowcs(&destination[0], &source[0], sourceLength);
-    assert(destinationLength == sourceLength);
+    if (destinationLength == static_cast<std::size_t>(-1))
+    {
+        destination.clear();
+    }
     return destination;
 }
 
-std::string Emerald::ConvertWideStringToChar(const std::wstring& source)
+std::string StringUtilities::ConvertWideStringToChar(const std::wstring& source)
 {
     std::string destination;
     std::size_t sourceLength = source.length();
@@ -34,6 +38,9 @@ std::string Emerald::ConvertWideStringToChar(const std::wstring& source)
     }
     destination.assign(sourceLength, '+');
     std::size_t destinationLength = std::wcstombs(&destination[0], &source[0], sourceLength);
-    assert(destinationLength == sourceLength);
+    if (destinationLength == static_cast<std::size_t>(-1))
+    {
+        destination.clear();
+    }
     return destination;
 }

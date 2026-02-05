@@ -1,8 +1,10 @@
 #include <string>
 #include <fstream>
+#include "StandardIncludes.h"
 #include "TestGame.h"
 #include "Quaternion.h"
 #include "Matrix4.h"
+#include "Error.h"
 
 using namespace Emerald;
 using namespace TestGameApp;
@@ -17,7 +19,16 @@ int WINAPI  WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     static int  tickTrigger = 0;
     DWORD         tickCount = 0;
     TestGame*   pTestGame = new TestGame();
+    Error testErr;
 
+    testErr += L"illegal parameters detected at line " + std::to_wstring(__LINE__) +
+        L" in function " + StringUtilities::ConvertCharStringToWide(__func__) + L" in file " +
+        StringUtilities::ConvertCharStringToWide(__FILE__);
+
+    if (testErr)
+    {
+        MessageBox(0, testErr.GetErrorText().c_str(), 0, 0);
+    }
     if (pTestGame == nullptr)
     {
         return FALSE;

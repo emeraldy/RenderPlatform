@@ -6,7 +6,9 @@
 //-----------------------------------------------------------------
 // Include Files
 //-----------------------------------------------------------------
+#include <windows.h>
 #include "FbxSdkCommon.h"
+#include "StringUtilities.h"
 
 using namespace Emerald;
 
@@ -76,7 +78,7 @@ bool FbxSdkCommon::LoadScene(const char* pFileName)
         FbxString error("Call to FbxImporter::Initialize() failed. ");
         error += "Error returned: ";
         error += lImporter->GetStatus().GetErrorString();
-        std::wstring errorInfo = ConvertCharStringToWide(std::string(error.Buffer()));
+        std::wstring errorInfo = StringUtilities::ConvertCharStringToWide(std::string(error.Buffer()));
         MessageBox(NULL, errorInfo.c_str(), TEXT("ERROR"), MB_OK | MB_ICONEXCLAMATION);
 
         if (lImporter->GetStatus().GetCode() == FbxStatus::eInvalidFileVersion)
@@ -96,7 +98,7 @@ bool FbxSdkCommon::LoadScene(const char* pFileName)
             error += ".";
             error += lFileRevision;
             
-            errorInfo = ConvertCharStringToWide(std::string(error.Buffer()));
+            errorInfo = StringUtilities::ConvertCharStringToWide(std::string(error.Buffer()));
             MessageBox(NULL, errorInfo.c_str(), TEXT("ERROR"), MB_OK | MB_ICONEXCLAMATION);
         }
 
@@ -123,13 +125,13 @@ bool FbxSdkCommon::LoadScene(const char* pFileName)
         if (lStatus)
         {
             FbxString error("The importer was able to read the file but with errors. Loaded scene may be incomplete.");
-            std::wstring errorInfo = ConvertCharStringToWide(std::string(error.Buffer()));
+            std::wstring errorInfo = StringUtilities::ConvertCharStringToWide(std::string(error.Buffer()));
             MessageBox(NULL, errorInfo.c_str(), TEXT("WARNING"), MB_OK | MB_ICONEXCLAMATION);
         }
         else
         {
             FbxString error("Importer failed to load the file!");
-            std::wstring errorInfo = ConvertCharStringToWide(std::string(error.Buffer()));
+            std::wstring errorInfo = StringUtilities::ConvertCharStringToWide(std::string(error.Buffer()));
             MessageBox(NULL, errorInfo.c_str(), TEXT("ERROR"), MB_OK | MB_ICONEXCLAMATION);
         }
     }

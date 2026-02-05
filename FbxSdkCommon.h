@@ -9,9 +9,6 @@
 // Include Files
 //-----------------------------------------------------------------
 #include "fbxsdk.h"
-#include <windows.h>
-#include "StringUtilities.h"
-
 
 namespace Emerald
 {

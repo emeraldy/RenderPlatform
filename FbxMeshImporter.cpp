@@ -7,6 +7,7 @@
 // Include Files
 //-----------------------------------------------------------------
 #include "FbxMeshImporter.h"
+#include "StringUtilities.h"
 
 using namespace Emerald;
 
@@ -23,7 +24,7 @@ FbxMeshImporter::~FbxMeshImporter()
 bool FbxMeshImporter::LoadAssetFromFile(LPCWSTR pFileName)
 {
     FbxScene* pImportedScene = nullptr;
-    std::string charFileName = ConvertWideStringToChar(std::wstring(pFileName));
+    std::string charFileName = StringUtilities::ConvertWideStringToChar(std::wstring(pFileName));
     if (!fbxSdk.LoadScene(charFileName.c_str()))
     {
         return false;
