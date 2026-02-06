@@ -11,11 +11,11 @@ using namespace Emerald;
 
 const Matrix4 Matrix4::IDENTITY(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 
-Matrix4 Matrix4::MakeTranslation(const Vector3& vec)
+Matrix4 Matrix4::MakeTranslation(const Vector3& vec, Error& err)
 {
     Matrix4 result = IDENTITY;
     Vector4 values(vec, 1.0f);
-    result.SetColumn(3, values);
+    result.SetColumn(3, values, err);
 
     return result;
 }
@@ -31,16 +31,22 @@ Matrix4 Matrix4::MakeScale(const Vector3& vec)
 }
 
 //0-indexed column
-Vector4 Matrix4::GetColumn(size_t col) const
+Vector4 Matrix4::GetColumn(size_t col, Error& err) const
 {
-    assert(0 <= col && col < 4);
+    if (col < 0 || col > 3)
+    {
+        err += L"Matrix4 GetColumn out of range.";
+    }
     return Vector4(m[col * 4], m[col * 4 + 1], m[col * 4 + 2], m[col * 4 + 3]);
 }
 
 //0-indexed column
-void Matrix4::SetColumn(size_t col, const Vector4& values)
+void Matrix4::SetColumn(size_t col, const Vector4& values, Error& err)
 {
-    assert(0 <= col && col < 4);
+    if (col < 0 || col > 3)
+    {
+        err += L"Matrix4 SetColumn out of range.";
+    }
     m[col * 4] = values[0];
     m[col * 4 + 1] = values[1];
     m[col * 4 + 2] = values[2];
@@ -48,25 +54,31 @@ void Matrix4::SetColumn(size_t col, const Vector4& values)
 }
 
 //0-indexed row
-Vector4 Matrix4::GetRow(size_t row) const
+Vector4 Matrix4::GetRow(size_t row, Error& err) const
 {
-    assert(0 <= row && row < 4);
+    if (row < 0 || row > 3)
+    {
+        err += L"Matrix4 GetRow out of range.";
+    }
     return Vector4(m[row], m[row + 4], m[row + 8], m[row + 12]);
 }
 
 //0-indexed row
-void Matrix4::SetRow(size_t row, const Vector4& values)
+void Matrix4::SetRow(size_t row, const Vector4& values, Error& err)
 {
-    assert(0 <= row && row < 4);
+    if (row < 0 || row > 3)
+    {
+        err += L"Matrix4 SetRow out of range.";
+    }
     m[row] = values[0];
     m[row + 4] = values[1];
     m[row + 8] = values[2];
     m[row + 12] = values[3];
 }
 
-Matrix3 Matrix4::Retrieve3x3() const
+Matrix3 Matrix4::Retrieve3x3(Error& err) const
 {
-    return SubMatrix3(3, 3);
+    return SubMatrix3(3, 3, err);
 }
 
 Vector3 Matrix4::GetTranslation() const
@@ -79,10 +91,12 @@ Vector3 Matrix4::GetScale() const
     return Vector3(m[0], m[5], m[10]);
 }
 
-Matrix3 Matrix4::SubMatrix3(size_t row, size_t col) const
+Matrix3 Matrix4::SubMatrix3(size_t row, size_t col, Error& err) const
 {
-    assert(0 <= row && row < 4);
-    assert(0 <= col && col < 4);
+    if (row < 0 || row > 3 || col < 0 || col > 3)
+    {
+        err += L"Matrix4 SubMatrix3 out of range.";
+    }
 
     Matrix3 result;
 
@@ -127,12 +141,12 @@ Matrix4 Matrix4::Transpose() const
     return result;
 }
 
-float Matrix4::Determinant() const
+float Matrix4::Determinant(Error& err) const
 {
-    Matrix3 sub00 = SubMatrix3(0, 0);
-    Matrix3 sub10 = SubMatrix3(1, 0);
-    Matrix3 sub20 = SubMatrix3(2, 0);
-    Matrix3 sub30 = SubMatrix3(3, 0);
+    Matrix3 sub00 = SubMatrix3(0, 0, err);
+    Matrix3 sub10 = SubMatrix3(1, 0, err);
+    Matrix3 sub20 = SubMatrix3(2, 0, err);
+    Matrix3 sub30 = SubMatrix3(3, 0, err);
 
     float det00 = sub00.Determinant();
     float det10 = sub10.Determinant();
@@ -142,7 +156,7 @@ float Matrix4::Determinant() const
     return m[0] * det00 - m[1] * det10 + m[2] * det20 - m[3] * det30;
 }
 
-bool Matrix4::Inverse(Matrix4& result, float tolerance) const
+Matrix4 Matrix4::Inverse(Error& err, float tolerance) const
 {
     //Adjoint method: inv(M) = (1 / det(M)) * adj(M)
 
@@ -153,7 +167,7 @@ bool Matrix4::Inverse(Matrix4& result, float tolerance) const
     {
         for (int col = 0; col < 4; col++)
         {
-            minors[row][col] = SubMatrix3(row, col);
+            minors[row][col] = SubMatrix3(row, col, err);
             minorDets[row][col] = minors[row][col].Determinant();
         }
     }
@@ -165,23 +179,28 @@ bool Matrix4::Inverse(Matrix4& result, float tolerance) const
     float det = m[0] * minorDets[0][0] - m[1] * minorDets[1][0] + m[2] * minorDets[2][0] - m[3] * minorDets[3][0];
     if (fabs(det) < tolerance)
     {
-        return false;
+        err += L"Matrix4 Inverse failed.";
+        return Matrix4();
     }
 
-    result = adjugate * (1.0 / det);
-
-    return true;
+    return adjugate * (1.0 / det);
 }
 
 float Matrix4::operator [] (size_t index) const
 {
-    assert(0 <= index && index < 16);
+    if (index < 0 || index > 15)
+    {
+        throw std::out_of_range("at Matrix4 operator [] const");
+    }
     return m[index];
 }
 
 float& Matrix4::operator [] (size_t index)
 {
-    assert(0 <= index && index < 16);
+    if (index < 0 || index > 15)
+    {
+        throw std::out_of_range("at Matrix4 operator []");
+    }
     return m[index];
 }
 

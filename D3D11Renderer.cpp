@@ -31,6 +31,8 @@ D3D11Renderer::~D3D11Renderer()
 
 BOOL D3D11Renderer::Initialise(HWND hWindow, int winWidth, int winHeight)
 {
+    Error initialiseErr;
+
     // Create the device and device context.
 
     UINT createDeviceFlags = D3D11_CREATE_DEVICE_SINGLETHREADED;
@@ -65,7 +67,11 @@ BOOL D3D11Renderer::Initialise(HWND hWindow, int winWidth, int winHeight)
     // Check 4X MSAA quality support for our back buffer format.
     UINT msaaQuality;
     m_pD3D11Device->CheckMultisampleQualityLevels(DXGI_FORMAT_R8G8B8A8_UNORM, 4, &msaaQuality);
-    assert(msaaQuality > 0);
+    if (msaaQuality < 0)
+    {
+        initialiseErr += L"msaa quality not supported at line " + std::to_wstring(__LINE__) + L" in File " + StringUtilities::ConvertCharStringToWide(__FILE__);
+        MessageBox(0, initialiseErr.GetErrorText().c_str(), 0, 0);
+    }
 
     // Fill out a DXGI_SWAP_CHAIN_DESC to describe our swap chain.
     DXGI_SWAP_CHAIN_DESC swapChainDesc {};

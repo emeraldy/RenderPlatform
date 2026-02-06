@@ -12,42 +12,58 @@ using namespace Emerald;
 const Matrix3 Matrix3::IDENTITY(1, 0, 0, 0, 1, 0, 0, 0, 1);
 
 //0-indexed column
-Vector3 Matrix3::GetColumn(size_t col) const
+Vector3 Matrix3::GetColumn(size_t col, Error& err) const
 {
-    assert(0 <= col && col < 3);
+    if (col < 0 || col > 2)
+    {
+        err += L"Matrix3 GetColumn out of range.";
+        return Vector3();
+    }
     return Vector3(m[col * 3], m[col * 3 + 1], m[col * 3 + 2]);
 }
 
 //0-indexed column
-void Matrix3::SetColumn(size_t col, const Vector3& values)
+void Matrix3::SetColumn(size_t col, const Vector3& values, Error& err)
 {
-    assert(0 <= col && col < 3);
+    if (col < 0 || col > 2)
+    {
+        err += L"Matrix3 SetColumn out of range.";
+        return;
+    }
     m[col * 3] = values[0];
     m[col * 3 + 1] = values[1];
     m[col * 3 + 2] = values[2];
 }
 
 //0-indexed row
-Vector3 Matrix3::GetRow(size_t row) const
+Vector3 Matrix3::GetRow(size_t row, Error& err) const
 {
-    assert(0 <= row && row < 3);
+    if (row < 0 || row > 2)
+    {
+        err += L"Matrix3 GetRow out of range.";
+        return Vector3();
+    }
     return Vector3(m[row], m[row + 3], m[row + 6]);
 }
 
 //0-indexed row
-void Matrix3::SetRow(size_t row, const Vector3& values)
+void Matrix3::SetRow(size_t row, const Vector3& values, Error& err)
 {
-    assert(0 <= row && row < 3);
+    if (row < 0 || row > 2)
+    {
+        err += L"Matrix3 SetRow out of range.";
+        return;
+    }
     m[row] = values[0];
     m[row + 3] = values[1];
     m[row + 6] = values[2];
 }
 
-void Matrix3::BuildFromAxes(const Vector3& xAxis, const Vector3& yAxis, const Vector3& zAxis)
+void Matrix3::BuildFromAxes(const Vector3& xAxis, const Vector3& yAxis, const Vector3& zAxis, Error& err)
 {
-    SetColumn(0, xAxis);
-    SetColumn(1, yAxis);
-    SetColumn(2, zAxis);
+    SetColumn(0, xAxis, err);
+    SetColumn(1, yAxis, err);
+    SetColumn(2, zAxis, err);
 }
 
 Matrix3 Matrix3::Transpose() const
@@ -74,8 +90,9 @@ float Matrix3::Determinant() const
            m[6] * (m[1] * m[5] - m[4] * m[2]);
 }
 
-bool Matrix3::Inverse(Matrix3& result, float tolerance) const
+Matrix3 Matrix3::Inverse(Error& err, float tolerance) const
 {
+    Matrix3 result;
     //Adjoint method: inv(M) = (1 / det(M)) * adj(M)
     
     //adj(M):
@@ -94,41 +111,48 @@ bool Matrix3::Inverse(Matrix3& result, float tolerance) const
 
     if (fabs(det) < tolerance)
     {
-        return false;
+        err += L"Matrix3 Inverse failed.";
+        return result;
     }
     
     result = result * (1.0 / det);
 
-    return true;
+    return result;
 }
 
-void Matrix3::Orthogonalise()
+void Matrix3::Orthogonalise(Error& err)
 {
     Vector3 row0, row1, row2;
-    row0 = GetRow(0);
-    row1 = GetRow(1);
-    row2 = GetRow(2);
+    row0 = GetRow(0, err);
+    row1 = GetRow(1, err);
+    row2 = GetRow(2, err);
 
-    row0 = row0.Normalise();
+    row0 = row0.Normalise(err);
     row1 = row1 - row1.Dot(row0) * row0;
-    row1 = row1.Normalise();
+    row1 = row1.Normalise(err);
     row2 = row2 - row2.Dot(row0) * row0 - row2.Dot(row1) * row1;
-    row2 = row2.Normalise();
+    row2 = row2.Normalise(err);
 
-    SetRow(0, row0);
-    SetRow(1, row1);
-    SetRow(2, row2);
+    SetRow(0, row0, err);
+    SetRow(1, row1, err);
+    SetRow(2, row2, err);
 }
 
 float Matrix3::operator [] (size_t index) const
 {
-    assert(0 <= index && index < 9);
+    if (index < 0 || index > 8)
+    {
+        throw std::out_of_range("at Matrix3 operator [] const");
+    }
     return m[index];
 }
 
 float& Matrix3::operator [] (size_t index)
 {
-    assert(0 <= index && index < 9);
+    if (index < 0 || index > 8)
+    {
+        throw std::out_of_range("at Matrix3 operator []");
+    }
     return m[index];
 }
 

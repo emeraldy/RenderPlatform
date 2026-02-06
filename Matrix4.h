@@ -26,7 +26,7 @@ namespace Emerald
     {
     public:
         static const Matrix4 IDENTITY;
-        static Matrix4 MakeTranslation(const Vector3& vec);
+        static Matrix4 MakeTranslation(const Vector3& vec, Error& err);
         static Matrix4 MakeScale(const Vector3& vec);
 
         Matrix4(float e0 = 0.0f, float e1 = 0.0f, float e2 = 0.0f, float e3 = 0.0f,
@@ -49,20 +49,20 @@ namespace Emerald
         }
 
         //0-indexed column
-        Vector4 GetColumn(size_t col) const;
-        void SetColumn(size_t col, const Vector4& values);
+        Vector4 GetColumn(size_t col, Error& err) const;
+        void SetColumn(size_t col, const Vector4& values, Error& err);
         //0-indexed row
-        Vector4 GetRow(size_t row) const;
-        void SetRow(size_t row, const Vector4& values);
-        Matrix3 Retrieve3x3() const;
+        Vector4 GetRow(size_t row, Error& err) const;
+        void SetRow(size_t row, const Vector4& values, Error& err);
+        Matrix3 Retrieve3x3(Error& err) const;
         Vector3 GetTranslation() const;
         Vector3 GetScale() const;
 
         //extract a 3x3 submatrix by eliminating row and col from m
-        Matrix3 SubMatrix3(size_t row, size_t col) const;
+        Matrix3 SubMatrix3(size_t row, size_t col, Error& err) const;
         Matrix4 Transpose() const;
-        float Determinant() const;
-        bool Inverse(Matrix4& result, float tolerance = 1e-6) const;
+        float Determinant(Error& err) const;
+        Matrix4 Inverse(Error& err, float tolerance = 1e-6) const;
 
         float operator [] (size_t index) const;
         float& operator [] (size_t index);

@@ -9,18 +9,17 @@
 
 using namespace Emerald;
 
-const Quaternion Quaternion::IDENTITY = Quaternion(1.0f);
-
-Quaternion::Quaternion(const Degree& d, const Vector3& v)
+Quaternion::Quaternion(Error& err, const Degree& d, const Vector3& v)
 {
     Radian theta = d;
     Vector3 axis(v);
-    axis.Normalise();
+    axis.Normalise(err);
     std::feclearexcept(FE_ALL_EXCEPT);
     float sineHalfTheta = std::sin(theta / 2.0f);
     w = std::cos(theta / 2.0f);
-    if (std::fetestexcept(FE_INVALID))//TODO: engine-wide exception system. how? 
+    if (std::fetestexcept(FE_INVALID)) 
     {
+        err += L"Construct quaternion from angle and axis failed.";
         w = 1.0f;
         sineHalfTheta = 0;
     }
@@ -42,13 +41,14 @@ Quaternion::Quaternion(const Vector4& v)
     Quaternion(v.x, v.y, v.z, v.w);
 }
 
-float Quaternion::Magnitude() const
+float Quaternion::Magnitude(Error& err) const
 {
     float result = 0;
     std::feclearexcept(FE_ALL_EXCEPT);
     result = std::sqrt(w * w + x * x + y * y + z * z);
     if (fetestexcept(FE_INVALID))
     {
+        err += L"Quaternion Magnitude error.";
         return 0;
     }
     else
@@ -57,11 +57,12 @@ float Quaternion::Magnitude() const
     }
 }
 
-bool Quaternion::Normalise()
+bool Quaternion::Normalise(Error& err)
 {
-    float mag = Magnitude();
+    float mag = Magnitude(err);
     if (mag < ZEROTHRESHOLD)
     {
+        err += L"mag in Quaternion Normalise is zero.";
         return false;
     }
     w /= mag;
@@ -72,44 +73,46 @@ bool Quaternion::Normalise()
     return true;
 }
 
-bool Quaternion::GetAngle(Degree& angle) const
+Degree Quaternion::GetAngle(Error& err) const
 {
-    float mag = Magnitude();
+    float mag = Magnitude(err);
     if (mag < ZEROTHRESHOLD)
     {
-        return false;
+        err += L"mag in Quaterion GetAngle is zero.";
+        return Degree();
     }
     std::feclearexcept(FE_ALL_EXCEPT);
     float halfTheta = std::acos(w / mag);
-    if (std::fetestexcept(FE_INVALID))//TODO: engine-wide exception system. how? 
+    if (std::fetestexcept(FE_INVALID)) 
     {
-        return false;
+        err += L"Quaternion GetAngle halfTheta failed.";
+        return Degree();
     }
-    angle = Radian(halfTheta * 2);
-
-    return true;
+    return Degree(Radian(halfTheta * 2));
 }
 
-bool Quaternion::GetAxis(Vector3& axis) const
+Vector3 Quaternion::GetAxis(Error& err) const
 {
+    Vector3 axis;
     Quaternion unitQ = *this;
-    if (!unitQ.Normalise())
+    if (!unitQ.Normalise(err))
     {
-        return false;
+        return axis;
     }
     std::feclearexcept(FE_ALL_EXCEPT);
     float halfTheta = std::acos(unitQ.w);
     float sineHalfTheta = std::sin(halfTheta);
-    if (std::fetestexcept(FE_INVALID))//TODO: engine-wide exception system. how? 
+    if (std::fetestexcept(FE_INVALID)) 
     {
-        return false;
+        err += L"Quaternion GetAxis halfTheta failed.";
+        return axis;
     }
     axis.x = unitQ.x / sineHalfTheta;
     axis.y = unitQ.y / sineHalfTheta;
     axis.z = unitQ.z / sineHalfTheta;
-    axis = axis.Normalise();
+    axis = axis.Normalise(err);
 
-    return true;
+    return axis;
 }
 
 float Quaternion::Dot(const Quaternion& other) const
@@ -117,20 +120,20 @@ float Quaternion::Dot(const Quaternion& other) const
     return w * other.w + x * other.x + y * other.y + z * other.z;
 }
 
-bool Quaternion::Inverse(Quaternion& result) const
+Quaternion Quaternion::Inverse(Error& err) const
 {
-    result = Quaternion(w, -x, -y, -z);
-    float mag = Magnitude();
+    Quaternion result(w, -x, -y, -z);
+    float mag = Magnitude(err);
     if (mag < ZEROTHRESHOLD)
     {
-        return false;
+        return result;
     }
 
     result = result / mag;
     return true;
 }
 
-bool Quaternion::Exp(Quaternion& result) const
+Quaternion Quaternion::Exp(Error& err) const
 {
     //Q = [w, V], where V = [x, y, z]
     std::feclearexcept(FE_ALL_EXCEPT);
@@ -140,22 +143,23 @@ bool Quaternion::Exp(Quaternion& result) const
     float sinMagV = std::sin(magV);
     if (fetestexcept(FE_DIVBYZERO | FE_INVALID) || magV < ZEROTHRESHOLD)
     {
-        return false;
+        err += L"Quaternion Exp failed.";
+        return Quaternion();
     }
 
     float coefficient = powerEW * sinMagV / magV;
-    result = Quaternion(powerEW * cosMagV, coefficient * x, coefficient * y, coefficient * z);
+    Quaternion result(powerEW * cosMagV, coefficient * x, coefficient * y, coefficient * z);
 
-    return true;
+    return result;
 }
 
-bool Quaternion::Log(Quaternion& result) const
+Quaternion Quaternion::Log(Error& err) const
 {
     //Q = [w, V], where V = [x, y, z]
-    float magQ = Magnitude();
+    float magQ = Magnitude(err);
     if (magQ < ZEROTHRESHOLD)
     {
-        return false;
+        return Quaternion();
     }
     std::feclearexcept(FE_ALL_EXCEPT);
     float magV = std::sqrt(x * x + y * y + z * z);
@@ -163,30 +167,31 @@ bool Quaternion::Log(Quaternion& result) const
     float logMagQ = std::log(magQ);
     if (fetestexcept(FE_INVALID | FE_DIVBYZERO) || magV < ZEROTHRESHOLD)
     {
-        return false;
+        err += L"Quaternion Log failed.";
+        return Quaternion();
     }
 
     float coefficient = acosWOverMagQ / magV;
-    result = Quaternion(logMagQ, coefficient * x, coefficient * y, coefficient * z);
+    Quaternion result(logMagQ, coefficient * x, coefficient * y, coefficient * z);
 
-    return true;
+    return result;
 }
 
-Matrix3 Quaternion::ToMatrix3() const
+Matrix3 Quaternion::ToMatrix3(Error& err) const
 {
     
     Matrix3 result;
     Vector3 col0(1 - 2 * y * y - 2 * z * z, 2 * x * y + 2 * w * z, 2 * x * z - 2 * w * y);
     Vector3 col1(2 * x * y - 2 * w * z, 1 - 2 * x * x - 2 * z * z, 2 * y * z + 2 * w * x);
     Vector3 col2(2 * x * z + 2 * w * y, 2 * y * z - 2 * w * x, 1 - 2 * x * x - 2 * y * y);
-    result.SetColumn(0, col0);
-    result.SetColumn(1, col1);
-    result.SetColumn(2, col2);
+    result.SetColumn(0, col0, err);
+    result.SetColumn(1, col1, err);
+    result.SetColumn(2, col2, err);
     
     return result;
 }
 
-Quaternion Quaternion::FromMatrix3(const Matrix3& source)
+Quaternion Quaternion::FromMatrix3(const Matrix3& source, Error& err)
 {
     float wTerm = source[0] + source[4] + source[8];
     float xTerm = source[0] - source[4] - source[8];
@@ -215,6 +220,7 @@ Quaternion Quaternion::FromMatrix3(const Matrix3& source)
     float largestComponent = std::sqrt(largestTerm + 1.0f) * 0.5f;
     if (fetestexcept(FE_INVALID) || largestTerm < ZEROTHRESHOLD)
     {
+        err += L"Quaternion FromMatrix3 largest component failed.";
         return Quaternion();
     }
 
@@ -251,13 +257,14 @@ Quaternion Quaternion::FromMatrix3(const Matrix3& source)
     return result;
 }
 
-bool Quaternion::Slerp(const Quaternion& q0, const Quaternion& q1, Quaternion& result, float t)
+bool Quaternion::Slerp(const Quaternion& q0, const Quaternion& q1, Quaternion& result, float t, Error& err)
 {
     Quaternion unitQ0 = q0;
     Quaternion unitQ1 = q1;
 
-    if (!unitQ0.Normalise() || !unitQ1.Normalise())
+    if (!unitQ0.Normalise(err) || !unitQ1.Normalise(err))
     {
+        err += L"Quaternion Slerp Normalisation failed.";
         return false;
     }
 
@@ -284,6 +291,7 @@ bool Quaternion::Slerp(const Quaternion& q0, const Quaternion& q1, Quaternion& r
         k1 = std::sin(t * w) / std::sin(w);
         if (fetestexcept(FE_INVALID))
         {
+            err += L"Quaternion Slerp failed.";
             return false;
         }
     }

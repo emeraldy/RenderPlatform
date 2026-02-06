@@ -52,12 +52,18 @@ namespace Emerald
 
         float operator [] (size_t index) const
         {
-            assert(index < 4);
+            if (index < 0 || index > 3)
+            {
+                throw std::out_of_range("at Vector4 operator [] const");
+            }
             return  *(&x + index);
         }
         float& operator [] (size_t index)
         {
-            assert(index < 4);
+            if (index < 0 || index > 3)
+            {
+                throw std::out_of_range("at Vector3 operator []");
+            }
             return *(&x + index);
         }
         bool operator == (const Vector4& other) const
@@ -107,7 +113,10 @@ namespace Emerald
         }
         Vector4 operator / (float scalar) const
         {
-            assert(scalar != 0.0);
+            if (scalar < ZEROTHRESHOLD)
+            {
+                throw std::invalid_argument("at Vector4 operator /");
+            }
 
             Vector4 quotient;
 
@@ -158,7 +167,10 @@ namespace Emerald
         }
         Vector4& operator /= (float scalar)
         {
-            assert(scalar != 0.0);
+            if (scalar < ZEROTHRESHOLD)
+            {
+                throw std::invalid_argument("at Vector4 operator /=");
+            }
 
             x /= scalar;
             y /= scalar;

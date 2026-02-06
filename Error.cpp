@@ -11,14 +11,30 @@ using namespace Emerald;
 
 Error Error::operator += (const std::wstring& newText)
 {
-    text += newText + L'\n';
+    if (!newText.empty())
+    {
+        text += newText + L'\n';
+    }
+
+    return *this;
+}
+
+Error Error::operator += (const Error& moreErr)
+{
+    if (moreErr)
+    {
+        text += moreErr.text + L'\n';
+    }
 
     return *this;
 }
 
 Error Error::operator = (const std::wstring& newText)
 {
-    text = newText + L'\n';
+    if (!newText.empty())
+    {
+        text = newText + L'\n';
+    }
 
     return *this;
 }

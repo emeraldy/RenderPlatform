@@ -19,16 +19,7 @@ int WINAPI  WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     static int  tickTrigger = 0;
     DWORD         tickCount = 0;
     TestGame*   pTestGame = new TestGame();
-    Error testErr;
 
-    testErr += L"illegal parameters detected at line " + std::to_wstring(__LINE__) +
-        L" in function " + StringUtilities::ConvertCharStringToWide(__func__) + L" in file " +
-        StringUtilities::ConvertCharStringToWide(__FILE__);
-
-    if (testErr)
-    {
-        MessageBox(0, testErr.GetErrorText().c_str(), 0, 0);
-    }
     if (pTestGame == nullptr)
     {
         return FALSE;
@@ -448,6 +439,8 @@ void TestGame::GameDeactivate()
 
 void TestGame::GamePaint()
 {
+    Error gamePaintErr;
+
     if (m_useD3D11)
     {
         static Degree angle;
@@ -455,10 +448,14 @@ void TestGame::GamePaint()
         ID3D11DeviceContext* pDeviceContext = pGameEngine->GetD3D11Renderer()->GetDeviceContext();
 
         //constant buffer for transformation matrix
-        Quaternion revolve(angle, Vector3(0, 0, 1.0f));
-        Matrix3 revolveMat3 = revolve.ToMatrix3();
+        Quaternion revolve(gamePaintErr, angle, Vector3(0, 0, 1.0f));
+        Matrix3 revolveMat3 = revolve.ToMatrix3(gamePaintErr);
         Matrix4 revolveMat4(revolveMat3);
         revolveMat4 = revolveMat4.Transpose();
+        if (gamePaintErr)
+        {
+            MessageBox(0, gamePaintErr.GetErrorText().c_str(), 0, 0);
+        }
 
         D3D11_SUBRESOURCE_DATA vertexCBData{};
         vertexCBData.pSysMem = &revolveMat4;
