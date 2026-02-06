@@ -5,6 +5,7 @@
 #include "Quaternion.h"
 #include "Matrix4.h"
 #include "Error.h"
+#include "Vector3.h"
 
 using namespace Emerald;
 using namespace TestGameApp;
@@ -20,6 +21,10 @@ int WINAPI  WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     DWORD         tickCount = 0;
     TestGame*   pTestGame = new TestGame();
     Error testErr;
+
+    Vector3 testV(3.0f, 4.0f, 5.0f);
+    testV[-1] = 1.0f;
+    //testV /= 0;
 
     testErr += L"illegal parameters detected at line " + std::to_wstring(__LINE__) +
         L" in function " + StringUtilities::ConvertCharStringToWide(__func__) + L" in file " +

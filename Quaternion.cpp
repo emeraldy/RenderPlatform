@@ -11,11 +11,11 @@ using namespace Emerald;
 
 const Quaternion Quaternion::IDENTITY = Quaternion(1.0f);
 
-Quaternion::Quaternion(const Degree& d, const Vector3& v)
+Quaternion::Quaternion(Error& err, const Degree& d, const Vector3& v)
 {
     Radian theta = d;
     Vector3 axis(v);
-    axis.Normalise();
+    axis.Normalise(err);
     std::feclearexcept(FE_ALL_EXCEPT);
     float sineHalfTheta = std::sin(theta / 2.0f);
     w = std::cos(theta / 2.0f);

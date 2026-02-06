@@ -27,29 +27,31 @@ namespace Emerald
             x = ax;
             y = ay;
         }
-        float Length() const
+        float Length(Error& err) const
         {
             float result = 0;
             std::feclearexcept(FE_ALL_EXCEPT);
             result = std::sqrt(x * x + y * y);
             if (fetestexcept(FE_INVALID))
             {
-                return 0;
+                err += L"Vector2 [" + std::to_wstring(x) + L" ," + std::to_wstring(y) + L"] length invalid!";
+                result = 0;
             }
-            else
-            {
-                return result;
-            }
-        }
-        Vector2 Normalise()
-        {
-            float len = Length();
 
-            if (len > ZEROTHRESHOLD)
+            return result;
+        }
+        Vector2 Normalise(Error& err)
+        {
+            Error localErr;
+            float len = Length(localErr);
+
+            if (len > ZEROTHRESHOLD && !localErr)
             {
                 x /= len;
                 y /= len;
             }
+
+            err += localErr;
 
             return *this;
         }
@@ -64,12 +66,18 @@ namespace Emerald
         }
         float operator [] (size_t index) const
         {
-            assert(index < 2);
+            if (index < 0 || index > 1)
+            {
+                throw std::out_of_range("at Vector2 operator [] const");
+            }
             return  *(&x + index);
         }
         float& operator [] (size_t index)
         {
-            assert(index < 2);
+            if (index < 0 || index > 1)
+            {
+                throw std::out_of_range("at Vector2 operator []");
+            }
             return *(&x + index);
         }
         bool operator == (const Vector2& other) const
@@ -113,7 +121,10 @@ namespace Emerald
         }
         Vector2 operator / (float scalar) const
         {
-            assert(scalar != 0.0);
+            if (scalar < ZEROTHRESHOLD)
+            {
+                throw std::invalid_argument("at Vector2 operator /");
+            }
 
             Vector2 quotient;
 
@@ -154,7 +165,10 @@ namespace Emerald
         }
         Vector2& operator /= (float scalar)
         {
-            assert(scalar != 0.0);
+            if (scalar < ZEROTHRESHOLD)
+            {
+                throw std::invalid_argument("at Vector2 operator /=");
+            }
 
             x /= scalar;
             y /= scalar;

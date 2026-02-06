@@ -34,11 +34,11 @@ namespace Emerald
         }
 
         //0-indexed column
-        Vector3 GetColumn(size_t col) const;
-        void SetColumn(size_t col, const Vector3& values);
+        Vector3 GetColumn(size_t col, Error& err) const;
+        void SetColumn(size_t col, const Vector3& values, Error& err);
         //0-indexed row
-        Vector3 GetRow(size_t row) const;
-        void SetRow(size_t row, const Vector3& values);
+        Vector3 GetRow(size_t row, Error& err) const;
+        void SetRow(size_t row, const Vector3& values, Error& err);
 
         void BuildFromAxes(const Vector3& xAxis, const Vector3& yAxis, const Vector3& zAxis);
         Matrix3 Transpose() const;

@@ -20,7 +20,7 @@ namespace Emerald
     {
     public:
         static const Quaternion IDENTITY;
-        Quaternion(const Degree& d = Degree(), const Vector3& v = Vector3());//ATTENTION: it is the angle you want for rotation, not the one encoded by quaternion!!
+        Quaternion(Error& err, const Degree& d = Degree(), const Vector3& v = Vector3());//ATTENTION: it is the angle you want for rotation, not the one encoded by quaternion!!
         Quaternion(float toW, float toX = 0.0f, float toY = 0.0f, float toZ = 0.0f);
         Quaternion(const Vector4& v);
 

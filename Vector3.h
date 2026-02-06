@@ -30,30 +30,34 @@ namespace Emerald
             z = az;
         }
 
-        float Length() const
+        float Length(Error& err) const
         {
             float result = 0;
             std::feclearexcept(FE_ALL_EXCEPT);
             result = std::sqrt(x * x + y * y + z * z);
             if (fetestexcept(FE_INVALID))
             {
-                return 0;
+                err += L"Vector3 [" + std::to_wstring(x) + L" ," + std::to_wstring(y) + L" ," + std::to_wstring(z) + L"] length invalid!";
+                result = 0;
             }
             else
             {
                 return result;
             }
         }
-        Vector3 Normalise()
+        Vector3 Normalise(Error& err)
         {
-            float len = Length();
+            Error localErr;
+            float len = Length(localErr);
 
-            if (len > ZEROTHRESHOLD)
+            if (len > ZEROTHRESHOLD && !localErr)
             {
                 x /= len;
                 y /= len;
                 z /= len;
             }
+
+            err += localErr;
 
             return *this;
         }
@@ -77,12 +81,18 @@ namespace Emerald
 
         float operator [] (size_t index) const
         {
-            assert(index < 3);
+            if (index < 0 || index > 2)
+            {
+                throw std::out_of_range("at Vector3 operator [] const");
+            }
             return *(&x + index);
         }
         float& operator [] (size_t index)
         {
-            assert(index < 3);
+            if (index < 0 || index > 2)
+            {
+                throw std::out_of_range("at Vector3 operator []");
+            }
             return *(&x + index);
         }
         bool operator == (const Vector3& other) const
@@ -129,7 +139,10 @@ namespace Emerald
         }
         Vector3 operator / (float scalar) const
         {
-            assert(scalar != 0.0);
+            if (scalar < ZEROTHRESHOLD)
+            {
+                throw std::invalid_argument("at Vector3 operator /");
+            }
 
             Vector3 quotient;
 
@@ -175,7 +188,10 @@ namespace Emerald
         }
         Vector3& operator /= (float scalar)
         {
-            assert(scalar != 0.0);
+            if (scalar < ZEROTHRESHOLD)
+            {
+                throw std::invalid_argument("at Vector3 operator /");
+            }
 
             x /= scalar;
             y /= scalar;

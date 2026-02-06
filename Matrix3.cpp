@@ -12,32 +12,48 @@ using namespace Emerald;
 const Matrix3 Matrix3::IDENTITY(1, 0, 0, 0, 1, 0, 0, 0, 1);
 
 //0-indexed column
-Vector3 Matrix3::GetColumn(size_t col) const
+Vector3 Matrix3::GetColumn(size_t col, Error& err) const
 {
-    assert(0 <= col && col < 3);
+    if (col < 0 || col > 3)
+    {
+        err += L"Matrix3 GetColumn out of range.";
+        return Vector3();
+    }
     return Vector3(m[col * 3], m[col * 3 + 1], m[col * 3 + 2]);
 }
 
 //0-indexed column
-void Matrix3::SetColumn(size_t col, const Vector3& values)
+void Matrix3::SetColumn(size_t col, const Vector3& values, Error& err)
 {
-    assert(0 <= col && col < 3);
+    if (col < 0 || col > 3)
+    {
+        err += L"Matrix3 SetColumn out of range.";
+        return;
+    }
     m[col * 3] = values[0];
     m[col * 3 + 1] = values[1];
     m[col * 3 + 2] = values[2];
 }
 
 //0-indexed row
-Vector3 Matrix3::GetRow(size_t row) const
+Vector3 Matrix3::GetRow(size_t row, Error& err) const
 {
-    assert(0 <= row && row < 3);
+    if (row < 0 || row > 3)
+    {
+        err += L"Matrix3 GetRow out of range.";
+        return Vector3();
+    }
     return Vector3(m[row], m[row + 3], m[row + 6]);
 }
 
 //0-indexed row
-void Matrix3::SetRow(size_t row, const Vector3& values)
+void Matrix3::SetRow(size_t row, const Vector3& values, Error& err)
 {
-    assert(0 <= row && row < 3);
+    if (row < 0 || row > 3)
+    {
+        err += L"Matrix3 SetRow out of range.";
+        return;
+    }
     m[row] = values[0];
     m[row + 3] = values[1];
     m[row + 6] = values[2];
