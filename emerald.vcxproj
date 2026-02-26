@@ -82,7 +82,8 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AssetIOHandler.cpp" />
+    <ClCompile Include="ResourceManager.cpp" />
+    <ClCompile Include="WinFileRawDataReader.cpp" />
     <ClCompile Include="D3D11Renderer.cpp" />
     <ClCompile Include="Error.cpp" />
     <ClCompile Include="FbxMeshImporter.cpp" />
@@ -93,12 +94,14 @@
     <ClCompile Include="Matrix4.cpp" />
     <ClCompile Include="OpenGLRenderer.cpp" />
     <ClCompile Include="Quaternion.cpp" />
-    <ClCompile Include="ResourceManager.cpp" />
+    <ClCompile Include="Resource.cpp" />
     <ClCompile Include="StringUtilities.cpp" />
     <ClCompile Include="TestGame.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AssetIOHandler.h" />
+    <ClInclude Include="RawDataReader.h" />
+    <ClInclude Include="ResourceManager.h" />
+    <ClInclude Include="WinFileRawDataReader.h" />
     <ClInclude Include="D3D11Renderer.h" />
     <ClInclude Include="Error.h" />
     <ClInclude Include="FbxMeshImporter.h" />
@@ -110,8 +113,7 @@
     <ClInclude Include="Matrix4.h" />
     <ClInclude Include="OpenGLRenderer.h" />
     <ClInclude Include="Quaternion.h" />
-    <ClInclude Include="resource.h" />
-    <ClInclude Include="ResourceManager.h" />
+    <ClInclude Include="Resource.h" />
     <ClInclude Include="StandardIncludes.h" />
     <ClInclude Include="StringUtilities.h" />
     <ClInclude Include="TestGame.h" />

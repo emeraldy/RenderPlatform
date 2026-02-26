@@ -13,7 +13,6 @@
 #include "OpenGLRenderer.h"
 #include "ResourceManager.h"
 #include <Strsafe.h>
-#include "pch.h"
 #include "GameApp.h"
 
 

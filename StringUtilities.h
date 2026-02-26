@@ -10,6 +10,7 @@
 // Include Files
 //-----------------------------------------------------------------
 #include <string>
+#include "Error.h"
 
 namespace Emerald
 {
@@ -18,5 +19,6 @@ namespace Emerald
     public:
         static std::wstring ConvertCharStringToWide(const std::string& source);
         static std::string ConvertWideStringToChar(const std::wstring& source);
+        static std::wstring DecodeStringBytes(unsigned int codePage, const unsigned char* sourceBytes, int sourceByteCount, unsigned int flag, Error& err);
     };
 }

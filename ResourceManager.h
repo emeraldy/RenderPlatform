@@ -7,7 +7,7 @@
 //-----------------------------------------------------------------
 // Include Files
 //-----------------------------------------------------------------
-#include "AssetIOHandler.h"
+#include "RawDataReader.h"
 #include <GL/glew.h>
 #include <d3dcompiler.h>
 #include <d3dcommon.h>
@@ -79,7 +79,7 @@ namespace Emerald
     class ResourceManager
     {
     protected:
-        AssetIOHandler* m_pAssetIOHandler;
+        RawDataReader* pFileReader;
 
         //text resource pool
         LPWSTR*     m_ppTextResources;

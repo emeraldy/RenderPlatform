@@ -7,6 +7,9 @@
 // Include Files
 //-----------------------------------------------------------------
 #include "ResourceManager.h"
+#include "StandardIncludes.h"
+#include "WinFileRawDataReader.h"
+
 using namespace Emerald;
 namespace Emerald
 {
@@ -64,7 +67,7 @@ ResourceManager::ResourceManager()
     }
     m_currentTexture2DResourceIndex = 0;
 
-    m_pAssetIOHandler = new AssetIOHandler;
+    pFileReader = new WinFileRawDataReader();
 }
 
 ResourceManager::~ResourceManager()
@@ -97,47 +100,51 @@ ResourceManager::~ResourceManager()
     }
     SAFE_DELETEARRAY(m_pTexture2DResources);
 
-    SAFE_DELETE(m_pAssetIOHandler);
+    SAFE_DELETE(pFileReader);
 }
 
 int ResourceManager::GenerateTextResource(LPCWSTR pFileName, LPCWSTR pType)
 {
+    Error localErr;
+
     if (m_currentTextResourceIndex > m_textResourceCount - 1)
     {
         MessageBox(NULL, TEXT("Cannot generate new text. Resource pool limit reached!"), TEXT("ERROR"), MB_OK | MB_ICONEXCLAMATION);
         return -1;
     }
 
-    if (m_pAssetIOHandler->LoadRawAssetData(pFileName) == FALSE)
+    localErr = pFileReader->LoadRawData(pFileName);
+    if (localErr)
+    {
+        MessageBox(NULL, localErr.GetErrorText().c_str(), TEXT("ERROR"), MB_OK | MB_ICONEXCLAMATION);
         return -1;
+    }
+
     //copy text to resource pool from asset io handler's local buffer
     if (lstrcmpi(pType, L"ascii") == 0)//in ANSI ASCII, convert to WCHAR
     {
-        m_ppTextResources[m_currentTextResourceIndex] = new WCHAR[m_pAssetIOHandler->GetBufferSize() + 1];//one byte is one character
+        m_ppTextResources[m_currentTextResourceIndex] = new WCHAR[pFileReader->GetBufferSize() + 1];//one byte is one character
         MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED,
-            (LPCSTR)m_pAssetIOHandler->GetBuffer(), -1,
-            m_ppTextResources[m_currentTextResourceIndex], m_pAssetIOHandler->GetBufferSize());
+            (LPCSTR)pFileReader->GetBuffer(), -1,
+            m_ppTextResources[m_currentTextResourceIndex], pFileReader->GetBufferSize());
 
         //add null terminator for the text string
-        m_ppTextResources[m_currentTextResourceIndex][m_pAssetIOHandler->GetBufferSize()] = L'\0';
+        m_ppTextResources[m_currentTextResourceIndex][pFileReader->GetBufferSize()] = L'\0';
     }
     else
     {
         //now assume else case is only that the file is encoded in UTF-16 already (need to test this branch in the future)
-        m_ppTextResources[m_currentTextResourceIndex] = new WCHAR[m_pAssetIOHandler->GetBufferSize() / sizeof(WCHAR) + 1];//every two bytes are one character
-        const BYTE* pRawData = m_pAssetIOHandler->GetBuffer();
+        m_ppTextResources[m_currentTextResourceIndex] = new WCHAR[pFileReader->GetBufferSize() / sizeof(WCHAR) + 1];//every two bytes are one character
+        const BYTE* pRawData = pFileReader->GetBuffer();
         int i, j;
-        for (i = 0, j = 0; i < int(m_pAssetIOHandler->GetBufferSize() / sizeof(WCHAR)); i++, j += 2)
+        for (i = 0, j = 0; i < int(pFileReader->GetBufferSize() / sizeof(WCHAR)); i++, j += 2)
         {
             m_ppTextResources[m_currentTextResourceIndex][i] = pRawData[j];
         }
 
         //add null terminator for the text string
-        m_ppTextResources[m_currentTextResourceIndex][m_pAssetIOHandler->GetBufferSize() / sizeof(WCHAR)] = L'\0';
+        m_ppTextResources[m_currentTextResourceIndex][pFileReader->GetBufferSize() / sizeof(WCHAR)] = L'\0';
     }
-    //clear asset io handler's local buffer
-    m_pAssetIOHandler->SetBuffer(NULL);
-    m_pAssetIOHandler->SetBufferSize(0);
 
 
     m_currentTextResourceIndex++;
@@ -253,14 +260,20 @@ void Emerald::LoadPNGFromMemory(png_structp png_ptr, png_bytep data, png_size_t 
 }
 int ResourceManager::GenerateTexture2DResource(LPCWSTR pFileName, LPCWSTR pType)
 {
+    Error localErr;
+
     if (m_currentTexture2DResourceIndex > m_texture2DResourceCount - 1)
     {
         MessageBox(NULL, TEXT("Cannot generate new Texture. Resource pool limit reached!"), TEXT("ERROR"), MB_OK | MB_ICONEXCLAMATION);
         return -1;
     }
 
-    if (m_pAssetIOHandler->LoadRawAssetData(pFileName) == FALSE)
+    localErr = pFileReader->LoadRawData(pFileName);
+    if (localErr)
+    {
+        MessageBox(NULL, localErr.GetErrorText().c_str(), TEXT("ERROR"), MB_OK | MB_ICONEXCLAMATION);
         return -1;
+    }
 
     //process image data stream based on image type
     if (lstrcmpi(pType, L"jpeg") == 0)
@@ -277,7 +290,7 @@ int ResourceManager::GenerateTexture2DResource(LPCWSTR pFileName, LPCWSTR pType)
         jpeg_create_decompress(&jpegObject);
 
         //specify raw image data source
-        jpeg_mem_src(&jpegObject, (unsigned char*)m_pAssetIOHandler->GetBuffer(), m_pAssetIOHandler->GetBufferSize());
+        jpeg_mem_src(&jpegObject, (unsigned char*)pFileReader->GetBuffer(), pFileReader->GetBufferSize());
 
         //parse jpeg header. passed TRUE to reject a tables-only JPEG file 
         jpeg_read_header(&jpegObject, TRUE);
@@ -327,10 +340,6 @@ int ResourceManager::GenerateTexture2DResource(LPCWSTR pFileName, LPCWSTR pType)
         }
         SAFE_DELETEARRAY(rows);
 
-        //clear asset io handler's local buffer
-        m_pAssetIOHandler->SetBuffer(NULL);
-        m_pAssetIOHandler->SetBufferSize(0);
-
         m_currentTexture2DResourceIndex++;
         return m_currentTexture2DResourceIndex - 1;
     }
@@ -350,7 +359,7 @@ int ResourceManager::GenerateTexture2DResource(LPCWSTR pFileName, LPCWSTR pType)
         }
 
         //set the callback function for customised image source read
-        png_set_read_fn(pPngstruct, (png_voidp)m_pAssetIOHandler->GetBuffer(), LoadPNGFromMemory);
+        png_set_read_fn(pPngstruct, (png_voidp)pFileReader->GetBuffer(), LoadPNGFromMemory);
 
         //read png info
         png_read_info(pPngstruct, pPnginfo);
@@ -387,10 +396,6 @@ int ResourceManager::GenerateTexture2DResource(LPCWSTR pFileName, LPCWSTR pType)
             SAFE_DELETEARRAY(rows[i]);
         }
         SAFE_DELETEARRAY(rows);
-
-        //clear asset io handler's local buffer
-        m_pAssetIOHandler->SetBuffer(NULL);
-        m_pAssetIOHandler->SetBufferSize(0);
 
         m_currentTexture2DResourceIndex++;
         return m_currentTexture2DResourceIndex - 1;

@@ -1,19 +1,32 @@
-//{{NO_DEPENDENCIES}}
-// Microsoft Visual C++ generated include file.
-// Used by dialogbox.rc
-//
-#define IDD_DIALOG1                     101
-#define IDC_RADIO1                      1001
-#define IDC_RADIO2                      1002
-#define IDC_RADIO3                      1003
+//-----------------------------------------------------------------
+// Resource Base Class Header
+//-----------------------------------------------------------------
 
-// Next default values for new objects
-// 
-#ifdef APSTUDIO_INVOKED
-#ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        102
-#define _APS_NEXT_COMMAND_VALUE         40001
-#define _APS_NEXT_CONTROL_VALUE         1004
-#define _APS_NEXT_SYMED_VALUE           101
-#endif
-#endif
+#pragma once
+
+//-----------------------------------------------------------------
+// Include Files
+//-----------------------------------------------------------------
+#include "StandardIncludes.h"
+
+namespace Emerald
+{
+    using ResourceID = unsigned int;
+    class Resource
+    {
+    public:
+        Resource(const std::wstring& resName, ResourceID resID);
+        virtual ~Resource();
+
+        std::wstring getName() const;
+        ResourceID getID() const;
+        size_t getSize() const;
+        bool getIsLoaded() const;
+
+    protected:
+        std::wstring name;
+        ResourceID id;
+        size_t size; //in byte
+        bool isLoaded;
+    };
+}

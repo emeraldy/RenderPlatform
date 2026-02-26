@@ -13,7 +13,7 @@
 #include <GL/wglew.h>
 #include <Strsafe.h>
 #include "glm/glm.hpp"
-#include "pch.h"
+#include "StandardIncludes.h"
 
 namespace Emerald
 {

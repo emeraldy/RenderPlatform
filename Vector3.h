@@ -40,10 +40,8 @@ namespace Emerald
                 err += L"Vector3 [" + std::to_wstring(x) + L" ," + std::to_wstring(y) + L" ," + std::to_wstring(z) + L"] length invalid!";
                 result = 0;
             }
-            else
-            {
-                return result;
-            }
+
+            return result;
         }
         Vector3 Normalise(Error& err)
         {

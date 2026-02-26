@@ -18,7 +18,7 @@ struct PixelShaderInput
 PixelShaderInput main(VertexShaderInput input)
 {
     PixelShaderInput output;
-    float4 clipPos = mul(float4(input.pos, 1.0f), mvp);
+    float4 clipPos = mul(float4(input.pos, 1.0f), mvp);//vetex pre-multiply row matrix
     output.pos = clipPos;
     output.color = input.color;
 

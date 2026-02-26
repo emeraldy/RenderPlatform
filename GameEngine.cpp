@@ -7,6 +7,7 @@
 // Include Files
 //-----------------------------------------------------------------
 #include "GameEngine.h"
+#include "StandardIncludes.h"
 //-----------------------------------------------------------------
 // Global parameters (some system setting variables will later be 
 //replaced by reading from e.g., ini files)

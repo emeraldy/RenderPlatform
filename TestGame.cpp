@@ -1,10 +1,8 @@
-#include <string>
-#include <fstream>
 #include "StandardIncludes.h"
 #include "TestGame.h"
 #include "Quaternion.h"
 #include "Matrix4.h"
-#include "Error.h"
+#include "WinFileRawDataReader.h"
 
 using namespace Emerald;
 using namespace TestGameApp;
@@ -19,6 +17,21 @@ int WINAPI  WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     static int  tickTrigger = 0;
     DWORD         tickCount = 0;
     TestGame*   pTestGame = new TestGame();
+
+    Error err;
+    RawDataReader* pFile = new WinFileRawDataReader();
+
+    err = pFile->LoadRawData(L"test.log");
+    if (err)
+    {
+        MessageBox(0, err.GetErrorText().c_str(), 0, 0);
+    }
+    else
+    {
+        std::wstring fileContent = StringUtilities::DecodeStringBytes(65001, pFile->GetBuffer(), pFile->GetBufferSize(), 0, err);
+        MessageBox(0, fileContent.c_str(), 0, 0);
+    }
+
 
     if (pTestGame == nullptr)
     {
@@ -66,6 +79,8 @@ int WINAPI  WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     // End the game
     pTestGame->GameEnd();
     SAFE_DELETE(pTestGame);
+
+    SAFE_DELETE(pFile);
 
     return TRUE;
 }
