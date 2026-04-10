@@ -11,17 +11,17 @@
 
 namespace Emerald
 {
-    using ResourceID = unsigned int;
     class Resource
     {
     public:
-        Resource(const std::wstring& resName, ResourceID resID);
-        virtual ~Resource();
+        using ResourceID = unsigned int;
 
-        std::wstring getName() const;
-        ResourceID getID() const;
-        size_t getSize() const;
-        bool getIsLoaded() const;
+        Resource(ResourceID resID, const std::wstring& resName);
+
+        std::wstring GetName() const;
+        ResourceID GetID() const;
+        size_t GetByteSize() const;
+        bool GetIsLoaded() const;
 
     protected:
         std::wstring name;

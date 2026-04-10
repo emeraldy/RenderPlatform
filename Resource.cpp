@@ -9,7 +9,7 @@
 
 using namespace Emerald;
 
-Resource::Resource(const std::wstring& resName, ResourceID resID)
+Resource::Resource(Resource::ResourceID resID, const std::wstring& resName)
 {
     name = resName;
     id = resID;
@@ -17,27 +17,22 @@ Resource::Resource(const std::wstring& resName, ResourceID resID)
     isLoaded = false;
 }
 
-Resource::~Resource()
-{
-
-}
-
-std::wstring Resource::getName() const
+std::wstring Resource::GetName() const
 {
     return name;
 }
 
-ResourceID Resource::getID() const
+Resource::ResourceID Resource::GetID() const
 {
     return id;
 }
 
-size_t Resource::getSize() const
+size_t Resource::GetByteSize() const
 {
     return size;
 }
 
-bool Resource::getIsLoaded() const
+bool Resource::GetIsLoaded() const
 {
     return isLoaded;
 }
