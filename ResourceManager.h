@@ -7,8 +7,8 @@
 //-----------------------------------------------------------------
 // Include Files
 //-----------------------------------------------------------------
-#include<memory>
-#include<unordered_map>
+#include <memory>
+#include <unordered_map>
 #include "StandardIncludes.h"
 #include "Resource.h"
 
@@ -26,7 +26,7 @@ namespace Emerald
         ResourceManager();
         virtual ~ResourceManager();
 
-        std::shared_ptr<Resource> Load(const std::wstring& name);
+        std::shared_ptr<Resource> Load(const std::wstring& name, Error& err);//resource name must be full qualified file name
 
         void Unload(const std::wstring& name);
         void UnloadAll();

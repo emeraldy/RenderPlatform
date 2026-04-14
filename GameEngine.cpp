@@ -8,6 +8,7 @@
 //-----------------------------------------------------------------
 #include "GameEngine.h"
 #include "StandardIncludes.h"
+#include "MeshManager.h"
 //-----------------------------------------------------------------
 // Global parameters (some system setting variables will later be 
 //replaced by reading from e.g., ini files)
@@ -200,7 +201,7 @@ BOOL GameEngine::Initialise(int iCmdShow)
     }
 
     //Initialise the resource manager
-    m_pResourceManager = new ResourceManager;
+    m_pResourceManager = &(MeshManager::GetInstance());
 
     // Set the game window and start the game
     SetWindow(m_hWindow);

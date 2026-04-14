@@ -8,6 +8,7 @@
 //-----------------------------------------------------------------
 #include "FbxMeshImporter.h"
 #include "StringUtilities.h"
+#include "Mesh.h"
 
 using namespace Emerald;
 
@@ -46,6 +47,8 @@ void FbxMeshImporter::ParseScene()
         return;
     }
 
+    fbxSdk.ConvertUnitSystem(FbxSystemUnit::m);
+    fbxSdk.ConvertCoordinateSystem(FbxAxisSystem::DirectX);
     FbxGeometryConverter lGeomConverter(pManager);
     if (!lGeomConverter.Triangulate(pScene, true))
     {

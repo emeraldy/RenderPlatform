@@ -42,7 +42,7 @@ FbxSdkCommon::~FbxSdkCommon()
     pManager = nullptr;
 }
 
-void FbxSdkCommon::ConvertCoordinateSystem(FbxAxisSystem& ourSystem)
+void FbxSdkCommon::ConvertCoordinateSystem(const FbxAxisSystem& ourSystem)
 {
     FbxAxisSystem theirSystem = pScene->GetGlobalSettings().GetAxisSystem();
     if (theirSystem != ourSystem)
@@ -54,7 +54,7 @@ void FbxSdkCommon::ConvertCoordinateSystem(FbxAxisSystem& ourSystem)
 void FbxSdkCommon::ConvertUnitSystem(const FbxSystemUnit& ourUnit)
 {
     FbxSystemUnit theirUnit = pScene->GetGlobalSettings().GetSystemUnit();
-    if (theirUnit.GetScaleFactor() != ourUnit.GetScaleFactor())
+    if (theirUnit != ourUnit)
     {
         ourUnit.ConvertScene(pScene);
     }

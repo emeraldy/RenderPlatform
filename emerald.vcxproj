@@ -83,6 +83,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="MeshManager.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="WinFileRawDataReader.cpp" />
     <ClCompile Include="D3D11Renderer.cpp" />
@@ -101,6 +102,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Mesh.h" />
+    <ClInclude Include="MeshManager.h" />
     <ClInclude Include="RawDataReader.h" />
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="WinFileRawDataReader.h" />

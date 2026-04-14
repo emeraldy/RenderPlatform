@@ -6,6 +6,9 @@
 // Include Files
 //-----------------------------------------------------------------
 #include "ResourceManager.h"
+#define NOMINMAX
+#include <Shlwapi.h>
+
 
 using namespace Emerald;
 
@@ -22,13 +25,18 @@ ResourceManager::~ResourceManager()
     UnloadAll();
 }
 
-std::shared_ptr<Resource> ResourceManager::Load(const std::wstring& name)
+std::shared_ptr<Resource> ResourceManager::Load(const std::wstring& name, Error& err)
 {
+    if (!PathFileExists(name.c_str()))
+    {
+        err += L"Requested resource " + name + L" does not exist!";
+        return nullptr;
+    }
     NameIDRegistry::const_iterator IDIter = IDRegistry.find(name);
     if (IDIter == IDRegistry.cend())
     {
-        std::shared_ptr<Resource> newResource(Create(name, GetNextID()));
-        Resource::ResourceID currentID = newResource->GetID();
+        Resource::ResourceID currentID = GetNextID();
+        std::shared_ptr<Resource> newResource(Create(name, currentID));
         IDRegistry[name] = currentID;
         storage[currentID] = newResource;
 
