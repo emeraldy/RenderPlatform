@@ -17,6 +17,11 @@ Resource::Resource(Resource::ResourceID resID, const std::wstring& resName)
     isLoaded = false;
 }
 
+void Resource::SetIsLoaded(bool flag)
+{
+    isLoaded = flag;
+}
+
 std::wstring Resource::GetName() const
 {
     return name;

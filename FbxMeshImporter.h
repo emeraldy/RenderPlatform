@@ -8,7 +8,7 @@
 // Include Files
 //-----------------------------------------------------------------
 #include <vector>
-#include "IAssetImporter.h"
+#include "RawDataReader.h"
 #include "FbxSdkCommon.h"
 #include "StringUtilities.h"
 
@@ -18,17 +18,20 @@
 #define ILL_UV 0x8
 #define ILL_BINORMAL 0x10
 #define ILL_TANGENT 0x20
+#define ILL_MESH 0x40
 
 namespace Emerald
 {
     class Mesh;
-    class FbxMeshImporter : public IAssetImporter
+    class FbxMeshImporter : public RawDataReader
     {
     public:
-        std::vector<Mesh*> extractedMeshes;//TODO: don't delete the stored pointers yet. they are managed by MeshManager for now.
-
-        bool LoadAssetFromFile(LPCWSTR pFileName) override;
-        void ParseScene();
+        virtual Error LoadRawData(const std::wstring& sourceName) override;
+        virtual const unsigned char* GetBuffer() const override;
+        virtual unsigned int GetBufferSize() const override;
+        virtual void ClearBuffer() override;
+        bool PrepareScene();
+        const std::vector<Mesh*>& ExtractMeshes();
 
         FbxMeshImporter();
         virtual ~FbxMeshImporter();
@@ -40,8 +43,9 @@ namespace Emerald
         * .
         * .
         * .
+        * 8: reserved
         * 7: reserved
-        * 6: reserved
+        * 6: ILL_MESH
         * 5: ILL_TANGENT
         * 4: ILL_BINORMAL
         * 3: ILL_UV
@@ -50,9 +54,10 @@ namespace Emerald
         * 0: NO_LAYER
         */
         unsigned int anomalyFlags;
-
         FbxSdkCommon fbxSdk;
         size_t serial;
+        std::vector<Mesh*> extractedMeshes;//TODO: don't delete the stored pointers in destructor yet. they are managed by MeshManager for now.
+
 
         void ExtractMesh(FbxNode* pNode);
         size_t GetNextSerial();

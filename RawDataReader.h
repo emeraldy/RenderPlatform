@@ -17,6 +17,6 @@ namespace Emerald
        virtual Error LoadRawData(const std::wstring& sourceName) = 0;
        virtual const unsigned char* GetBuffer() const = 0;
        virtual unsigned int GetBufferSize() const = 0;
-       virtual void clearBuffer() = 0;
+       virtual void ClearBuffer() = 0;
     };
 }

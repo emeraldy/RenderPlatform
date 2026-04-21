@@ -165,3 +165,30 @@ void Mesh::SetUVs(Vector2* data, unsigned int size, Error& err)
         }
     }
 }
+
+const size_t Mesh::CalculateSize()
+{
+    const size_t scalarSize = sizeof(Vector2::x);
+    size = 0;
+
+    if (vertexData.pPositions == nullptr || vertexData.pNormals == nullptr || vertexData.size == 0)
+    {
+        return size;
+    }
+    //sum up positions and normals
+    size += 3 * scalarSize * vertexData.size * 2;
+    if (vertexData.pBinormals != nullptr)
+    {
+        size += 3 * scalarSize * vertexData.size;
+    }
+    if (vertexData.pTangents != nullptr)
+    {
+        size += 3 * scalarSize * vertexData.size;
+    }
+    if (vertexData.pUVs != nullptr)
+    {
+        size += 2 * scalarSize * vertexData.size;
+    }
+
+    return size;
+}

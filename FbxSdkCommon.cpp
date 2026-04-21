@@ -60,7 +60,7 @@ void FbxSdkCommon::ConvertUnitSystem(const FbxSystemUnit& ourUnit)
     }
 }
 
-bool FbxSdkCommon::LoadScene(const char* pFileName)
+bool FbxSdkCommon::LoadSceneFromFile(const char* pFileName)
 {
     int lFileMajor, lFileMinor, lFileRevision;
     int lSDKMajor, lSDKMinor, lSDKRevision;
