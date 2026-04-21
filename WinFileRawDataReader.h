@@ -28,6 +28,6 @@ namespace Emerald
         Error LoadRawData(const std::wstring& sourceName) override;
         const unsigned char* GetBuffer() const override;
         unsigned int GetBufferSize() const override;
-        void clearBuffer() override;
+        void ClearBuffer() override;
     };
 }

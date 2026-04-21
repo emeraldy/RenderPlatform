@@ -18,7 +18,7 @@ namespace Emerald
         FbxManager* GetManager() { return pManager; }
         FbxScene*   GetScene() { return pScene; }
 
-        bool LoadScene(const char* pFilename);
+        bool LoadSceneFromFile(const char* pFilename);
         void ConvertCoordinateSystem(const FbxAxisSystem& ourSystem);
         void ConvertUnitSystem(const FbxSystemUnit& ourUnit);
 

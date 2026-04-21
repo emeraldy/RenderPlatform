@@ -7,6 +7,7 @@
 // Include Files
 //-----------------------------------------------------------------
 #include <memory>
+#include <windows.h>
 #include "FbxMeshImporter.h"
 #include "StringUtilities.h"
 #include "Mesh.h"
@@ -36,29 +37,30 @@ void FbxMeshImporter::ClearAnomaly()
     anomalyFlags = '\0';
 }
 
-bool FbxMeshImporter::LoadAssetFromFile(LPCWSTR pFileName)
+Error FbxMeshImporter::LoadRawData(const std::wstring& sourceName)
 {
+    Error loadError;
     FbxScene* pImportedScene = nullptr;
-    std::string charFileName = StringUtilities::ConvertWideStringToChar(std::wstring(pFileName));
-    if (!fbxSdk.LoadScene(charFileName.c_str()))
+    std::string charFileName = StringUtilities::ConvertWideStringToChar(std::wstring(sourceName));
+    if (!fbxSdk.LoadSceneFromFile(charFileName.c_str()))
     {
-        return false;
+        loadError += L"Loading FBX file error.";
     }
 
-    return true;
+    return loadError;
 }
 
-void FbxMeshImporter::ParseScene()
+bool FbxMeshImporter::PrepareScene()
 {
     FbxManager* pManager = fbxSdk.GetManager();
     if (!pManager)
     {
-        return;
+        return false;
     }
     FbxScene* pScene = fbxSdk.GetScene();
     if (!pScene)
     {
-        return;
+        return false;
     }
 
     fbxSdk.ConvertUnitSystem(FbxSystemUnit::m);
@@ -67,10 +69,17 @@ void FbxMeshImporter::ParseScene()
     if (!lGeomConverter.Triangulate(pScene, true))
     {
         MessageBox(NULL, TEXT("Triangulating meshes failed!"), TEXT("ERROR"), MB_OK | MB_ICONEXCLAMATION);
-        return;
+        return false;
     }
 
-    ExtractMesh(pScene->GetRootNode());
+    return true;
+}
+
+const std::vector<Mesh*>& FbxMeshImporter::ExtractMeshes()
+{
+    ExtractMesh(fbxSdk.GetScene()->GetRootNode());
+
+    return extractedMeshes;
 }
 
 void FbxMeshImporter::ExtractMesh(FbxNode* pNode)
@@ -90,10 +99,15 @@ void FbxMeshImporter::ExtractMesh(FbxNode* pNode)
 
         const int triangleCount = pFbxMesh->GetPolygonCount();
         const int controlPointCount = pFbxMesh->GetControlPointsCount();
+        if (triangleCount <= 0 || controlPointCount <= 0)
+        {
+            anomalyFlags |= ILL_MESH;
+            goto ANOMALYCLEANUP;
+        }
         if (triangleCount * 3 == controlPointCount)
         {
             anomalyFlags |= NON_INDEXEDPOSITION;
-            goto ANOMALYCLEAR;
+            goto ANOMALYCLEANUP;
         }
 
         //extract positions
@@ -108,7 +122,7 @@ void FbxMeshImporter::ExtractMesh(FbxNode* pNode)
         pMyMesh->SetPositions(pPositions, controlPointCount, localError);
         if (localError)
         {
-            goto ANOMALYCLEAR;
+            goto ANOMALYCLEANUP;
         }
 
         //extract normals
@@ -116,13 +130,13 @@ void FbxMeshImporter::ExtractMesh(FbxNode* pNode)
         if (!pLayer)
         {
             anomalyFlags |= NO_LAYER;
-            goto ANOMALYCLEAR;
+            goto ANOMALYCLEANUP;
         }
         FbxLayerElementNormal* pFbxNormals = pLayer->GetNormals();
         if (!pFbxNormals || pFbxNormals->GetMappingMode() != FbxLayerElement::eByControlPoint)
         {
             anomalyFlags |= ILL_NORMAL;
-            goto ANOMALYCLEAR;
+            goto ANOMALYCLEANUP;
         }
         bool isIndirect = pFbxNormals->GetReferenceMode() == FbxLayerElement::eIndexToDirect;
         pNormals = new Vector3[controlPointCount];
@@ -141,7 +155,7 @@ void FbxMeshImporter::ExtractMesh(FbxNode* pNode)
         pMyMesh->SetNormals(pNormals, controlPointCount, localError);
         if (localError)
         {
-            goto ANOMALYCLEAR;
+            goto ANOMALYCLEANUP;
         }
 
         //extract uvs, optional
@@ -151,7 +165,7 @@ void FbxMeshImporter::ExtractMesh(FbxNode* pNode)
             if (pFbxUVs->GetMappingMode() != FbxLayerElement::eByControlPoint)
             {
                 anomalyFlags |= ILL_UV;
-                goto ANOMALYCLEAR;
+                goto ANOMALYCLEANUP;
             }
             isIndirect = pFbxUVs->GetReferenceMode() == FbxLayerElement::eIndexToDirect;
             pUVs = new Vector2[controlPointCount];
@@ -169,7 +183,7 @@ void FbxMeshImporter::ExtractMesh(FbxNode* pNode)
             pMyMesh->SetUVs(pUVs, controlPointCount, localError);
             if (localError)
             {
-                goto ANOMALYCLEAR;
+                goto ANOMALYCLEANUP;
             }
         }
 
@@ -180,7 +194,7 @@ void FbxMeshImporter::ExtractMesh(FbxNode* pNode)
             if (pFbxBinormals->GetMappingMode() != FbxLayerElement::eByControlPoint)
             {
                 anomalyFlags |= ILL_BINORMAL;
-                goto ANOMALYCLEAR;
+                goto ANOMALYCLEANUP;
             }
             isIndirect = pFbxBinormals->GetReferenceMode() == FbxLayerElement::eIndexToDirect;
             pBinormals = new Vector3[controlPointCount];
@@ -199,7 +213,7 @@ void FbxMeshImporter::ExtractMesh(FbxNode* pNode)
             pMyMesh->SetBinormals(pBinormals, controlPointCount, localError);
             if (localError)
             {
-                goto ANOMALYCLEAR;
+                goto ANOMALYCLEANUP;
             }
         }
 
@@ -210,7 +224,7 @@ void FbxMeshImporter::ExtractMesh(FbxNode* pNode)
             if (pFbxTangents->GetMappingMode() != FbxLayerElement::eByControlPoint)
             {
                 anomalyFlags |= ILL_TANGENT;
-                goto ANOMALYCLEAR;
+                goto ANOMALYCLEANUP;
             }
             isIndirect = pFbxTangents->GetReferenceMode() == FbxLayerElement::eIndexToDirect;
             pTangents = new Vector3[controlPointCount];
@@ -229,14 +243,19 @@ void FbxMeshImporter::ExtractMesh(FbxNode* pNode)
             pMyMesh->SetTangents(pTangents, controlPointCount, localError);
             if (localError)
             {
-                goto ANOMALYCLEAR;
+                goto ANOMALYCLEANUP;
             }
         }
-
+        
+        pMyMesh->CalculateSize();
         extractedMeshes.push_back(pMyMesh);
 
-        ANOMALYCLEAR:
+        ANOMALYCLEANUP:
         std::wstring errorText(localError.GetErrorText());
+        if (anomalyFlags & ILL_MESH)
+        {
+            errorText += L"Mesh is ill formed.\n";
+        }
         if (anomalyFlags & NON_INDEXEDPOSITION)
         {
             errorText += L"Mesh vertices are not indexed.\n";
@@ -264,13 +283,13 @@ void FbxMeshImporter::ExtractMesh(FbxNode* pNode)
         if (errorText.length() != 0)
         {
             MessageBox(NULL, errorText.c_str(), TEXT("ERROR"), MB_OK | MB_ICONEXCLAMATION);
+            SAFE_DELETEARRAY(pPositions);
+            SAFE_DELETEARRAY(pNormals);
+            SAFE_DELETEARRAY(pBinormals);
+            SAFE_DELETEARRAY(pTangents);
+            SAFE_DELETEARRAY(pUVs);
+            SAFE_DELETE(pMyMesh);
         }
-        SAFE_DELETEARRAY(pPositions);
-        SAFE_DELETEARRAY(pNormals);
-        SAFE_DELETEARRAY(pBinormals);
-        SAFE_DELETEARRAY(pTangents);
-        SAFE_DELETEARRAY(pUVs);
-        SAFE_DELETE(pMyMesh);
         ClearAnomaly();
     }
 
@@ -279,4 +298,22 @@ void FbxMeshImporter::ExtractMesh(FbxNode* pNode)
     {
         ExtractMesh(pNode->GetChild(childIndex));
     }
+}
+
+
+const unsigned char* FbxMeshImporter::GetBuffer() const
+{
+    MessageBox(NULL, TEXT("FbxMeshImporter::GetBuffer() not implemented"), TEXT("INFORMATION"), MB_OK | MB_ICONEXCLAMATION);
+    return nullptr;
+}
+
+unsigned int FbxMeshImporter::GetBufferSize() const
+{
+    MessageBox(NULL, TEXT("FbxMeshImporter::GetBufferSize() not implemented"), TEXT("INFORMATION"), MB_OK | MB_ICONEXCLAMATION);
+    return 0;
+}
+
+void FbxMeshImporter::ClearBuffer()
+{
+    MessageBox(NULL, TEXT("FbxMeshImporter::GetBuffer() not implemented"), TEXT("INFORMATION"), MB_OK | MB_ICONEXCLAMATION);
 }

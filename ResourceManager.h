@@ -49,6 +49,6 @@ namespace Emerald
 
         Resource::ResourceID GetNextID();
 
-        virtual Resource* Create(const std::wstring& name, Resource::ResourceID id) = 0;
+        virtual Resource* Create(const std::wstring& name, Resource::ResourceID id, Error& err) = 0;
     };
 }

@@ -86,9 +86,6 @@
     <ClInclude Include="TestGame.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="IAssetImporter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="FbxSdkCommon.h">
       <Filter>Header Files</Filter>
     </ClInclude>

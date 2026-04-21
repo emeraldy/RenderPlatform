@@ -31,7 +31,7 @@ Error WinFileRawDataReader::LoadRawData(const std::wstring& sourceName)
     HANDLE file;
     Error err;
 
-    clearBuffer();
+    ClearBuffer();
     //open file
     file = CreateFile(sourceName.c_str(), GENERIC_READ, FILE_SHARE_READ,
         NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL,
@@ -70,7 +70,7 @@ unsigned int WinFileRawDataReader::GetBufferSize() const
     return bufferSize;
 }
 
-void WinFileRawDataReader::clearBuffer()
+void WinFileRawDataReader::ClearBuffer()
 {
     SAFE_DELETEARRAY(pBuffer);
     bufferSize = 0;

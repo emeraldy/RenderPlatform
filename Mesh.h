@@ -64,6 +64,8 @@ namespace Emerald
         void SetBinormals(Vector3* data, unsigned int size, Error& err);
         void SetTangents(Vector3* data, unsigned int size, Error& err);
         void SetUVs(Vector2* data, unsigned int size, Error& err);
+
+        virtual const size_t CalculateSize() override;
     private:
         VertexData vertexData;
         VertexDataIndex* indices;

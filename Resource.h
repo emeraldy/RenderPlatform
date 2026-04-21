@@ -18,6 +18,8 @@ namespace Emerald
 
         Resource(ResourceID resID, const std::wstring& resName);
 
+        virtual const size_t CalculateSize() = 0;
+        void SetIsLoaded(bool flag);
         std::wstring GetName() const;
         ResourceID GetID() const;
         size_t GetByteSize() const;

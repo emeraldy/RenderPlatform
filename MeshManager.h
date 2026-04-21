@@ -24,7 +24,7 @@ namespace Emerald
         static MeshManager& GetInstance();
 
     protected:
-        virtual Resource* Create(const std::wstring& name, Resource::ResourceID id) override;
+        virtual Resource* Create(const std::wstring& name, Resource::ResourceID id, Error& err) override;
 
     private:
         MeshManager() {}
