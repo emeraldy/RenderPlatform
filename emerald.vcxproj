@@ -85,6 +85,7 @@
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MeshManager.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
+    <ClCompile Include="ShaderProgram.cpp" />
     <ClCompile Include="WinFileRawDataReader.cpp" />
     <ClCompile Include="D3D11Renderer.cpp" />
     <ClCompile Include="Error.cpp" />
@@ -101,10 +102,13 @@
     <ClCompile Include="TestGame.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="HLSLShaderProgram.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshManager.h" />
     <ClInclude Include="RawDataReader.h" />
     <ClInclude Include="ResourceManager.h" />
+    <ClInclude Include="ShaderInputDatar.h" />
+    <ClInclude Include="ShaderProgram.h" />
     <ClInclude Include="WinFileRawDataReader.h" />
     <ClInclude Include="D3D11Renderer.h" />
     <ClInclude Include="Error.h" />

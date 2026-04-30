@@ -7,7 +7,6 @@
 //-----------------------------------------------------------------
 // Include Files
 //-----------------------------------------------------------------
-#include "StandardIncludes.h"
 #include "Resource.h"
 
 namespace Emerald
