@@ -54,7 +54,7 @@ std::wstring StringUtilities::DecodeStringBytes(unsigned int codePage, const uns
     resultLength = MultiByteToWideChar(codePage, flag, reinterpret_cast<const char*>(sourceBytes), sourceByteCount, pDestination, sourceByteCount + 1);
     if (resultLength == 0)
     {
-        err += L"String byte stream decoding failed with DecodeStringBytes().";
+        err += L"String byte stream decoding failed with " + StringUtilities::ConvertCharStringToWide(__func__) + L".";
         delete[] pDestination;
         return std::wstring();
     }

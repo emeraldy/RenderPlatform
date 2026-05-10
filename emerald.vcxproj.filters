@@ -69,6 +69,12 @@
     <ClCompile Include="ShaderProgram.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ShaderInputData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HLSLShaderProgram.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="WinFileRawDataReader.h">
@@ -143,7 +149,7 @@
     <ClInclude Include="HLSLShaderProgram.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ShaderInputDatar.h">
+    <ClInclude Include="ShaderInputData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -82,9 +82,11 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="HLSLShaderProgram.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MeshManager.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
+    <ClCompile Include="ShaderInputData.cpp" />
     <ClCompile Include="ShaderProgram.cpp" />
     <ClCompile Include="WinFileRawDataReader.cpp" />
     <ClCompile Include="D3D11Renderer.cpp" />
@@ -107,7 +109,7 @@
     <ClInclude Include="MeshManager.h" />
     <ClInclude Include="RawDataReader.h" />
     <ClInclude Include="ResourceManager.h" />
-    <ClInclude Include="ShaderInputDatar.h" />
+    <ClInclude Include="ShaderInputData.h" />
     <ClInclude Include="ShaderProgram.h" />
     <ClInclude Include="WinFileRawDataReader.h" />
     <ClInclude Include="D3D11Renderer.h" />
