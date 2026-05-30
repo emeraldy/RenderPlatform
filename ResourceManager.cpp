@@ -12,12 +12,9 @@
 
 using namespace Emerald;
 
-ResourceManager::ResourceManager()
+ResourceManager::ResourceManager() : resourceType(ResourceType::Default), nextID(1), memoryUsage(0), memoryBudget(std::numeric_limits<size_t>::max())
 {
-    resourceType = ResourceType::Default;
-    nextID = 1;
-    memoryUsage = 0;
-    memoryBudget = std::numeric_limits<size_t>::max();
+
 }
 
 ResourceManager::~ResourceManager()

@@ -19,3 +19,8 @@ const Radian& Radian::operator = (const Degree& d)
     value = d.ToRadianValue(); 
     return *this;
 }
+
+Degree::Degree(const Radian& r) 
+{
+    value = r.ToDegreeValue();
+}

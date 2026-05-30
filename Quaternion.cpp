@@ -28,12 +28,9 @@ Quaternion::Quaternion(Error& err, const Degree& d, const Vector3& v)
     z = sineHalfTheta * axis.z;
 }
 
-Quaternion::Quaternion(float toW, float toX, float toY, float toZ)
+Quaternion::Quaternion(float toW, float toX, float toY, float toZ) : w(toW), x(toX), y(toY), z(toZ)
 {
-    w = toW;
-    x = toX;
-    y = toY;
-    z = toZ;
+
 }
 
 Quaternion::Quaternion(const Vector4& v)

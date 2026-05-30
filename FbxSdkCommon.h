@@ -24,6 +24,7 @@ namespace Emerald
 
         FbxSdkCommon();
         virtual ~FbxSdkCommon();
+
     private:
         FbxManager* pManager;
         FbxScene*   pScene;

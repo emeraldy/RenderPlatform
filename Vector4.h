@@ -24,26 +24,21 @@ namespace Emerald
         float z;
         float w;
 
-        Vector4(float ax = 0.0f, float ay = 0.0f, float az = 0.0f, float aw = 1.0f)
+        Vector4(float toX = 0.0f, float toY = 0.0f, float toZ = 0.0f, float toW = 1.0f) : x(toX), y(toY), z(toZ), w(toW)
         {
-            x = ax;
-            y = ay;
-            z = az;
-            w = aw;
+
         }
 
-        Vector4(const Vector3& vec, float aw)
+        Vector4(const Vector3& vec, float toW) : x(vec.x), y(vec.y), z(vec.z), w(toW)
         {
-            x = vec.x;
-            y = vec.y;
-            z = vec.z;
-            w = aw;
+
         }
 
         float Dot(const Vector4& other) const
         {
             return x * other.x + y * other.y + z * other.z + w * other.w;
         }
+
         friend std::ostream& operator << (std::ostream& o, const Vector4& v)
         {
             o << "[" << v.x << ", " << v.y << ", " << v.z << ", " << v.w << "]";
@@ -58,6 +53,7 @@ namespace Emerald
             }
             return  *(&x + index);
         }
+
         float& operator [] (size_t index)
         {
             if (index < 0 || index > 3)
@@ -66,14 +62,17 @@ namespace Emerald
             }
             return *(&x + index);
         }
+
         bool operator == (const Vector4& other) const
         {
             return (x == other.x && y == other.y && z == other.z && w == other.w);
         }
+
         bool operator != (const Vector4& other) const
         {
             return (x != other.x || y != other.y || z != other.z || w != other.w);
         }
+
         Vector4 operator + (const Vector4& other) const
         {
             Vector4 sum;
@@ -85,6 +84,7 @@ namespace Emerald
 
             return sum;
         }
+
         inline Vector4 operator - (const Vector4& other) const
         {
             Vector4 difference;
@@ -96,6 +96,7 @@ namespace Emerald
 
             return difference;
         }
+
         Vector4 operator * (float scalar) const
         {
             Vector4 product;
@@ -107,10 +108,12 @@ namespace Emerald
 
             return product;
         }
+
         friend Vector4 operator * (float scalar, const Vector4& vec)
         {
             return vec * scalar;
         }
+
         Vector4 operator / (float scalar) const
         {
             if (scalar < ZEROTHRESHOLD)
@@ -127,6 +130,7 @@ namespace Emerald
 
             return quotient;
         }
+
         Vector4 operator - () const
         {
             Vector4 negate;
@@ -138,6 +142,7 @@ namespace Emerald
 
             return negate;
         }
+
         Vector4& operator += (const Vector4& other)
         {
             x += other.x;
@@ -147,6 +152,7 @@ namespace Emerald
 
             return *this;
         }
+
         Vector4& operator -= (const Vector4& other)
         {
             x -= other.x;
@@ -156,6 +162,7 @@ namespace Emerald
 
             return *this;
         }
+
         Vector4& operator *= (float scalar)
         {
             x *= scalar;
@@ -165,6 +172,7 @@ namespace Emerald
 
             return *this;
         }
+
         Vector4& operator /= (float scalar)
         {
             if (scalar < ZEROTHRESHOLD)

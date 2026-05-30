@@ -11,10 +11,9 @@ using namespace Emerald;
 //-----------------------------------------------------------------
 // Class constructor/destructor definitions
 //-----------------------------------------------------------------
-WinFileRawDataReader::WinFileRawDataReader()
+WinFileRawDataReader::WinFileRawDataReader() : pBuffer(NULL), bufferSize(0)
 {
-    pBuffer = NULL;
-    bufferSize = 0;
+
 }
 
 WinFileRawDataReader::~WinFileRawDataReader()

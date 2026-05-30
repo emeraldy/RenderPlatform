@@ -22,11 +22,11 @@ namespace Emerald
         float x;
         float y;
 
-        Vector2(float ax = 0.0f, float ay = 0.0f) 
+        Vector2(float toX = 0.0f, float toY = 0.0f) : x(toX), y(toY)
         {
-            x = ax;
-            y = ay;
+
         }
+
         float Length(Error& err) const
         {
             float result = 0;
@@ -40,6 +40,7 @@ namespace Emerald
 
             return result;
         }
+
         Vector2 Normalise(Error& err)
         {
             Error localErr;
@@ -55,15 +56,18 @@ namespace Emerald
 
             return *this;
         }
+
         float Dot(const Vector2& other) const
         {
             return x * other.x + y * other.y;
         }
+
         friend std::ostream& operator << (std::ostream& o, const Vector2& v)
         {
             o << "[" << v.x << ", " << v.y << "]";
             return o;
         }
+
         float operator [] (size_t index) const
         {
             if (index < 0 || index > 1)
@@ -72,6 +76,7 @@ namespace Emerald
             }
             return  *(&x + index);
         }
+
         float& operator [] (size_t index)
         {
             if (index < 0 || index > 1)
@@ -80,14 +85,17 @@ namespace Emerald
             }
             return *(&x + index);
         }
+
         bool operator == (const Vector2& other) const
         {
             return (x == other.x && y == other.y);
         }
+
         bool operator != (const Vector2& other) const
         {
             return (x != other.x || y != other.y);
         }
+
         Vector2 operator + (const Vector2& other) const
         {
             Vector2 sum;
@@ -97,6 +105,7 @@ namespace Emerald
 
             return sum;
         }
+
         inline Vector2 operator - (const Vector2& other) const
         {
             Vector2 difference;
@@ -106,6 +115,7 @@ namespace Emerald
 
             return difference;
         }
+
         Vector2 operator * (float scalar) const
         {
             Vector2 product;
@@ -115,10 +125,12 @@ namespace Emerald
 
             return product;
         }
+
         friend Vector2 operator * (float scalar, const Vector2& vec)
         {
             return vec * scalar;
         }
+
         Vector2 operator / (float scalar) const
         {
             if (scalar < ZEROTHRESHOLD)
@@ -133,6 +145,7 @@ namespace Emerald
 
             return quotient;
         }
+
         Vector2 operator - () const
         {
             Vector2 negate;
@@ -142,6 +155,7 @@ namespace Emerald
 
             return negate;
         }
+
         Vector2& operator += (const Vector2& other)
         {
             x += other.x;
@@ -149,6 +163,7 @@ namespace Emerald
 
             return *this;
         }
+
         Vector2& operator -= (const Vector2& other)
         {
             x -= other.x;
@@ -156,6 +171,7 @@ namespace Emerald
 
             return *this;
         }
+
         Vector2& operator *= (float scalar)
         {
             x *= scalar;
@@ -163,6 +179,7 @@ namespace Emerald
 
             return *this;
         }
+
         Vector2& operator /= (float scalar)
         {
             if (scalar < ZEROTHRESHOLD)

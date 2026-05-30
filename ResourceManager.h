@@ -28,15 +28,14 @@ namespace Emerald
         virtual ~ResourceManager();
 
         std::shared_ptr<Resource> Load(const std::wstring& name, Error& err);//resource name must be full qualified file name
-
         void Unload(const std::wstring& name);
         void UnloadAll();
 
         ResourceType GetResourceType() const;
-
         size_t GetMemoryUsage() const;
         void SetMemoryBudget(size_t amount);
         size_t GetMemoryBudget() const;
+
     protected:
         ResourceType resourceType;
         Resource::ResourceID nextID;
@@ -49,7 +48,6 @@ namespace Emerald
         ResourceStorage storage;
 
         Resource::ResourceID GetNextID();
-
         virtual Resource* Create(const std::wstring& name, Resource::ResourceID id, Error& err) = 0;
     };
 }

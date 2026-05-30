@@ -21,7 +21,7 @@ namespace Emerald
     class Radian
     {
     public:
-        Radian(float v = 0) { value = v;}
+        Radian(float v = 0) : value(v) { }
         Radian(const Degree& d);
         
         float ToDegreeValue() const{ return value * 180.0f / PI; }
@@ -59,8 +59,8 @@ namespace Emerald
     class Degree
     {
     public:
-        Degree(float v = 0) { value = v; }
-        Degree(const Radian& r) { value = r.ToDegreeValue(); }
+        Degree(float v = 0) : value(v) { }
+        Degree(const Radian& r);
 
         float ToRadianValue() const { return value * PI / 180.0f; }
         operator float() const { return value; }//so we can use a Degree object as float

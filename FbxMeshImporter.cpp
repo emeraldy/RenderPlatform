@@ -16,10 +16,9 @@
 
 using namespace Emerald;
 
-FbxMeshImporter::FbxMeshImporter()
+FbxMeshImporter::FbxMeshImporter() : anomalyFlags(0), serial(1)
 {
-    serial = 1;
-    ClearAnomaly();
+
 }
 
 FbxMeshImporter::~FbxMeshImporter()
@@ -34,7 +33,7 @@ size_t FbxMeshImporter::GetNextSerial()
 
 void FbxMeshImporter::ClearAnomaly()
 {
-    anomalyFlags = '\0';
+    anomalyFlags = 0;
 }
 
 Error FbxMeshImporter::LoadRawData(const std::wstring& sourceName)

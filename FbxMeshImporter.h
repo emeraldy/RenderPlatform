@@ -35,6 +35,7 @@ namespace Emerald
 
         FbxMeshImporter();
         virtual ~FbxMeshImporter();
+
     private:
         /*32 bits:
         * 31...7 6 5 4 3 2 1 0

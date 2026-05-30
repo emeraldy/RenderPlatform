@@ -23,11 +23,9 @@ namespace Emerald
         float y;
         float z;
         
-        Vector3(float ax = 0.0f, float ay = 0.0f, float az = 0.0f)
+        Vector3(float toX = 0.0f, float toY = 0.0f, float toZ = 0.0f) : x(toX), y(toY), z(toZ)
         {
-            x = ax;
-            y = ay;
-            z = az;
+
         }
 
         float Length(Error& err) const
@@ -43,6 +41,7 @@ namespace Emerald
 
             return result;
         }
+
         Vector3 Normalise(Error& err)
         {
             Error localErr;
@@ -59,10 +58,12 @@ namespace Emerald
 
             return *this;
         }
+
         float Dot(const Vector3& other) const
         {
             return x * other.x + y * other.y + z * other.z;
         }
+
         Vector3 Cross(const Vector3& other) const
         {
             Vector3 product;
@@ -71,6 +72,7 @@ namespace Emerald
             product.y = z * other.x - x * other.z;
             product.z = x * other.y - y * other.x;
         }
+
         friend std::ostream& operator << (std::ostream& o, const Vector3& v)
         {
             o << "[" << v.x << ", " << v.y << ", " << v.z << "]";
@@ -85,6 +87,7 @@ namespace Emerald
             }
             return *(&x + index);
         }
+
         float& operator [] (size_t index)
         {
             if (index < 0 || index > 2)
@@ -93,14 +96,17 @@ namespace Emerald
             }
             return *(&x + index);
         }
+
         bool operator == (const Vector3& other) const
         {
             return (x == other.x && y == other.y && z == other.z);
         }
+
         bool operator != (const Vector3& other) const
         {
             return (x != other.x || y != other.y || z != other.z);
         }
+
         Vector3 operator + (const Vector3& other) const
         {
             Vector3 sum;
@@ -111,6 +117,7 @@ namespace Emerald
 
             return sum;
         }
+
         inline Vector3 operator - (const Vector3& other) const
         {
             Vector3 difference;
@@ -121,6 +128,7 @@ namespace Emerald
 
             return difference;
         }
+
         Vector3 operator * (float scalar) const
         {
             Vector3 product;
@@ -131,10 +139,12 @@ namespace Emerald
 
             return product;
         }
+
         friend Vector3 operator * (float scalar, const Vector3& vec)
         {
             return vec * scalar;
         }
+
         Vector3 operator / (float scalar) const
         {
             if (scalar < ZEROTHRESHOLD)
@@ -150,6 +160,7 @@ namespace Emerald
 
             return quotient;
         }
+
         Vector3 operator - () const
         {
             Vector3 negate;
@@ -160,6 +171,7 @@ namespace Emerald
 
             return negate;
         }
+
         Vector3& operator += (const Vector3& other)
         {
             x += other.x;
@@ -168,6 +180,7 @@ namespace Emerald
 
             return *this;
         }
+
         Vector3& operator -= (const Vector3& other)
         {
             x -= other.x;
@@ -176,6 +189,7 @@ namespace Emerald
 
             return *this;
         }
+
         Vector3& operator *= (float scalar)
         {
             x *= scalar;
@@ -184,6 +198,7 @@ namespace Emerald
 
             return *this;
         }
+
         Vector3& operator /= (float scalar)
         {
             if (scalar < ZEROTHRESHOLD)

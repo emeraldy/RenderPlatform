@@ -19,6 +19,7 @@ namespace Emerald
         Error operator = (const std::wstring& newText);
         explicit operator bool() const;
         const std::wstring GetErrorText() const;
+
     private:
         std::wstring text;
     };

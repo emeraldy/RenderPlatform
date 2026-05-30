@@ -9,12 +9,9 @@
 
 using namespace Emerald;
 
-Resource::Resource(Resource::ResourceID resID, const std::wstring& resName)
+Resource::Resource(Resource::ResourceID resID, const std::wstring& resName) : name(resName), id(resID), size(0), isLoaded(false)
 {
-    name = resName;
-    id = resID;
-    size = 0;
-    isLoaded = false;
+
 }
 
 Resource::~Resource()

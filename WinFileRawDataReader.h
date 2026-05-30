@@ -17,10 +17,6 @@ namespace Emerald
 {
     class WinFileRawDataReader : public RawDataReader
     {
-    private:
-        BYTE* pBuffer;
-        DWORD bufferSize;//in byte, of course
-
     public:
         WinFileRawDataReader();
         virtual ~WinFileRawDataReader();
@@ -29,5 +25,9 @@ namespace Emerald
         const unsigned char* GetBuffer() const override;
         unsigned int GetBufferSize() const override;
         void ClearBuffer() override;
+
+    private:
+        BYTE* pBuffer;
+        DWORD bufferSize;//in byte, of course
     };
 }

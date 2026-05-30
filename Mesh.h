@@ -23,14 +23,9 @@ namespace Emerald
 
         unsigned int size;
 
-        VertexData()
+        VertexData() : pPositions(nullptr), pNormals(nullptr), pBinormals(nullptr), pTangents(nullptr), pUVs(nullptr), size(0)
         {
-            pPositions = nullptr;
-            pNormals = nullptr;
-            pBinormals = nullptr;
-            pTangents = nullptr;
-            pUVs = nullptr;
-            size = 0;
+
         }
         ~VertexData()
         {
@@ -48,7 +43,7 @@ namespace Emerald
         using VertexDataIndex = unsigned int;
 
         Mesh(Resource::ResourceID id, std::wstring name = L"Default");
-        ~Mesh();
+        virtual ~Mesh();
 
         unsigned int GetVertexDataSize() const;
         Vector3* const GetPositions() const;
@@ -65,9 +60,10 @@ namespace Emerald
         void SetUVs(Vector2* data, unsigned int size, Error& err);
 
         virtual const size_t CalculateSize() override;
+
     private:
         VertexData vertexData;
-        VertexDataIndex* indices;
+        VertexDataIndex* pIndices;
 
         //Submesh*
     };

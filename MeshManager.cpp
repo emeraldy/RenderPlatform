@@ -10,6 +10,11 @@
 
 using namespace Emerald;
 
+MeshManager::MeshManager()
+{
+
+}
+
 MeshManager::~MeshManager()
 {
 

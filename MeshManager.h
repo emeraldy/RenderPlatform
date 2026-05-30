@@ -7,7 +7,6 @@
 //-----------------------------------------------------------------
 // Include Files
 //-----------------------------------------------------------------
-#include "StandardIncludes.h"
 #include "ResourceManager.h"
 #include "Mesh.h"
 
@@ -19,7 +18,7 @@ namespace Emerald
         MeshManager(const MeshManager&) = delete;
         MeshManager operator = (const MeshManager&) = delete;
 
-        ~MeshManager();
+        virtual ~MeshManager();
 
         static MeshManager& GetInstance();
 
@@ -27,6 +26,6 @@ namespace Emerald
         virtual Resource* Create(const std::wstring& name, Resource::ResourceID id, Error& err) override;
 
     private:
-        MeshManager() {}
+        MeshManager();
     };
 }

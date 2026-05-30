@@ -11,14 +11,14 @@
 
 using namespace Emerald;
 
-Mesh::Mesh(Resource::ResourceID id, std::wstring name) : Resource(id, name)
+Mesh::Mesh(Resource::ResourceID id, std::wstring name) : pIndices(nullptr), Resource(id, name)
 {
-    indices = nullptr;
+
 }
 
 Mesh::~Mesh()
 {
-    SAFE_DELETEARRAY(indices);
+    SAFE_DELETEARRAY(pIndices);
 }
 
 unsigned int Mesh::GetVertexDataSize() const

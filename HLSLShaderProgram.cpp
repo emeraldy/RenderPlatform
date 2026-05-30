@@ -175,7 +175,7 @@ Shader HLSLShaderFactory::CreateVertexShader(const std::wstring& programName, Er
 
     //load shader source code
     WinFileRawDataReader fileReader;
-    err = fileReader.LoadRawData(L"assets\shaders\\" + vertex.GetName());
+    err = fileReader.LoadRawData(L"assets\\shaders\\" + vertex.GetName());
     if (err)
     {
         return vertex;
@@ -212,7 +212,7 @@ Shader HLSLShaderFactory::CreateFragmentShader(const std::wstring& programName, 
 
     //load shader source code
     WinFileRawDataReader fileReader;
-    err = fileReader.LoadRawData(L"assets\shaders\\" + fragment.GetName());
+    err = fileReader.LoadRawData(L"assets\\shaders\\" + fragment.GetName());
     if (err)
     {
         return fragment;
@@ -230,7 +230,7 @@ Shader HLSLShaderFactory::CreateFragmentShader(const std::wstring& programName, 
 void HLSLShaderFactory::LoadShaderProgramDescription(const std::wstring& programName, Error& err)
 {
     WinFileRawDataReader fileReader;
-    err = fileReader.LoadRawData(L"assets\shaderprograms\\" + programName + L".json");
+    err = fileReader.LoadRawData(L"assets\\shaderprograms\\" + programName + L".json");
     if (err)
     {
         return;
