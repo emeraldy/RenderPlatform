@@ -17,7 +17,8 @@ namespace Emerald
     enum class ResourceType
     {
         Default,
-        Mesh
+        Mesh,
+        ShaderProgram
     };
 
     class ResourceManager

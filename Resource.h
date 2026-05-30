@@ -17,6 +17,7 @@ namespace Emerald
         using ResourceID = unsigned int;
 
         Resource(ResourceID resID, const std::wstring& resName);
+        virtual ~Resource();
 
         virtual const size_t CalculateSize() = 0;
         void SetIsLoaded(bool flag);

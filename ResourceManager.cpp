@@ -36,11 +36,18 @@ std::shared_ptr<Resource> ResourceManager::Load(const std::wstring& name, Error&
     if (IDIter == IDRegistry.cend())
     {
         Resource::ResourceID currentID = GetNextID();
-        std::shared_ptr<Resource> newResource(Create(name, currentID, err));
-        IDRegistry[name] = currentID;
-        storage[currentID] = newResource;
-
-        return newResource;
+        Resource* pNewResource = Create(name, currentID, err);
+        if (err)
+        {
+            return nullptr;
+        }
+        else
+        {
+            std::shared_ptr<Resource> spNewResource(pNewResource);
+            IDRegistry[name] = currentID;
+            storage[currentID] = spNewResource;
+            return spNewResource;
+        }
     }
     else
     {

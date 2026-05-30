@@ -76,6 +76,7 @@
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(ProjectDir)thirdparty\rapidjson\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <PostBuildEvent>
       <Command>copy $(OutputPath)$(TargetFileName) working\</Command>
@@ -83,9 +84,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="HLSLShaderProgram.cpp" />
+    <ClCompile Include="HLSLShaderProgramManager.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MeshManager.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
+    <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderInputData.cpp" />
     <ClCompile Include="ShaderProgram.cpp" />
     <ClCompile Include="WinFileRawDataReader.cpp" />
@@ -105,10 +108,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="HLSLShaderProgram.h" />
+    <ClInclude Include="HLSLShaderProgramManager.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshManager.h" />
     <ClInclude Include="RawDataReader.h" />
     <ClInclude Include="ResourceManager.h" />
+    <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderInputData.h" />
     <ClInclude Include="ShaderProgram.h" />
     <ClInclude Include="WinFileRawDataReader.h" />

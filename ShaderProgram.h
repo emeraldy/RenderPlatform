@@ -8,37 +8,29 @@
 // Include Files
 //-----------------------------------------------------------------
 #include "Resource.h"
-#include "ShaderInputData.h"
+#include "Shader.h"
 
 namespace Emerald
 {
+    class ShaderFactory
+    {
+    public:
+        virtual Shader CreateVertexShader(const std::wstring& programName, Error& err) = 0;
+        virtual Shader CreateFragmentShader(const std::wstring& programName, Error& err) = 0;
+    };
+
     class ShaderProgram : public Resource
     {
     public:
         ShaderProgram(Resource::ResourceID id, std::wstring name = L"Default");
         virtual ~ShaderProgram();
 
-        void SetVertexShaderName(const std::wstring& name);
-        void SetFragmentShaderName(const std::wstring& name);
-        const std::wstring& GetVertexShaderName() const;
-        const std::wstring& GetFragmentShaderName() const;
-        ShaderInputData& GetVertexShaderInputData();
-        ShaderInputData& GetFragmentShaderInputData();
-        unsigned char* GetVertexShaderSource();
-        unsigned char* GetFragmentShaderSource();
-        size_t GetVertexShaderSourceSize() const;
-        void SetVertexShaderSourceSize(size_t size);
-        size_t GetFragmentShaderSourceSize() const;
-        void SetFragmentShaderSourceSize(size_t size);
-    
+        virtual void CreateShaders(Error& err) = 0;
+        virtual void PrepareProgram(Error& err) = 0;
+
     protected:
-        std::wstring vertexShaderName;
-        std::wstring fragmentShaderName;
-        ShaderInputData vertexShaderInputData;
-        ShaderInputData fragmentShaderInputData;
-        unsigned char* pVertexShaderSource;
-        size_t vertexShaderSourceSize;
-        unsigned char* pFragmentShaderSource;
-        size_t fragmentShaderSourceSize;
+        ShaderFactory* pShaderFactory;
+        Shader vertexShader;
+        Shader fragmentShader;
     };
 }
