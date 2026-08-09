@@ -117,16 +117,15 @@ std::wstring HLSLShaderFactory::RetrieveShaderSourceFileName(const std::wstring&
     }
     using namespace rapidjson;
     GenericDocument<UTF16LE<>> jsonDoc;
-    std::wstring result;
     if (jsonDoc.Parse(shaderProgramDescription.c_str()).HasParseError())
     {
         err += L"Shader program " + programName + L" json parse failed.";
-        return result;
+        return L"";
     }
     bool legalJson = true;
-    if (jsonDoc.HasMember(L"shader") && jsonDoc[L"shader"].IsArray())
+    if (jsonDoc.HasMember(L"shaders") && jsonDoc[L"shaders"].IsArray())
     {
-        for (auto& s : jsonDoc[L"shader"].GetArray())
+        for (auto& s : jsonDoc[L"shaders"].GetArray())
         {
             if (s.IsObject() && s.GetObj().HasMember(L"type") && s.GetObj().HasMember(L"name"))
             {
@@ -149,7 +148,7 @@ std::wstring HLSLShaderFactory::RetrieveShaderSourceFileName(const std::wstring&
     if (!legalJson)
     {
         err += L"Shader program " + programName + L" has illegal json description.";
-        return result;
+        return L"";
     }
 }
 

@@ -85,8 +85,11 @@
   <ItemGroup>
     <ClCompile Include="HLSLShaderProgram.cpp" />
     <ClCompile Include="HLSLShaderProgramManager.cpp" />
+    <ClCompile Include="Material.cpp" />
+    <ClCompile Include="MaterialManager.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MeshManager.cpp" />
+    <ClCompile Include="RenderingPass.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderInputData.cpp" />
@@ -105,14 +108,19 @@
     <ClCompile Include="Resource.cpp" />
     <ClCompile Include="StringUtilities.cpp" />
     <ClCompile Include="TestGame.cpp" />
+    <ClCompile Include="WinMaterialImporter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="HLSLShaderProgram.h" />
     <ClInclude Include="HLSLShaderProgramManager.h" />
+    <ClInclude Include="Material.h" />
+    <ClInclude Include="MaterialManager.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshManager.h" />
+    <ClInclude Include="RenderingPass.h" />
     <ClInclude Include="RawDataReader.h" />
     <ClInclude Include="ResourceManager.h" />
+    <ClInclude Include="MaterialImporter.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderInputData.h" />
     <ClInclude Include="ShaderProgram.h" />
@@ -134,6 +142,7 @@
     <ClInclude Include="Vector2.h" />
     <ClInclude Include="Vector3.h" />
     <ClInclude Include="Vector4.h" />
+    <ClInclude Include="WinMaterialImporter.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="triangle.frag" />

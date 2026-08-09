@@ -9,7 +9,7 @@
 
 using namespace Emerald;
 
-void ShaderInputData::Add(const std::wstring& name, ShaderInputDataDescriptor::DataType type, std::weak_ptr<float> pValue, ShaderType shader, Error& err)
+void ShaderInputData::Add(const std::wstring& name, ShaderInputDataDescriptor::DataType type, float* pValues, ShaderType shader, Error& err)
 {
     for (const auto& ele : dataInfo)
     {
@@ -47,22 +47,15 @@ void ShaderInputData::Add(const std::wstring& name, ShaderInputDataDescriptor::D
     descriptor.targetShaderType = shader;
     dataInfo.push_back(descriptor);
 
-    std::shared_ptr<float> pValueStrong = pValue.lock();
-    if (pValueStrong == nullptr)
+    if (!pValues)
     {
-        err += L"Shader input data has lost.";
-        return;
-    }
-    float* pFloat = pValueStrong.get();
-    if (!pFloat)
-    {
-        err += L"Shader input data to add has lost in function " + StringUtilities::ConvertCharStringToWide(__func__) + 
+        err += L"Shader input data pointer is null in function " + StringUtilities::ConvertCharStringToWide(__func__) + 
             L" in " + StringUtilities::ConvertCharStringToWide(__FILE__);
         return;
     }
     for (int i = 0; i < descriptor.length; i++)
     {
-        dataStorage.push_back(pFloat[i]);
+        dataStorage.push_back(pValues[i]);
     }
 }
 

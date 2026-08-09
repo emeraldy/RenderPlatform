@@ -247,7 +247,6 @@ void FbxMeshImporter::ExtractMesh(FbxNode* pNode)
         }
         
         pMyMesh->CalculateSize();
-        pMyMesh->SetIsLoaded(true);
 
         extractedMeshes.push_back(pMyMesh);
 

@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------
-// Resource Manager base class
+// Resource Manager Base Class Header
 //-----------------------------------------------------------------
 
 #pragma once
@@ -18,6 +18,7 @@ namespace Emerald
     {
         Default,
         Mesh,
+        Material,
         ShaderProgram
     };
 
