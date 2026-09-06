@@ -10,6 +10,7 @@
 #include "StandardIncludes.h"
 #include "Vector4.h"
 #include "ShaderInputData.h"
+#include <memory>
 
 namespace Emerald
 {
@@ -38,7 +39,7 @@ namespace Emerald
 
         Material* GetParent() const;
         const std::wstring GetName() const;
-        ShaderProgram* GetShaderProgram() const;
-        const ShaderInputData& GetShaderInputData() const;
+        std::shared_ptr<ShaderProgram> GetShaderProgram(Error& err) const;
+        ShaderInputData& GetShaderInputData();
     };
 }

@@ -11,6 +11,7 @@
 #include "WinFileRawDataReader.h"
 #include "WinMaterialImporter.h"
 #include "RenderingPass.h"
+#include "StringUtilities.h"
 
 using namespace Emerald;
 
@@ -124,10 +125,16 @@ Material* WinMaterialImporter::LoadMaterial(const std::wstring& matName, Resourc
                     *(pValues + i) = (param[L"value"].GetArray())[i].GetFloat();
                 }
             }
-            newPass.SetInputData(param[L"name"].GetString(), dataType, pValues, shaderType, err);
+            newPass.SetInputData(param[L"name"].GetString(), dataType, pValues, shaderType, localError);
+            if (localError)
+            {
+                localError += L"Material " + matName + L" importing failed.";
+                err += localError;
+                SAFE_DELETEARRAY(pValues);
+                return nullptr;
+            }
             SAFE_DELETEARRAY(pValues);
         }
-
         pMaterial->AddPass(newPass);
     }
 

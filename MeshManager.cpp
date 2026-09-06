@@ -12,7 +12,7 @@ using namespace Emerald;
 
 MeshManager::MeshManager()
 {
-
+    resourceType = ResourceType::Mesh;
 }
 
 MeshManager::~MeshManager()

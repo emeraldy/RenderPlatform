@@ -12,6 +12,7 @@
 
 namespace Emerald
 {
+    class HLSLShaderProgramImporter;
     class HLSLShaderProgramManager : public ResourceManager
     {
     public:
@@ -28,5 +29,6 @@ namespace Emerald
     private:
         HLSLShaderProgramManager();
 
+        HLSLShaderProgramImporter* pImporter;
     };
 }

@@ -12,7 +12,7 @@ using namespace Emerald;
 
 MaterialManager::MaterialManager() : pImporter(nullptr)
 {
-
+    resourceType = ResourceType::Material;
 }
 
 MaterialManager::~MaterialManager()

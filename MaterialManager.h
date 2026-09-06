@@ -16,9 +16,8 @@ namespace Emerald
     class MaterialManager : public ResourceManager
     {
     public:
-        MaterialManager(const MaterialManager&) = delete;
-        MaterialManager operator = (const MaterialManager&) = delete;
-
+        MaterialManager(const MaterialManager& source) = delete;
+        MaterialManager operator = (const MaterialManager& source) = delete;
         virtual ~MaterialManager();
 
         static MaterialManager& GetInstance();

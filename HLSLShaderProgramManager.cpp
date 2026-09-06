@@ -6,14 +6,13 @@
 // Include Files
 //-----------------------------------------------------------------
 #include "HLSLShaderProgramManager.h"
-#include "ShaderInputData.h"
-#include "WinFileRawDataReader.h"
+#include "HLSLShaderProgramImporter.h"
 
 using namespace Emerald;
 
-HLSLShaderProgramManager::HLSLShaderProgramManager()
+HLSLShaderProgramManager::HLSLShaderProgramManager() : pImporter(nullptr)
 {
-
+    resourceType = ResourceType::ShaderProgram;
 }
 
 HLSLShaderProgramManager::~HLSLShaderProgramManager()
@@ -30,19 +29,13 @@ HLSLShaderProgramManager& HLSLShaderProgramManager::GetInstance()
 
 Resource* HLSLShaderProgramManager::Create(const std::wstring& name, Resource::ResourceID id, Error& err)
 {
-    HLSLShaderProgram* pProgram = new HLSLShaderProgram(id, name);
-    pProgram->CreateShaders(err);
+    ShaderProgram* product = pImporter->LoadShaderProgram(name, id, err);
     if (err)
     {
         return nullptr;
     }
-    pProgram->PrepareProgram(err);
-    if (err)
+    else
     {
-        return nullptr;
+        return product;
     }
-    pProgram->SetProgramEntryPoint(L"main");
-    pProgram->SetModelTargetVersion(L"5_0");//remember to prefix it with shader type when use
-
-    return pProgram;
 }

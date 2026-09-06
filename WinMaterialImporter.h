@@ -10,7 +10,6 @@
 // Include Files
 //-----------------------------------------------------------------
 #include "MaterialImporter.h"
-#include "StringUtilities.h"
 
 namespace Emerald
 {

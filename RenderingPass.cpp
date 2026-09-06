@@ -6,6 +6,7 @@
 // Include Files
 //-----------------------------------------------------------------
 #include "RenderingPass.h"
+#include "ResourceManager.h"
 
 using namespace Emerald;
 
@@ -54,12 +55,18 @@ const std::wstring RenderingPass::GetName() const
     return name;
 }
 
-ShaderProgram* RenderingPass::GetShaderProgram() const
+std::shared_ptr<ShaderProgram> RenderingPass::GetShaderProgram(Error& err) const
 {
-    //TODO: ask pShaderProgramManager to return its shader program. do we really need to return pointer?
+    std::shared_ptr<Resource> pResource = pShaderProgramManager->Load(shaderProgramName, err);
+    if (!pResource)
+    {
+        return nullptr;
+    }
+    
+    return std::dynamic_pointer_cast<ShaderProgram>(pResource);
 }
 
-const ShaderInputData& RenderingPass::GetShaderInputData() const
+ShaderInputData& RenderingPass::GetShaderInputData()
 {
     return shaderInputs;
 }

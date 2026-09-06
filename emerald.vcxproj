@@ -84,6 +84,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="HLSLShaderProgram.cpp" />
+    <ClCompile Include="HLSLShaderProgramImporter.cpp" />
     <ClCompile Include="HLSLShaderProgramManager.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="MaterialManager.cpp" />
@@ -112,6 +113,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="HLSLShaderProgram.h" />
+    <ClInclude Include="HLSLShaderProgramImporter.h" />
     <ClInclude Include="HLSLShaderProgramManager.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="MaterialManager.h" />
@@ -124,6 +126,7 @@
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderInputData.h" />
     <ClInclude Include="ShaderProgram.h" />
+    <ClInclude Include="ShaderProgramImporter.h" />
     <ClInclude Include="WinFileRawDataReader.h" />
     <ClInclude Include="D3D11Renderer.h" />
     <ClInclude Include="Error.h" />
