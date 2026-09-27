@@ -6,7 +6,7 @@
 // Include Files
 //-----------------------------------------------------------------
 #include "RenderingPass.h"
-#include "ResourceManager.h"
+#include "HLSLShaderProgramManager.h"
 
 using namespace Emerald;
 
@@ -35,14 +35,22 @@ void RenderingPass::SetInputData(const std::wstring& name, ShaderInputDataDescri
     shaderInputs.Add(name, dataType, pData, shaderType, err);
 }
 
-void RenderingPass::SetShaderProgramManager(ResourceManager* pManager)
+void RenderingPass::SetShaderProgramManager()
 {
-    pShaderProgramManager = pManager;
+    if (shaderLanguage == L"HLSL")
+    {
+        pShaderProgramManager = &HLSLShaderProgramManager::GetInstance();
+    }
 }
 
 void RenderingPass::SetShaderProgramName(const std::wstring& name)
 {
     shaderProgramName = name;
+}
+
+void RenderingPass::SetShaderLanguage(const std::wstring& lang)
+{
+    shaderLanguage = lang;
 }
 
 Material* RenderingPass::GetParent() const
@@ -57,7 +65,7 @@ const std::wstring RenderingPass::GetName() const
 
 std::shared_ptr<ShaderProgram> RenderingPass::GetShaderProgram(Error& err) const
 {
-    std::shared_ptr<Resource> pResource = pShaderProgramManager->Load(shaderProgramName, err);
+    std::shared_ptr<Resource> pResource = pShaderProgramManager->Load(L"..\\assets\\shaderprograms\\" + shaderProgramName, err);
     if (!pResource)
     {
         return nullptr;

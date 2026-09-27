@@ -31,7 +31,7 @@ Material* WinMaterialImporter::LoadMaterial(const std::wstring& matName, Resourc
     WinFileRawDataReader fileReader;
     Error localError;
 
-    localError = fileReader.LoadRawData(L"assets\\materials\\" + matName + L".material");
+    localError = fileReader.LoadRawData(matName);
     if (localError)
     {
         err += localError;
@@ -60,6 +60,8 @@ Material* WinMaterialImporter::LoadMaterial(const std::wstring& matName, Resourc
         auto passObject = p.GetObj();
         newPass.SetName(passObject[L"name"].GetString());
         newPass.SetShaderProgramName(passObject[L"program"].GetString());
+        newPass.SetShaderLanguage(passObject[L"language"].GetString());
+        newPass.SetShaderProgramManager();
         newPass.SetParent(pMaterial);
         ShaderInputDataDescriptor::DataType dataType = ShaderInputDataDescriptor::DataType::Unknown;
         ShaderType shaderType = ShaderType::Unknown;

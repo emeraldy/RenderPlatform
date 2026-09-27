@@ -69,7 +69,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug64|x64'">
     <Link>
       <TargetMachine>MachineX64</TargetMachine>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;opengl32.lib;glew32.lib;jpeg.lib;libpng16.lib;libfbxsdk-mt.lib;libxml2-mt.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;Shlwapi.lib;d3dcompiler.lib;opengl32.lib;glew32.lib;jpeg.lib;libpng16.lib;libfbxsdk-mt.lib;libxml2-mt.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>MSVCRTD</IgnoreSpecificDefaultLibraries>
     </Link>
     <ClCompile>
@@ -112,6 +112,7 @@
     <ClCompile Include="WinMaterialImporter.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="GameApp.h" />
     <ClInclude Include="HLSLShaderProgram.h" />
     <ClInclude Include="HLSLShaderProgramImporter.h" />
     <ClInclude Include="HLSLShaderProgramManager.h" />

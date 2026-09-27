@@ -1,19 +1,12 @@
 #pragma once
 
+#include "StandardIncludes.h"
 #include "GameApp.h"
 #include "GameEngine.h"
 #include "Vector3.h"
-#include "FbxMeshImporter.h"//to be removed
 
 namespace TestGameApp
 {
-    using namespace Emerald;
-    struct GameVertexFormat
-    {
-        Vector3 position;
-        Vector3 colour;
-    };
-
     class TestGame : public Emerald::GameApp
     {
         public:
@@ -28,29 +21,15 @@ namespace TestGameApp
             void GamePaint();
             void GameCycle();
         private:
+            struct GameVertexFormat
+            {
+                Emerald::Vector3 position;
+                Emerald::Vector3 colour;
+            };
+            Emerald::Error error;
             WCHAR* m_pGameTitle;
             bool m_useD3D11;
 
-            //-----------------------------------------------------------------
-            //Indices generated from various engine components for the game
-            //-----------------------------------------------------------------
-            int RM_GLSLEffectPassThru;
-            int RM_MeshTriangle;
-            int RM_MeshQuad;
-            int OR_GLSLEffectPassThru;
-            int OR_VAOTriangle;
-            int OR_VAOQuad;
-            //-----------------------------------------------------------------
-            //mesh data storage for the game
-            //-----------------------------------------------------------------
-            float triangle[9]; // Data to render triangle (3 vertices, each has 3 floats)
-            float quad[12]; // Data to render quad using triangle strips (4 vertices, each has 3 floats)
-            float triangleColour[9];
-            float quadColour[12];
-
             bool SetupD3D11Rendering();
-            int  CreateGLSLEffectResource_PassThru();
-            int  SetupGLSLEffectProgram_PassThru(int RM_Index);
-            int  LoadMesh();
     };
 }

@@ -53,7 +53,7 @@ ShaderProgram::ParsedProgramDescription HLSLShaderProgramImporter::LoadProgramDe
     ShaderProgram::ParsedProgramDescription shaderProgramContent;
     WinFileRawDataReader fileReader;
     Error localErr;
-    localErr = fileReader.LoadRawData(L"assets\\shaderprograms\\" + name + L".program");
+    localErr = fileReader.LoadRawData(name);
     if (localErr)
     {
         err += localErr;
@@ -78,11 +78,11 @@ ShaderProgram::ParsedProgramDescription HLSLShaderProgramImporter::LoadProgramDe
     ShaderType shaderType;
     for (auto& s : jsonDoc[L"shaders"].GetArray())
     {
-        if (s.GetObj()[L"type"].GetString() == L"vertex")
+        if (s.GetObj()[L"type"] == L"vertex") //proper string comparison with rapidJson string object. beware, its GetString() returns a const wchar*!
         {
             shaderType = ShaderType::Vertex;
         }
-        else if (s.GetObj()[L"type"].GetString() == L"fragment")
+        else if (s.GetObj()[L"type"] == L"fragment")
         {
             shaderType = ShaderType::Fragment;
         }

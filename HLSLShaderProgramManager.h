@@ -12,7 +12,8 @@
 
 namespace Emerald
 {
-    class HLSLShaderProgramImporter;
+    class ShaderProgramImporter;
+
     class HLSLShaderProgramManager : public ResourceManager
     {
     public:
@@ -22,6 +23,7 @@ namespace Emerald
         virtual ~HLSLShaderProgramManager();
 
         static HLSLShaderProgramManager& GetInstance();
+        void SetImporter(ShaderProgramImporter* const pImporter);
 
     protected:
         Resource* Create(const std::wstring& name, Resource::ResourceID id, Error& err) override;
@@ -29,6 +31,6 @@ namespace Emerald
     private:
         HLSLShaderProgramManager();
 
-        HLSLShaderProgramImporter* pImporter;
+        ShaderProgramImporter* pProgramImporter;
     };
 }

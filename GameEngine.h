@@ -11,7 +11,6 @@
 #include <DirectXMath.h>
 #include "D3D11Renderer.h"
 #include "OpenGLRenderer.h"
-#include "ResourceManager.h"
 #include <Strsafe.h>
 #include "GameApp.h"
 
@@ -46,8 +45,6 @@ namespace Emerald
         D3D11Renderer*         m_pD3D11Renderer;
         OpenGLRenderer*        m_pOpenGLRenderer;
 
-        ResourceManager*       m_pResourceManager;
-
     public:
         // Constructor(s)/Destructor
         GameEngine(HINSTANCE hInstance, GameApp* pGameApp, LPTSTR szWindowClass, LPTSTR szTitle,
@@ -77,6 +74,5 @@ namespace Emerald
         void                SetGameApp(GameApp* pGameApp) { m_pGameApp = pGameApp; }
         D3D11Renderer*      GetD3D11Renderer() { return m_pD3D11Renderer; }
         OpenGLRenderer*     GetOpenGLRenderer() { return m_pOpenGLRenderer; }
-        ResourceManager*    GetResourceManager() { return m_pResourceManager; }
     };
 }

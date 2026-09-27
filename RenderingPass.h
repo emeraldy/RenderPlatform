@@ -23,6 +23,7 @@ namespace Emerald
     private:
         std::wstring name;
         std::wstring shaderProgramName;
+        std::wstring shaderLanguage;
         ShaderInputData shaderInputs;
         Material* pParentMaterial;
         ResourceManager* pShaderProgramManager;
@@ -34,8 +35,9 @@ namespace Emerald
         void SetParent(Material* const pMaterial);
         void SetName(const std::wstring& toName);
         void SetShaderProgramName(const std::wstring& name);
+        void SetShaderLanguage(const std::wstring& lang);
         void SetInputData(const std::wstring& name, ShaderInputDataDescriptor::DataType dataType, float* values, ShaderType shaderType, Error& err);
-        void SetShaderProgramManager(ResourceManager* pManager);
+        void SetShaderProgramManager();
 
         Material* GetParent() const;
         const std::wstring GetName() const;

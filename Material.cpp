@@ -25,7 +25,12 @@ const size_t Material::CalculateSize()
     return 0;
 }
 
-RenderingPass& Material::GetPass(const std::wstring& name, Error& err)
+const std::vector<RenderingPass>& Material::GetAllPasses() const
+{
+    return passes;
+}
+
+RenderingPass& Material::GetPassByName(const std::wstring& name, Error& err)
 {
     for (RenderingPass& p : passes)
     {

@@ -98,7 +98,7 @@ Shader HLSLShaderFactory::CreateVertexShader(const std::map<std::wstring, std::w
     vertex.SetVersion(shaderInfo.at(L"modeltarget"));
 
     //load shader source code
-    err = pRawDataReader->LoadRawData(L"assets\\shaders\\" + vertex.GetName());
+    err = pRawDataReader->LoadRawData(L"..\\assets\\shaders\\" + vertex.GetName());
     if (err)
     {
         return vertex;
@@ -123,7 +123,7 @@ Shader HLSLShaderFactory::CreateFragmentShader(const std::map<std::wstring, std:
     fragment.SetVersion(shaderInfo.at(L"modeltarget"));
 
     //load shader source code
-    err = pRawDataReader->LoadRawData(L"assets\\shaders\\" + fragment.GetName());
+    err = pRawDataReader->LoadRawData(L"..\\assets\\shaders\\" + fragment.GetName());
     if (err)
     {
         return fragment;

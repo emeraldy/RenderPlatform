@@ -23,7 +23,8 @@ namespace Emerald
         virtual ~Material();
 
         const size_t CalculateSize() override;
-        RenderingPass& GetPass(const std::wstring& name, Error& err);
+        const std::vector<RenderingPass>& GetAllPasses() const;
+        RenderingPass& GetPassByName(const std::wstring& name, Error& err);
         void AddPass(const RenderingPass& newPass);
     };
 }

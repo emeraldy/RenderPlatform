@@ -6,11 +6,11 @@
 // Include Files
 //-----------------------------------------------------------------
 #include "HLSLShaderProgramManager.h"
-#include "HLSLShaderProgramImporter.h"
+#include "ShaderProgramImporter.h"
 
 using namespace Emerald;
 
-HLSLShaderProgramManager::HLSLShaderProgramManager() : pImporter(nullptr)
+HLSLShaderProgramManager::HLSLShaderProgramManager() : pProgramImporter(nullptr)
 {
     resourceType = ResourceType::ShaderProgram;
 }
@@ -27,9 +27,14 @@ HLSLShaderProgramManager& HLSLShaderProgramManager::GetInstance()
     return instance;
 }
 
+void HLSLShaderProgramManager::SetImporter(ShaderProgramImporter* const pImporter)
+{
+    pProgramImporter = pImporter;
+}
+
 Resource* HLSLShaderProgramManager::Create(const std::wstring& name, Resource::ResourceID id, Error& err)
 {
-    ShaderProgram* product = pImporter->LoadShaderProgram(name, id, err);
+    ShaderProgram* product = pProgramImporter->LoadShaderProgram(name, id, err);
     if (err)
     {
         return nullptr;

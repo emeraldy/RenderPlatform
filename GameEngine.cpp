@@ -8,7 +8,6 @@
 //-----------------------------------------------------------------
 #include "GameEngine.h"
 #include "StandardIncludes.h"
-#include "MeshManager.h"
 //-----------------------------------------------------------------
 // Global parameters (some system setting variables will later be 
 //replaced by reading from e.g., ini files)
@@ -82,8 +81,6 @@ GameEngine::GameEngine(HINSTANCE hInstance, GameApp* pGameApp, LPTSTR szWindowCl
 
     m_pD3D11Renderer = nullptr;
     m_pOpenGLRenderer = nullptr;
-
-    m_pResourceManager = nullptr;
 }
 
 GameEngine::~GameEngine()
@@ -97,8 +94,6 @@ GameEngine::~GameEngine()
         ChangeDisplaySettings(NULL, 0);//set back to the desktop
     }
     SAFE_DELETE(m_pOpenGLRenderer);
-
-    SAFE_DELETE(m_pResourceManager);
 }
 
 //-----------------------------------------------------------------
@@ -199,9 +194,6 @@ BOOL GameEngine::Initialise(int iCmdShow)
             return FALSE;
         }
     }
-
-    //Initialise the resource manager
-    m_pResourceManager = &(MeshManager::GetInstance());
 
     // Set the game window and start the game
     SetWindow(m_hWindow);
